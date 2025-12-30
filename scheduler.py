@@ -6,8 +6,8 @@ import threading
 import time
 from datetime import datetime, timedelta
 from models import db, Task, User, Action, Assistant
-from telegram_bot import TelegramOTPSender
-from script_executor import ScriptExecutor
+from services.telegram_bot import TelegramOTPSender
+from services.script_executor import ScriptExecutor
 
 class TaskScheduler:
     """Background scheduler for tasks and actions"""

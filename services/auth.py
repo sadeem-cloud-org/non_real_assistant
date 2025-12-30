@@ -1,7 +1,9 @@
+"""Authentication service"""
+
 import secrets
 from datetime import datetime, timedelta
 from models import db, User, OTP
-from telegram_bot import TelegramOTPSender
+from services.telegram_bot import TelegramOTPSender
 from config import Config
 
 
@@ -21,7 +23,6 @@ class AuthService:
         Request OTP for a phone number
         Returns: dict with success status and message
         """
-        # Find user by phone
         user = User.query.filter_by(phone=phone).first()
 
         if not user:
@@ -71,7 +72,6 @@ class AuthService:
         Verify OTP code for a phone number
         Returns: dict with success status, message, and user data
         """
-        # Find user by phone
         user = User.query.filter_by(phone=phone).first()
 
         if not user:

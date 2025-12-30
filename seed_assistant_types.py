@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 """Seed assistant types into database"""
 
-import sys
-
-sys.path.insert(0, '/mnt/user-data/outputs/non_real_assistant')
-
-from app import app, db
+from app import app
+from models import db
 from models import AssistantType
 
 

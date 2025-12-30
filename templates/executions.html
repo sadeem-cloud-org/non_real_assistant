@@ -1,314 +1,155 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سجل التنفيذ - Non Real Assistant</title>
+{% extends "base.html" %}
 
-    <!-- Tabler CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler-flags.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler-payments.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler-vendors.min.css" rel="stylesheet"/>
+{% block title %}سجل التنفيذ - Non Real Assistant{% endblock %}
 
-    <!-- Tabler Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+{% block page_title %}سجل تنفيذ السكريبتات{% endblock %}
+{% block page_subtitle %}عرض نتائج تشغيل جميع السكريبتات{% endblock %}
 
-    <!-- Custom RTL fixes -->
-    <style>
-        [dir="rtl"] .navbar-brand {
-            margin-right: 0;
-            margin-left: auto;
-        }
-        [dir="rtl"] .navbar-nav {
-            padding-right: 0;
-        }
-        [dir="rtl"] .nav-link {
-            padding-right: 0;
-            padding-left: 1rem;
-        }
-        .execution-card {
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .execution-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .output-box {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 1rem;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            max-height: 300px;
-            overflow-y: auto;
-            direction: ltr;
-            text-align: left;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        .error-box {
-            background: #2d1f1f;
-            color: #f48771;
-        }
-    </style>
-</head>
-<body>
-    <div class="page">
-        <!-- Navbar -->
-        <header class="navbar navbar-expand-md d-print-none" data-bs-theme="dark">
-            <div class="container-xl">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                    <a href="/dashboard">
-                        <i class="ti ti-robot fs-1"></i>
-                        Non Real Assistant
-                    </a>
-                </h1>
-                <div class="navbar-nav flex-row order-md-last">
-                    <!-- Notification Bell -->
-                    <div class="nav-item d-none d-md-flex me-3">
-                        <a href="#" class="nav-link px-0" id="notification-bell" onclick="requestNotificationPermission(event)" tabindex="-1" aria-label="تفعيل الإشعارات">
-                            <i class="ti ti-bell icon"></i>
-                            <span class="badge bg-red" id="notification-badge" style="display: none;"></span>
-                        </a>
+{% block page_css %}
+<style>
+    .execution-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .execution-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .output-box {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 1rem;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+        max-height: 300px;
+        overflow-y: auto;
+        direction: ltr;
+        text-align: left;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    .error-box {
+        background: #2d1f1f;
+        color: #f48771;
+    }
+</style>
+{% endblock %}
+
+{% block page_actions %}
+<select class="form-select" id="status-filter" onchange="filterExecutions()">
+    <option value="all">جميع الحالات</option>
+    <option value="success">نجح</option>
+    <option value="failed">فشل</option>
+    <option value="timeout">انتهى الوقت</option>
+    <option value="running">قيد التشغيل</option>
+</select>
+{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="row row-cards mb-3">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-blue text-white avatar">
+                            <i class="ti ti-list-details"></i>
+                        </span>
                     </div>
-                    <!-- Theme switcher -->
-                    <div class="d-none d-md-flex">
-                        <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="تفعيل الوضع الليلي" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                            <i class="ti ti-moon icon"></i>
-                        </a>
-                        <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="تفعيل الوضع النهاري" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                            <i class="ti ti-sun icon"></i>
-                        </a>
+                    <div class="col">
+                        <div class="font-weight-medium" id="stat-total">0</div>
+                        <div class="text-muted">إجمالي التنفيذات</div>
                     </div>
-                    <!-- User Menu -->
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
-                            <span class="avatar avatar-sm">
-                                <i class="ti ti-user"></i>
-                            </span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            <a href="/logout" class="dropdown-item">
-                                <i class="ti ti-logout ms-2"></i>
-                                تسجيل الخروج
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Header with nav -->
-        <header class="navbar-expand-md">
-            <div class="collapse navbar-collapse" id="navbar-menu">
-                <div class="navbar">
-                    <div class="container-xl">
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a class="nav-link" href="/dashboard">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-layout-dashboard icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">لوحة التحكم</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/assistants">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-robot icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">المساعدين</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/tasks">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-checkbox icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">المهام</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/scripts">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-code icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">السكريبتات</span>
-                                </a>
-                            </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href="/executions">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-list-details icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">سجل التنفيذ</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Page Content -->
-        <div class="page-wrapper">
-            <!-- Page header -->
-            <div class="page-header d-print-none">
-                <div class="container-xl">
-                    <div class="row g-2 align-items-center">
-                        <div class="col">
-                            <h2 class="page-title">سجل تنفيذ السكريبتات</h2>
-                            <div class="text-muted mt-1">عرض نتائج تشغيل جميع السكريبتات</div>
-                        </div>
-                        <!-- Filter -->
-                        <div class="col-auto ms-auto d-print-none">
-                            <select class="form-select" id="status-filter" onchange="filterExecutions()">
-                                <option value="all">جميع الحالات</option>
-                                <option value="success">نجح ✓</option>
-                                <option value="failed">فشل ✗</option>
-                                <option value="timeout">انتهى الوقت ⏱</option>
-                                <option value="running">قيد التشغيل ⏳</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page body -->
-            <div class="page-body">
-                <div class="container-xl">
-                    <!-- Stats -->
-                    <div class="row row-cards mb-3">
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-blue text-white avatar">
-                                                <i class="ti ti-list-details"></i>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium" id="stat-total">0</div>
-                                            <div class="text-muted">إجمالي التنفيذات</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-green text-white avatar">
-                                                <i class="ti ti-circle-check"></i>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium" id="stat-success">0</div>
-                                            <div class="text-muted">نجح</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-red text-white avatar">
-                                                <i class="ti ti-circle-x"></i>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium" id="stat-failed">0</div>
-                                            <div class="text-muted">فشل</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-yellow text-white avatar">
-                                                <i class="ti ti-clock"></i>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium" id="stat-timeout">0</div>
-                                            <div class="text-muted">انتهى الوقت</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Executions List -->
-                    <div class="row row-cards" id="executions-container">
-                        <div class="col-12 text-center py-5">
-                            <div class="spinner-border text-muted" role="status"></div>
-                            <div class="mt-2">جاري التحميل...</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <footer class="footer footer-transparent d-print-none">
-                <div class="container-xl">
-                    <div class="row text-center align-items-center flex-row-reverse">
-                        <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                            <ul class="list-inline list-inline-dots mb-0">
-                                <li class="list-inline-item">
-                                    بواسطة Non Real Assistant
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        </div>
-    </div>
-
-    <!-- Execution Details Modal -->
-    <div class="modal modal-blur fade" id="modal-execution" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-title">تفاصيل التنفيذ</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modal-body">
-                    <!-- Content loaded dynamically -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal">إغلاق</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tabler Core -->
-    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-green text-white avatar">
+                            <i class="ti ti-circle-check"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium" id="stat-success">0</div>
+                        <div class="text-muted">نجح</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Notifications -->
-    <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-red text-white avatar">
+                            <i class="ti ti-circle-x"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium" id="stat-failed">0</div>
+                        <div class="text-muted">فشل</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/executions.js') }}"></script>
-</body>
-</html>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-yellow text-white avatar">
+                            <i class="ti ti-clock"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium" id="stat-timeout">0</div>
+                        <div class="text-muted">انتهى الوقت</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Executions List -->
+<div class="row row-cards" id="executions-container">
+    <div class="col-12 text-center py-5">
+        <div class="spinner-border text-muted" role="status"></div>
+        <div class="mt-2">جاري التحميل...</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Execution Details Modal -->
+<div class="modal modal-blur fade" id="modal-execution" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-title">تفاصيل التنفيذ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal">إغلاق</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{{ url_for('static', filename='js/executions.js') }}"></script>
+{% endblock %}
