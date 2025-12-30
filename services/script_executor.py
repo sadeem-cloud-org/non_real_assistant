@@ -1,5 +1,5 @@
 """
-Script Executor - تنفيذ سكريبتات الإجراءات بشكل آمن
+Script Executor - Safe script execution service
 """
 
 import json
@@ -8,36 +8,36 @@ import tempfile
 import os
 from datetime import datetime
 from models import db, Action, ActionExecution, User
-from telegram_bot import TelegramOTPSender
+from services.telegram_bot import TelegramOTPSender
 
 
 class ScriptExecutor:
-    """تنفيذ السكريبتات بشكل آمن"""
+    """Execute scripts safely"""
 
     def __init__(self):
         self.telegram_sender = TelegramOTPSender()
 
     def execute_action(self, action_id, user_id, input_data=None):
         """
-        تنفيذ إجراء معين
+        Execute a specific action
 
         Args:
-            action_id: معرف الإجراء
-            user_id: معرف المستخدم
-            input_data: بيانات الإدخال (dict)
+            action_id: Action ID
+            user_id: User ID
+            input_data: Input data (dict)
 
         Returns:
-            dict: نتيجة التنفيذ
+            dict: Execution result
         """
         action = Action.query.get(action_id)
 
         if not action or not action.is_active:
             return {
                 "success": False,
-                "message": "الإجراء غير موجود أو غير نشط"
+                "message": "Action not found or inactive"
             }
 
-        # إنشاء سجل تنفيذ
+        # Create execution record
         execution = ActionExecution(
             action_id=action_id,
             user_id=user_id,
@@ -48,12 +48,12 @@ class ScriptExecutor:
         db.session.commit()
 
         try:
-            # تحديث الحالة إلى قيد التنفيذ
+            # Update status to running
             execution.status = 'running'
             execution.started_at = datetime.utcnow()
             db.session.commit()
 
-            # تنفيذ السكريبت
+            # Execute script
             if action.execution_type == 'python_script':
                 result = self._execute_python_script(
                     action.script_content,
@@ -69,10 +69,10 @@ class ScriptExecutor:
             else:
                 result = {
                     "success": False,
-                    "message": f"نوع التنفيذ غير مدعوم: {action.execution_type}"
+                    "message": f"Unsupported execution type: {action.execution_type}"
                 }
 
-            # حفظ النتيجة
+            # Save result
             execution.status = 'success' if result.get('success') else 'failed'
             execution.set_output_data(result)
             execution.completed_at = datetime.utcnow()
@@ -84,7 +84,7 @@ class ScriptExecutor:
 
             db.session.commit()
 
-            # معالجة الإشعارات
+            # Handle notifications
             notification = result.get('notification')
             if notification and notification.get('send_telegram'):
                 self._send_telegram_notification(user_id, notification)
@@ -105,22 +105,11 @@ class ScriptExecutor:
 
             return {
                 "success": False,
-                "message": f"فشل التنفيذ: {str(e)}"
+                "message": f"Execution failed: {str(e)}"
             }
 
     def _execute_python_script(self, script_content, input_data, timeout):
-        """
-        تنفيذ سكريبت Python
-
-        Args:
-            script_content: محتوى السكريبت
-            input_data: بيانات الإدخال
-            timeout: المهلة الزمنية بالثواني
-
-        Returns:
-            dict: نتيجة التنفيذ
-        """
-        # إنشاء ملف مؤقت للسكريبت
+        """Execute Python script"""
         with tempfile.NamedTemporaryFile(
                 mode='w',
                 suffix='.py',
@@ -131,10 +120,8 @@ class ScriptExecutor:
             temp_path = temp_file.name
 
         try:
-            # تحويل البيانات إلى JSON
             input_json = json.dumps(input_data, ensure_ascii=False)
 
-            # تنفيذ السكريبت
             result = subprocess.run(
                 ['python3', temp_path, input_json],
                 capture_output=True,
@@ -143,53 +130,40 @@ class ScriptExecutor:
                 encoding='utf-8'
             )
 
-            # حذف الملف المؤقت
             os.unlink(temp_path)
 
             if result.returncode != 0:
                 return {
                     "success": False,
-                    "message": f"خطأ في التنفيذ: {result.stderr}"
+                    "message": f"Execution error: {result.stderr}"
                 }
 
-            # تحليل النتيجة
             try:
                 output = json.loads(result.stdout)
                 return output
             except json.JSONDecodeError:
                 return {
                     "success": False,
-                    "message": f"خطأ في تحليل النتيجة: {result.stdout}"
+                    "message": f"Error parsing result: {result.stdout}"
                 }
 
         except subprocess.TimeoutExpired:
             os.unlink(temp_path)
             return {
                 "success": False,
-                "message": f"انتهت المهلة الزمنية ({timeout} ثانية)"
+                "message": f"Timeout ({timeout} seconds)"
             }
         except Exception as e:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
             return {
                 "success": False,
-                "message": f"خطأ: {str(e)}"
+                "message": f"Error: {str(e)}"
             }
 
     def _execute_bash_command(self, command, input_data, timeout):
-        """
-        تنفيذ أمر Bash
-
-        Args:
-            command: الأمر المراد تنفيذه
-            input_data: بيانات الإدخال
-            timeout: المهلة الزمنية
-
-        Returns:
-            dict: نتيجة التنفيذ
-        """
+        """Execute Bash command"""
         try:
-            # تمرير البيانات كـ environment variable
             env = os.environ.copy()
             env['INPUT_DATA'] = json.dumps(input_data, ensure_ascii=False)
 
@@ -206,15 +180,13 @@ class ScriptExecutor:
             if result.returncode != 0:
                 return {
                     "success": False,
-                    "message": f"خطأ في التنفيذ: {result.stderr}"
+                    "message": f"Execution error: {result.stderr}"
                 }
 
-            # محاولة تحليل النتيجة كـ JSON
             try:
                 output = json.loads(result.stdout)
                 return output
             except json.JSONDecodeError:
-                # إذا لم تكن JSON، نرجع النص كما هو
                 return {
                     "success": True,
                     "message": result.stdout,
@@ -224,43 +196,35 @@ class ScriptExecutor:
         except subprocess.TimeoutExpired:
             return {
                 "success": False,
-                "message": f"انتهت المهلة الزمنية ({timeout} ثانية)"
+                "message": f"Timeout ({timeout} seconds)"
             }
         except Exception as e:
             return {
                 "success": False,
-                "message": f"خطأ: {str(e)}"
+                "message": f"Error: {str(e)}"
             }
 
     def _send_telegram_notification(self, user_id, notification):
-        """
-        إرسال إشعار عبر Telegram
-
-        Args:
-            user_id: معرف المستخدم
-            notification: بيانات الإشعار
-        """
+        """Send Telegram notification"""
         try:
             user = User.query.get(user_id)
             if not user:
                 print(f"User {user_id} not found")
                 return
 
-            # تكوين الرسالة
             type_emoji = {
-                'info': 'ℹ️',
-                'success': '✅',
-                'warning': '⚠️',
-                'error': '❌'
+                'info': 'i',
+                'success': '',
+                'warning': '',
+                'error': ''
             }
 
-            emoji = type_emoji.get(notification.get('type', 'info'), 'ℹ️')
-            title = notification.get('title', 'إشعار')
+            emoji = type_emoji.get(notification.get('type', 'info'), 'i')
+            title = notification.get('title', 'Notification')
             body = notification.get('body', '')
 
             message = f"{emoji} <b>{title}</b>\n\n{body}"
 
-            # إرسال الرسالة
             result = self.telegram_sender.send_message(user.telegram_id, message)
 
             if not result['success']:

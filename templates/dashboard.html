@@ -1,371 +1,184 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - Non Real Assistant</title>
+{% extends "base.html" %}
 
-    <!-- Tabler CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler-flags.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler-payments.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler-vendors.min.css" rel="stylesheet"/>
+{% block title %}لوحة التحكم - Non Real Assistant{% endblock %}
 
-    <!-- Tabler Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+{% block page_title %}لوحة التحكم{% endblock %}
+{% block page_subtitle %}مرحباً بك في Non Real Assistant{% endblock %}
 
-    <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% block page_actions %}
+<div class="btn-list">
+    <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-task">
+        <i class="ti ti-plus icon"></i>
+        إضافة مهمة
+    </a>
+    <a href="/assistants" class="btn btn-ghost-secondary">
+        <i class="ti ti-robot icon"></i>
+        إضافة مساعد
+    </a>
+</div>
+{% endblock %}
 
-    <!-- Custom RTL fixes -->
-    <style>
-        [dir="rtl"] .navbar-brand {
-            margin-right: 0;
-            margin-left: auto;
-        }
-        [dir="rtl"] .navbar-nav {
-            padding-right: 0;
-        }
-        [dir="rtl"] .nav-link {
-            padding-right: 0;
-            padding-left: 1rem;
-        }
-        /* Flatpickr RTL */
-        .flatpickr-calendar {
-            direction: rtl;
-        }
-        .flatpickr-months {
-            direction: rtl;
-        }
-        .flatpickr-weekdays,
-        .flatpickr-days {
-            direction: rtl;
-        }
-        .flatpickr-time {
-            direction: ltr;
-        }
-    </style>
-</head>
-<body>
-    <div class="page">
-        <!-- Navbar -->
-        <header class="navbar navbar-expand-md d-print-none" data-bs-theme="dark">
-            <div class="container-xl">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                    <a href="/dashboard">
-                        <i class="ti ti-robot fs-1"></i>
-                        Non Real Assistant
+{% block content %}
+<!-- Stats Row -->
+<div class="row row-deck row-cards">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">مساعدين نشطين</div>
+                    <div class="ms-auto lh-1">
+                        <div class="dropdown">
+                            <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown">آخر 7 أيام</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="h1 mb-3" id="active-assistants">0</div>
+                <div class="d-flex mb-2">
+                    <div>مساعد نشط</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">مهام معلقة</div>
+                </div>
+                <div class="h1 mb-3" id="pending-tasks">0</div>
+                <div class="d-flex mb-2">
+                    <div>مهمة تحتاج إنجاز</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">أُنجزت اليوم</div>
+                </div>
+                <div class="h1 mb-3" id="completed-today">0</div>
+                <div class="d-flex mb-2">
+                    <div>مهمة مكتملة</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">عمليات حديثة</div>
+                </div>
+                <div class="h1 mb-3" id="recent-executions-count">0</div>
+                <div class="d-flex mb-2">
+                    <div>عملية تنفيذ</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content Row -->
+<div class="row row-deck row-cards mt-3">
+    <!-- Pending Tasks -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">مهام معلقة</h3>
+                <div class="card-actions">
+                    <a href="/tasks" class="btn btn-sm btn-ghost-secondary">
+                        عرض الكل
+                        <i class="ti ti-arrow-left icon"></i>
                     </a>
-                </h1>
-                <div class="navbar-nav flex-row order-md-last">
-                    <!-- Notification Bell -->
-                    <div class="nav-item d-none d-md-flex me-3">
-                        <a href="#" class="nav-link px-0" id="notification-bell" onclick="requestNotificationPermission(event)" tabindex="-1" aria-label="تفعيل الإشعارات">
-                            <i class="ti ti-bell icon"></i>
-                            <span class="badge bg-red" id="notification-badge" style="display: none;"></span>
-                        </a>
-                    </div>
-                    <!-- Theme switcher -->
-                    <div class="d-none d-md-flex">
-                        <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="تفعيل الوضع الليلي" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                            <i class="ti ti-moon icon"></i>
-                        </a>
-                        <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="تفعيل الوضع النهاري" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                            <i class="ti ti-sun icon"></i>
-                        </a>
-                    </div>
-                    <!-- User Menu -->
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
-                            <span class="avatar avatar-sm">
-                                <i class="ti ti-user"></i>
-                            </span>
-                            <div class="d-none d-xl-block ps-2">
-                                <div id="user-phone-header"></div>
-                            </div>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            <a href="/logout" class="dropdown-item">
-                                <i class="ti ti-logout ms-2"></i>
-                                تسجيل الخروج
-                            </a>
-                        </div>
-                    </div>
                 </div>
             </div>
-        </header>
-
-        <!-- Header with nav -->
-        <header class="navbar-expand-md">
-            <div class="collapse navbar-collapse" id="navbar-menu">
-                <div class="navbar">
-                    <div class="container-xl">
-                        <ul class="navbar-nav">
-                            <li class="nav-item active">
-                                <a class="nav-link" href="/dashboard">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-layout-dashboard icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">لوحة التحكم</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/assistants">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-robot icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">المساعدين</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/tasks">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-checkbox icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">المهام</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/scripts">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-code icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">السكريبتات</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/executions">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-list-details icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">سجل التنفيذ</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Page Content -->
-        <div class="page-wrapper">
-            <!-- Page header -->
-            <div class="page-header d-print-none">
-                <div class="container-xl">
-                    <div class="row g-2 align-items-center">
-                        <div class="col">
-                            <h2 class="page-title">لوحة التحكم</h2>
-                            <div class="text-muted mt-1">مرحباً بك في Non Real Assistant</div>
-                        </div>
-                        <!-- Quick Actions -->
-                        <div class="col-auto ms-auto d-print-none">
-                            <div class="btn-list">
-                                <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-task">
-                                    <i class="ti ti-plus icon"></i>
-                                    إضافة مهمة
-                                </a>
-                                <a href="/assistants" class="btn btn-ghost-secondary">
-                                    <i class="ti ti-robot icon"></i>
-                                    إضافة مساعد
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page body -->
-            <div class="page-body">
-                <div class="container-xl">
-                    <!-- Stats Row -->
-                    <div class="row row-deck row-cards">
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="subheader">مساعدين نشطين</div>
-                                        <div class="ms-auto lh-1">
-                                            <div class="dropdown">
-                                                <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown">آخر 7 أيام</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="h1 mb-3" id="active-assistants">0</div>
-                                    <div class="d-flex mb-2">
-                                        <div>مساعد نشط</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="subheader">مهام معلقة</div>
-                                    </div>
-                                    <div class="h1 mb-3" id="pending-tasks">0</div>
-                                    <div class="d-flex mb-2">
-                                        <div>مهمة تحتاج إنجاز</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="subheader">أُنجزت اليوم</div>
-                                    </div>
-                                    <div class="h1 mb-3" id="completed-today">0</div>
-                                    <div class="d-flex mb-2">
-                                        <div>مهمة مكتملة</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="subheader">عمليات حديثة</div>
-                                    </div>
-                                    <div class="h1 mb-3" id="recent-executions-count">0</div>
-                                    <div class="d-flex mb-2">
-                                        <div>عملية تنفيذ</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Content Row -->
-                    <div class="row row-deck row-cards mt-3">
-                        <!-- Pending Tasks -->
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">مهام معلقة</h3>
-                                    <div class="card-actions">
-                                        <a href="/tasks" class="btn btn-sm btn-ghost-secondary">
-                                            عرض الكل
-                                            <i class="ti ti-arrow-left icon"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="card-body" id="tasks-list">
-                                    <div class="text-center py-5">
-                                        <div class="spinner-border text-muted" role="status"></div>
-                                        <div class="mt-2">جاري التحميل...</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Recent Executions -->
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">آخر العمليات</h3>
-                                    <div class="card-actions">
-                                        <a href="/executions" class="btn btn-sm btn-ghost-secondary">
-                                            عرض الكل
-                                            <i class="ti ti-arrow-left icon"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="card-body" id="executions-list">
-                                    <div class="text-center py-5">
-                                        <div class="spinner-border text-muted" role="status"></div>
-                                        <div class="mt-2">جاري التحميل...</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <footer class="footer footer-transparent d-print-none">
-                <div class="container-xl">
-                    <div class="row text-center align-items-center flex-row-reverse">
-                        <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                            <ul class="list-inline list-inline-dots mb-0">
-                                <li class="list-inline-item">
-                                    بواسطة Non Real Assistant
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        </div>
-    </div>
-
-    <!-- Task Modal -->
-    <div class="modal modal-blur fade" id="modal-task" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-title">إضافة مهمة جديدة</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label required">عنوان المهمة</label>
-                        <input type="text" class="form-control" id="task-title" placeholder="اكتب عنوان المهمة">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">الوصف</label>
-                        <textarea class="form-control" id="task-description" rows="3" placeholder="تفاصيل المهمة (اختياري)"></textarea>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="mb-3">
-                                <label class="form-label">الأولوية</label>
-                                <select class="form-select" id="task-priority">
-                                    <option value="low">منخفضة 🟢</option>
-                                    <option value="medium" selected>متوسطة 🟡</option>
-                                    <option value="high">عالية 🔴</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="mb-3">
-                                <label class="form-label">تاريخ ووقت الاستحقاق</label>
-                                <input type="text" class="form-control" id="task-due-date" placeholder="dd/mm/yyyy hh:mm" readonly>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">وقت التذكير</label>
-                        <input type="text" class="form-control" id="task-reminder" placeholder="dd/mm/yyyy hh:mm" readonly>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" id="btn-save-task" onclick="saveTask()">حفظ</button>
+            <div class="card-body" id="tasks-list">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-muted" role="status"></div>
+                    <div class="mt-2">جاري التحميل...</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tabler Core -->
-    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+    <!-- Recent Executions -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">آخر العمليات</h3>
+                <div class="card-actions">
+                    <a href="/executions" class="btn btn-sm btn-ghost-secondary">
+                        عرض الكل
+                        <i class="ti ti-arrow-left icon"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body" id="executions-list">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-muted" role="status"></div>
+                    <div class="mt-2">جاري التحميل...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-    <!-- Flatpickr JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+{% block modals %}
+<!-- Task Modal -->
+<div class="modal modal-blur fade" id="modal-task" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-title">إضافة مهمة جديدة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label required">عنوان المهمة</label>
+                    <input type="text" class="form-control" id="task-title" placeholder="اكتب عنوان المهمة">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">الوصف</label>
+                    <textarea class="form-control" id="task-description" rows="3" placeholder="تفاصيل المهمة (اختياري)"></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label class="form-label">الأولوية</label>
+                            <select class="form-select" id="task-priority">
+                                <option value="low">منخفضة</option>
+                                <option value="medium" selected>متوسطة</option>
+                                <option value="high">عالية</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label class="form-label">تاريخ ووقت الاستحقاق</label>
+                            <input type="text" class="form-control" id="task-due-date" placeholder="dd/mm/yyyy hh:mm" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">وقت التذكير</label>
+                    <input type="text" class="form-control" id="task-reminder" placeholder="dd/mm/yyyy hh:mm" readonly>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn me-auto" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" id="btn-save-task" onclick="saveTask()">حفظ</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-    <!-- Notifications -->
-    <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
-
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/dashboard-tabler.js') }}"></script>
-</body>
-</html>
+{% block page_js %}
+<script src="{{ url_for('static', filename='js/dashboard-tabler.js') }}"></script>
+{% endblock %}

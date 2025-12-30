@@ -1,393 +1,219 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>السكريبتات - Non Real Assistant</title>
+{% extends "base.html" %}
 
-    <!-- Tabler CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler-flags.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler-payments.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler-vendors.min.css" rel="stylesheet"/>
+{% block title %}السكريبتات - Non Real Assistant{% endblock %}
 
-    <!-- Tabler Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+{% block page_title %}السكريبتات{% endblock %}
+{% block page_subtitle %}إدارة السكريبتات البرمجية للمساعدين{% endblock %}
 
-    <!-- CodeMirror for code editor -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+{% block extra_css %}
+<!-- CodeMirror for code editor -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+{% endblock %}
 
-        <!-- Custom RTL fixes -->
-    <style>
-        [dir="rtl"] .navbar-brand {
-            margin-right: 0;
-            margin-left: auto;
-        }
-        [dir="rtl"] .navbar-nav {
-            padding-right: 0;
-        }
-        [dir="rtl"] .nav-link {
-            padding-right: 0;
-            padding-left: 1rem;
-        }
-        /* Flatpickr RTL */
-        .flatpickr-calendar {
-            direction: rtl;
-        }
-        .flatpickr-months {
-            direction: rtl;
-        }
-        .flatpickr-weekdays,
-        .flatpickr-days {
-            direction: rtl;
-        }
-        .flatpickr-time {
-            direction: ltr;
-        }
-    </style>
-</head>
-<body>
-    <div class="page">
-        <!-- Navbar -->
-        <header class="navbar navbar-expand-md d-print-none" data-bs-theme="dark">
-            <div class="container-xl">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                    <a href="/dashboard">
-                        <i class="ti ti-robot fs-1"></i>
-                        Non Real Assistant
-                    </a>
-                </h1>
-                <div class="navbar-nav flex-row order-md-last">
-                    <!-- Notification Bell -->
-                    <div class="nav-item d-none d-md-flex me-3">
-                        <a href="#" class="nav-link px-0" id="notification-bell" onclick="requestNotificationPermission(event)" tabindex="-1" aria-label="تفعيل الإشعارات">
-                            <i class="ti ti-bell icon"></i>
-                            <span class="badge bg-red" id="notification-badge" style="display: none;"></span>
-                        </a>
+{% block page_actions %}
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-script">
+    <i class="ti ti-plus icon"></i>
+    إضافة سكريبت
+</button>
+{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="row row-cards mb-3">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-blue text-white avatar">
+                            <i class="ti ti-code"></i>
+                        </span>
                     </div>
-                    <!-- Theme switcher -->
-                    <div class="d-none d-md-flex">
-                        <button type="button" class="nav-link px-0 hide-theme-dark btn btn-link" onclick="setTheme('dark')" title="تفعيل الوضع الليلي" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                            <i class="ti ti-moon icon"></i>
-                        </button>
-                        <button type="button" class="nav-link px-0 hide-theme-light btn btn-link" onclick="setTheme('light')" title="تفعيل الوضع النهاري" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                            <i class="ti ti-sun icon"></i>
-                        </button>
+                    <div class="col">
+                        <div class="font-weight-medium" id="stat-total">0</div>
+                        <div class="text-muted">إجمالي السكريبتات</div>
                     </div>
-                    <!-- User Menu -->
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
-                            <span class="avatar avatar-sm">
-                                <i class="ti ti-user"></i>
-                            </span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            <a href="/logout" class="dropdown-item">
-                                <i class="ti ti-logout ms-2"></i>
-                                تسجيل الخروج
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Header with nav -->
-        <header class="navbar-expand-md">
-            <div class="collapse navbar-collapse" id="navbar-menu">
-                <div class="navbar">
-                    <div class="container-xl">
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a class="nav-link" href="/dashboard">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-layout-dashboard icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">لوحة التحكم</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/assistants">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-robot icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">المساعدين</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/tasks">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-checkbox icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">المهام</span>
-                                </a>
-                            </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href="/scripts">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-code icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">السكريبتات</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/executions">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-list-details icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">سجل التنفيذ</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Page Content -->
-        <div class="page-wrapper">
-            <!-- Page header -->
-            <div class="page-header d-print-none">
-                <div class="container-xl">
-                    <div class="row g-2 align-items-center">
-                        <div class="col">
-                            <h2 class="page-title">السكريبتات</h2>
-                            <div class="text-muted mt-1">إدارة السكريبتات البرمجية للمساعدين</div>
-                        </div>
-                        <!-- Add Script Button -->
-                        <div class="col-auto ms-auto d-print-none">
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-script">
-                                <i class="ti ti-plus icon"></i>
-                                إضافة سكريبت
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page body -->
-            <div class="page-body">
-                <div class="container-xl">
-                    <!-- Stats -->
-                    <div class="row row-cards mb-3">
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-blue text-white avatar">
-                                                <i class="ti ti-code"></i>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium" id="stat-total">0</div>
-                                            <div class="text-muted">إجمالي السكريبتات</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-cyan text-white avatar">
-                                                <i class="ti ti-brand-python"></i>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium" id="stat-python">0</div>
-                                            <div class="text-muted">Python</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-yellow text-white avatar">
-                                                <i class="ti ti-brand-javascript"></i>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium" id="stat-javascript">0</div>
-                                            <div class="text-muted">JavaScript</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-green text-white avatar">
-                                                <i class="ti ti-terminal"></i>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium" id="stat-bash">0</div>
-                                            <div class="text-muted">Bash</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Scripts Grid -->
-                    <div class="row row-cards" id="scripts-container">
-                        <div class="col-12 text-center py-5">
-                            <div class="spinner-border text-muted" role="status"></div>
-                            <div class="mt-2">جاري التحميل...</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <footer class="footer footer-transparent d-print-none">
-                <div class="container-xl">
-                    <div class="row text-center align-items-center flex-row-reverse">
-                        <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                            <ul class="list-inline list-inline-dots mb-0">
-                                <li class="list-inline-item">
-                                    بواسطة Non Real Assistant
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        </div>
-    </div>
-
-    <!-- Script Modal -->
-    <div class="modal modal-blur fade" id="modal-script" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-title">إضافة سكريبت جديد</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-lg-6">
-                            <div class="mb-3">
-                                <label class="form-label required">اسم السكريبت</label>
-                                <input type="text" class="form-control" id="script-name" placeholder="مثال: check_server_status">
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="mb-3">
-                                <label class="form-label required">اللغة</label>
-                                <select class="form-select" id="script-language" onchange="updateCodeEditor()">
-                                    <option value="python">Python</option>
-                                    <option value="javascript">JavaScript</option>
-                                    <option value="bash">Bash</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">الوصف</label>
-                        <textarea class="form-control" id="script-description" rows="2" placeholder="وصف قصير لوظيفة السكريبت..."></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <label class="form-label required mb-0">الكود</label>
-                            <button type="button" class="btn btn-sm btn-ghost-secondary" onclick="fixCodeMirrorDirection()" title="إصلاح اتجاه الكود">
-                                <i class="ti ti-refresh"></i>
-                                إصلاح التنسيق
-                            </button>
-                        </div>
-                        <textarea id="script-code" style="display:none;"></textarea>
-                        <div class="code-editor-wrapper" style="direction: ltr; text-align: left;">
-                            <div id="code-editor"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" id="btn-save-script" onclick="saveScript()">حفظ</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tabler Core -->
-    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-cyan text-white avatar">
+                            <i class="ti ti-brand-python"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium" id="stat-python">0</div>
+                        <div class="text-muted">Python</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Theme Management -->
-    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-yellow text-white avatar">
+                            <i class="ti ti-brand-javascript"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium" id="stat-javascript">0</div>
+                        <div class="text-muted">JavaScript</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- CodeMirror -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/shell/shell.min.js"></script>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-green text-white avatar">
+                            <i class="ti ti-terminal"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium" id="stat-bash">0</div>
+                        <div class="text-muted">Bash</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <!-- Fix CodeMirror RTL Issue -->
-    <script>
-        // Override CodeMirror to always use LTR
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for modal to open
-            const modal = document.getElementById('modal-script');
-            if (modal) {
-                modal.addEventListener('shown.bs.modal', function() {
-                    fixCodeMirrorDirection();
+<!-- Scripts Grid -->
+<div class="row row-cards" id="scripts-container">
+    <div class="col-12 text-center py-5">
+        <div class="spinner-border text-muted" role="status"></div>
+        <div class="mt-2">جاري التحميل...</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Script Modal -->
+<div class="modal modal-blur fade" id="modal-script" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-title">إضافة سكريبت جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label class="form-label required">اسم السكريبت</label>
+                            <input type="text" class="form-control" id="script-name" placeholder="مثال: check_server_status">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label class="form-label required">اللغة</label>
+                            <select class="form-select" id="script-language" onchange="updateCodeEditor()">
+                                <option value="python">Python</option>
+                                <option value="javascript">JavaScript</option>
+                                <option value="bash">Bash</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">الوصف</label>
+                    <textarea class="form-control" id="script-description" rows="2" placeholder="وصف قصير لوظيفة السكريبت..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <label class="form-label required mb-0">الكود</label>
+                        <button type="button" class="btn btn-sm btn-ghost-secondary" onclick="fixCodeMirrorDirection()" title="إصلاح اتجاه الكود">
+                            <i class="ti ti-refresh"></i>
+                            إصلاح التنسيق
+                        </button>
+                    </div>
+                    <textarea id="script-code" style="display:none;"></textarea>
+                    <div class="code-editor-wrapper" style="direction: ltr; text-align: left;">
+                        <div id="code-editor"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn me-auto" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" id="btn-save-script" onclick="saveScript()">حفظ</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Theme Management -->
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+
+<!-- CodeMirror -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/shell/shell.min.js"></script>
+
+<!-- Fix CodeMirror RTL Issue -->
+<script>
+    // Override CodeMirror to always use LTR
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait for modal to open
+        const modal = document.getElementById('modal-script');
+        if (modal) {
+            modal.addEventListener('shown.bs.modal', function() {
+                fixCodeMirrorDirection();
+            });
+        }
+    });
+
+    function fixCodeMirrorDirection() {
+        setTimeout(() => {
+            const cm = document.querySelector('.CodeMirror');
+            if (cm) {
+                cm.setAttribute('dir', 'ltr');
+                cm.style.direction = 'ltr';
+                cm.style.textAlign = 'left';
+
+                // Fix all internal elements
+                cm.querySelectorAll('*').forEach(el => {
+                    el.setAttribute('dir', 'ltr');
+                    el.style.direction = 'ltr';
                 });
-            }
-        });
 
-        function fixCodeMirrorDirection() {
-            setTimeout(() => {
-                const cm = document.querySelector('.CodeMirror');
-                if (cm) {
-                    cm.setAttribute('dir', 'ltr');
-                    cm.style.direction = 'ltr';
-                    cm.style.textAlign = 'left';
-
-                    // Fix all internal elements
-                    cm.querySelectorAll('*').forEach(el => {
-                        el.setAttribute('dir', 'ltr');
-                        el.style.direction = 'ltr';
-                    });
-
-                    // Fix gutters specifically
-                    const gutters = cm.querySelector('.CodeMirror-gutters');
-                    if (gutters) {
-                        gutters.style.left = '0px';
-                        gutters.style.right = 'auto';
-                    }
-
-                    // Refresh CodeMirror
-                    if (window.codeEditor) {
-                        window.codeEditor.refresh();
-                    }
+                // Fix gutters specifically
+                const gutters = cm.querySelector('.CodeMirror-gutters');
+                if (gutters) {
+                    gutters.style.left = '0px';
+                    gutters.style.right = 'auto';
                 }
-            }, 50);
-        }
-    </script>
 
-    <!-- Notifications -->
-    <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+                // Refresh CodeMirror
+                if (window.codeEditor) {
+                    window.codeEditor.refresh();
+                }
+            }
+        }, 50);
+    }
+</script>
+{% endblock %}
 
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
-</body>
-</html>
+{% block page_js %}
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+{% endblock %}

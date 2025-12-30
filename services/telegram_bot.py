@@ -1,3 +1,5 @@
+"""Telegram Bot Service"""
+
 import asyncio
 import threading
 from telegram import Bot
@@ -85,7 +87,7 @@ Your verification code is: <code>{otp_code}</code>
                 self._send_otp_async(telegram_id, otp_code),
                 loop
             )
-            result = future.result(timeout=10)  # 10 second timeout
+            result = future.result(timeout=10)
             return result
         except Exception as e:
             error_msg = f"خطأ في النظام: {str(e)}\nSystem error: {str(e)}"
@@ -130,7 +132,7 @@ Your verification code is: <code>{otp_code}</code>
                 self._send_message_async(telegram_id, message, parse_mode),
                 loop
             )
-            result = future.result(timeout=10)  # 10 second timeout
+            result = future.result(timeout=10)
             return result
         except Exception as e:
             error_msg = f"خطأ في النظام: {str(e)}\nSystem error: {str(e)}"

@@ -1,0 +1,72 @@
+"""Authentication routes"""
+
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
+from services.auth import AuthService
+
+auth_bp = Blueprint('auth', __name__)
+
+# Initialize auth service
+auth_service = AuthService()
+
+
+@auth_bp.route('/')
+def index():
+    """Main route - check if user is logged in"""
+    if 'user_id' in session:
+        return redirect(url_for('dashboard.dashboard'))
+    return redirect(url_for('auth.login'))
+
+
+@auth_bp.route('/login')
+def login():
+    """Login page"""
+    if 'user_id' in session:
+        return redirect(url_for('dashboard.dashboard'))
+    return render_template('login.html')
+
+
+@auth_bp.route('/logout')
+def logout():
+    """Logout user"""
+    session.clear()
+    return redirect(url_for('auth.login'))
+
+
+@auth_bp.route('/api/request-otp', methods=['POST'])
+def request_otp():
+    """API endpoint to request OTP"""
+    data = request.get_json()
+    phone = data.get('phone', '').strip()
+
+    if not phone:
+        return jsonify({
+            'success': False,
+            'message': 'يرجى إدخال رقم الهاتف / Please enter phone number'
+        }), 400
+
+    result = auth_service.request_otp(phone)
+    return jsonify(result)
+
+
+@auth_bp.route('/api/verify-otp', methods=['POST'])
+def verify_otp():
+    """API endpoint to verify OTP"""
+    data = request.get_json()
+    phone = data.get('phone', '').strip()
+    otp_code = data.get('otp', '').strip()
+
+    if not phone or not otp_code:
+        return jsonify({
+            'success': False,
+            'message': 'يرجى إدخال جميع البيانات / Please enter all fields'
+        }), 400
+
+    result = auth_service.verify_otp(phone, otp_code)
+
+    if result['success']:
+        # Create session
+        session.permanent = True
+        session['user_id'] = result['user']['id']
+        session['phone'] = result['user']['phone']
+
+    return jsonify(result)
