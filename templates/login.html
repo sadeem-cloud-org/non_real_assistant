@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - Non Real Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <div class="logo">
+                <h1>🤖</h1>
+                <h2>Non Real Assistant</h2>
+                <p>المساعد الشخصي الذكي</p>
+            </div>
+
+            <div id="phoneStep" class="step active">
+                <h3>تسجيل الدخول</h3>
+                <p class="subtitle">أدخل رقم هاتفك لتلقي رمز التحقق</p>
+
+                <div class="input-group">
+                    <input
+                        type="tel"
+                        id="phoneInput"
+                        placeholder="01234567890"
+                        maxlength="15"
+                        autocomplete="tel"
+                    >
+                    <label for="phoneInput">رقم الهاتف</label>
+                </div>
+
+                <button id="requestOtpBtn" class="btn btn-primary" onclick="requestOTP()">
+                    إرسال رمز التحقق
+                </button>
+
+                <div id="phoneError" class="error-message"></div>
+            </div>
+
+            <div id="otpStep" class="step">
+                <h3>التحقق من الهوية</h3>
+                <p class="subtitle">أدخل الرمز المرسل إلى تيليجرام</p>
+
+                <div class="otp-info">
+                    <span id="phoneDisplay"></span>
+                    <button class="link-btn" onclick="backToPhone()">تغيير</button>
+                </div>
+
+                <div class="input-group">
+                    <input
+                        type="text"
+                        id="otpInput"
+                        placeholder="000000"
+                        maxlength="6"
+                        inputmode="numeric"
+                        autocomplete="one-time-code"
+                    >
+                    <label for="otpInput">رمز التحقق</label>
+                </div>
+
+                <button id="verifyOtpBtn" class="btn btn-primary" onclick="verifyOTP()">
+                    تحقق
+                </button>
+
+                <div class="resend-section">
+                    <span>لم يصلك الرمز؟</span>
+                    <button id="resendBtn" class="link-btn" onclick="resendOTP()">
+                        إعادة الإرسال
+                    </button>
+                </div>
+
+                <div id="otpError" class="error-message"></div>
+            </div>
+
+            <div id="loadingOverlay" class="loading-overlay">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Non Real Assistant &copy; 2024</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
