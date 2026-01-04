@@ -23,6 +23,10 @@ def migrate_database(app, db):
 
             # Run additional migrations
             _add_script_id_to_assistants(db)
+            _add_user_profile_fields(db)
+            _add_script_notification_fields(db)
+            _add_execution_share_fields(db)
+            _add_assistant_type_fields(db)
 
             print("\nMigration completed successfully!")
             print("\nTables created/updated:")
@@ -35,6 +39,7 @@ def migrate_database(app, db):
             print("   - scripts")
             print("   - script_executions")
             print("   - action_executions")
+            print("   - system_settings")
 
             return True
 
@@ -57,8 +62,120 @@ def _add_script_id_to_assistants(db):
             print("script_id column already exists in assistants table")
         else:
             db.session.rollback()
-            # Not critical - column might already exist
-            pass
+
+
+def _add_user_profile_fields(db):
+    """Add new user profile fields"""
+    columns = [
+        ('name', 'VARCHAR(100)'),
+        ('email', 'VARCHAR(200)'),
+        ('language', "VARCHAR(10) DEFAULT 'ar'"),
+        ('timezone', "VARCHAR(50) DEFAULT 'Africa/Cairo'"),
+        ('notify_telegram', 'BOOLEAN DEFAULT 1'),
+        ('notify_email', 'BOOLEAN DEFAULT 0'),
+        ('notify_browser', 'BOOLEAN DEFAULT 1'),
+        ('settings', 'TEXT'),
+    ]
+
+    for col_name, col_type in columns:
+        try:
+            db.session.execute(
+                text(f'ALTER TABLE users ADD COLUMN {col_name} {col_type}')
+            )
+            db.session.commit()
+            print(f"Added {col_name} column to users table")
+        except Exception as e:
+            db.session.rollback()
+            error_str = str(e).lower()
+            if 'duplicate column name' in error_str or 'already exists' in error_str:
+                pass  # Column already exists
+
+
+def _add_script_notification_fields(db):
+    """Add notification fields to scripts table"""
+    columns = [
+        ('send_output_telegram', 'BOOLEAN DEFAULT 0'),
+        ('send_output_email', 'BOOLEAN DEFAULT 0'),
+    ]
+
+    for col_name, col_type in columns:
+        try:
+            db.session.execute(
+                text(f'ALTER TABLE scripts ADD COLUMN {col_name} {col_type}')
+            )
+            db.session.commit()
+            print(f"Added {col_name} column to scripts table")
+        except Exception as e:
+            db.session.rollback()
+            error_str = str(e).lower()
+            if 'duplicate column name' in error_str or 'already exists' in error_str:
+                pass
+
+
+def _add_execution_share_fields(db):
+    """Add sharing fields to execution tables"""
+    # Script executions
+    script_exec_columns = [
+        ('share_token', 'VARCHAR(64) UNIQUE'),
+        ('is_public', 'BOOLEAN DEFAULT 0'),
+        ('telegram_sent', 'BOOLEAN DEFAULT 0'),
+        ('email_sent', 'BOOLEAN DEFAULT 0'),
+    ]
+
+    for col_name, col_type in script_exec_columns:
+        try:
+            db.session.execute(
+                text(f'ALTER TABLE script_executions ADD COLUMN {col_name} {col_type}')
+            )
+            db.session.commit()
+            print(f"Added {col_name} column to script_executions table")
+        except Exception as e:
+            db.session.rollback()
+            error_str = str(e).lower()
+            if 'duplicate column name' in error_str or 'already exists' in error_str:
+                pass
+
+    # Action executions
+    action_exec_columns = [
+        ('share_token', 'VARCHAR(64) UNIQUE'),
+        ('is_public', 'BOOLEAN DEFAULT 0'),
+    ]
+
+    for col_name, col_type in action_exec_columns:
+        try:
+            db.session.execute(
+                text(f'ALTER TABLE action_executions ADD COLUMN {col_name} {col_type}')
+            )
+            db.session.commit()
+            print(f"Added {col_name} column to action_executions table")
+        except Exception as e:
+            db.session.rollback()
+            error_str = str(e).lower()
+            if 'duplicate column name' in error_str or 'already exists' in error_str:
+                pass
+
+
+def _add_assistant_type_fields(db):
+    """Add new fields to assistant_types table"""
+    columns = [
+        ('description_ar', 'TEXT'),
+        ('description_en', 'TEXT'),
+        ('color', "VARCHAR(20) DEFAULT 'blue'"),
+        ('default_settings', 'TEXT'),
+    ]
+
+    for col_name, col_type in columns:
+        try:
+            db.session.execute(
+                text(f'ALTER TABLE assistant_types ADD COLUMN {col_name} {col_type}')
+            )
+            db.session.commit()
+            print(f"Added {col_name} column to assistant_types table")
+        except Exception as e:
+            db.session.rollback()
+            error_str = str(e).lower()
+            if 'duplicate column name' in error_str or 'already exists' in error_str:
+                pass
 
 
 def run_all_migrations():
