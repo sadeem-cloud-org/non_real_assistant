@@ -6,141 +6,141 @@ import secrets
 db = SQLAlchemy()
 
 
-class User(db.Model):
-    """User model for storing user information"""
-    __tablename__ = 'users'
+# ===== Language Table =====
+
+class Language(db.Model):
+    """Languages for UI translations"""
+    __tablename__ = 'languages'
 
     id = db.Column(db.Integer, primary_key=True)
-    phone = db.Column(db.String(20), unique=True, nullable=False)
-    telegram_id = db.Column(db.String(50), unique=True, nullable=False)
-
-    # New fields for user profile
-    name = db.Column(db.String(100))
-    email = db.Column(db.String(200))
-    language = db.Column(db.String(10), default='ar')  # ar, en
-    timezone = db.Column(db.String(50), default='Africa/Cairo')
-
-    # Notification preferences
-    notify_telegram = db.Column(db.Boolean, default=True)
-    notify_email = db.Column(db.Boolean, default=False)
-    notify_browser = db.Column(db.Boolean, default=True)
-
-    # User settings (JSON)
-    settings = db.Column(db.Text)
-
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    last_login = db.Column(db.DateTime)
-
-    # Relationships
-    otps = db.relationship('OTP', backref='user', lazy=True, cascade='all, delete-orphan')
-    assistants = db.relationship('Assistant', backref='user', lazy=True, cascade='all, delete-orphan')
-    tasks = db.relationship('Task', backref='user', lazy=True, cascade='all, delete-orphan')
-    scripts = db.relationship('Script', backref='user', lazy=True, cascade='all, delete-orphan')
-    action_executions = db.relationship('ActionExecution', backref='user', lazy=True, cascade='all, delete-orphan')
+    name = db.Column(db.String(100), nullable=False)  # العربية, English
+    iso_code = db.Column(db.String(10), unique=True, nullable=False)  # ar, en
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f'<User {self.phone}>'
-
-    def get_settings(self):
-        """Get settings as dict"""
-        if self.settings:
-            try:
-                return json.loads(self.settings)
-            except:
-                return {}
-        return {}
-
-    def set_settings(self, settings_dict):
-        """Set settings from dict"""
-        self.settings = json.dumps(settings_dict, ensure_ascii=False)
-
-    def update_last_login(self):
-        """Update last login timestamp"""
-        self.last_login = datetime.utcnow()
-        db.session.commit()
+        return f'<Language {self.iso_code}>'
 
     def to_dict(self):
         return {
             'id': self.id,
-            'phone': self.phone,
-            'telegram_id': self.telegram_id,
             'name': self.name,
-            'email': self.email,
-            'language': self.language,
-            'timezone': self.timezone,
-            'notify_telegram': self.notify_telegram,
-            'notify_email': self.notify_email,
-            'notify_browser': self.notify_browser,
-            'settings': self.get_settings(),
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'last_login': self.last_login.isoformat() if self.last_login else None
+            'iso_code': self.iso_code
         }
 
 
-class SystemSettings(db.Model):
+# ===== System Settings =====
+
+class SystemSetting(db.Model):
     """System-wide settings"""
     __tablename__ = 'system_settings'
 
     id = db.Column(db.Integer, primary_key=True)
-    key = db.Column(db.String(100), unique=True, nullable=False)
-    value = db.Column(db.Text)
-    value_type = db.Column(db.String(20), default='string')  # string, json, int, bool
-    description = db.Column(db.Text)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    telegram_bot_token = db.Column(db.String(200))
+    otp_expiration_seconds = db.Column(db.Integer, default=300)  # 5 minutes
+    default_language_id = db.Column(db.Integer, db.ForeignKey('languages.id'))
+    title = db.Column(db.String(200), default='Non Real Assistant')
+    logo = db.Column(db.LargeBinary)
+
+    # Relationships
+    default_language = db.relationship('Language')
 
     def __repr__(self):
-        return f'<SystemSettings {self.key}>'
-
-    def get_value(self):
-        """Get typed value"""
-        if self.value is None:
-            return None
-        if self.value_type == 'json':
-            try:
-                return json.loads(self.value)
-            except:
-                return {}
-        elif self.value_type == 'int':
-            return int(self.value)
-        elif self.value_type == 'bool':
-            return self.value.lower() in ('true', '1', 'yes')
-        return self.value
-
-    def set_value(self, val):
-        """Set value with type handling"""
-        if self.value_type == 'json':
-            self.value = json.dumps(val, ensure_ascii=False)
-        else:
-            self.value = str(val)
+        return f'<SystemSetting {self.id}>'
 
     @staticmethod
-    def get(key, default=None):
-        """Get setting value by key"""
-        setting = SystemSettings.query.filter_by(key=key).first()
-        if setting:
-            return setting.get_value()
-        return default
+    def get_settings():
+        """Get or create system settings"""
+        settings = SystemSetting.query.first()
+        if not settings:
+            settings = SystemSetting()
+            db.session.add(settings)
+            db.session.commit()
+        return settings
 
-    @staticmethod
-    def set(key, value, value_type='string', description=None):
-        """Set setting value"""
-        setting = SystemSettings.query.filter_by(key=key).first()
-        if not setting:
-            setting = SystemSettings(key=key, value_type=value_type, description=description)
-            db.session.add(setting)
-        setting.set_value(value)
-        db.session.commit()
-        return setting
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'telegram_bot_token': self.telegram_bot_token,
+            'otp_expiration_seconds': self.otp_expiration_seconds,
+            'default_language_id': self.default_language_id,
+            'title': self.title,
+            'has_logo': self.logo is not None
+        }
+
+
+# ===== User & Auth =====
+
+class User(db.Model):
+    """User model"""
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    mobile = db.Column(db.String(20), unique=True, nullable=False)
+    name = db.Column(db.String(100))
+    telegram_id = db.Column(db.String(50), unique=True)
+    email = db.Column(db.String(200))
+    timezone = db.Column(db.String(50), default='Africa/Cairo')
+    language_id = db.Column(db.Integer, db.ForeignKey('languages.id'))
+    browser_notify = db.Column(db.Boolean, default=True)
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    language = db.relationship('Language')
+    otps = db.relationship('OTP', backref='user', lazy=True, cascade='all, delete-orphan')
+    login_history = db.relationship('UserLoginHistory', backref='user', lazy=True, cascade='all, delete-orphan')
+    assistants = db.relationship('Assistant', backref='user', lazy=True, cascade='all, delete-orphan')
+    tasks = db.relationship('Task', backref='user', lazy=True, cascade='all, delete-orphan')
+    scripts = db.relationship('Script', backref='user', lazy=True, cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<User {self.mobile}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'mobile': self.mobile,
+            'name': self.name,
+            'telegram_id': self.telegram_id,
+            'email': self.email,
+            'timezone': self.timezone,
+            'language_id': self.language_id,
+            'language': self.language.to_dict() if self.language else None,
+            'browser_notify': self.browser_notify,
+            'create_time': self.create_time.isoformat() if self.create_time else None
+        }
+
+
+class UserLoginHistory(db.Model):
+    """Track user login history"""
+    __tablename__ = 'user_login_history'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    ip = db.Column(db.String(50))
+    browser = db.Column(db.String(200))
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<UserLoginHistory {self.user_id} - {self.ip}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'ip': self.ip,
+            'browser': self.browser,
+            'create_time': self.create_time.isoformat() if self.create_time else None
+        }
 
 
 class OTP(db.Model):
-    """OTP model for storing one-time passwords"""
+    """OTP model for one-time passwords"""
     __tablename__ = 'otps'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     code = db.Column(db.String(6), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime, nullable=False)
     used = db.Column(db.Boolean, default=False)
 
@@ -148,7 +148,7 @@ class OTP(db.Model):
         return f'<OTP {self.code} for user {self.user_id}>'
 
     def is_valid(self):
-        """Check if OTP is valid (not used and not expired)"""
+        """Check if OTP is valid"""
         return not self.used and datetime.utcnow() < self.expires_at
 
     def mark_as_used(self):
@@ -157,267 +157,182 @@ class OTP(db.Model):
         db.session.commit()
 
 
+# ===== Notification Templates =====
+
+class NotifyTemplate(db.Model):
+    """Notification message templates"""
+    __tablename__ = 'notify_templates'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+        return f'<NotifyTemplate {self.name}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'text': self.text
+        }
+
+    def render(self, **kwargs):
+        """Render template with variables"""
+        try:
+            return self.text.format(**kwargs)
+        except:
+            return self.text
+
+
+# ===== Assistant Types =====
+
 class AssistantType(db.Model):
-    """Types of assistants available"""
+    """Types of assistants"""
     __tablename__ = 'assistant_types'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)  # reminder, server_monitor, etc.
-    display_name_ar = db.Column(db.String(100), nullable=False)
-    display_name_en = db.Column(db.String(100), nullable=False)
-    description_ar = db.Column(db.Text)
-    description_en = db.Column(db.Text)
-    icon = db.Column(db.String(50), default='ti-robot')  # Tabler icon name
-    color = db.Column(db.String(20), default='blue')  # Tabler color
-    default_settings = db.Column(db.Text)  # JSON - default settings for this type
-    is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+    related_action = db.Column(db.String(20), default='task')  # 'task' or 'script'
 
     # Relationships
-    actions = db.relationship('Action', backref='assistant_type', lazy=True, cascade='all, delete-orphan')
+    assistants = db.relationship('Assistant', backref='assistant_type', lazy=True)
 
     def __repr__(self):
         return f'<AssistantType {self.name}>'
 
-    def get_default_settings(self):
-        if self.default_settings:
-            try:
-                return json.loads(self.default_settings)
-            except:
-                return {}
-        return {}
-
-    def to_dict(self, lang='ar'):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'display_name': self.display_name_ar if lang == 'ar' else self.display_name_en,
-            'display_name_ar': self.display_name_ar,
-            'display_name_en': self.display_name_en,
-            'description': self.description_ar if lang == 'ar' else self.description_en,
-            'icon': self.icon,
-            'color': self.color,
-            'is_active': self.is_active,
-            'actions_count': len(self.actions)
-        }
-
-
-class Action(db.Model):
-    """Actions that can be performed by assistants"""
-    __tablename__ = 'actions'
-
-    id = db.Column(db.Integer, primary_key=True)
-    assistant_type_id = db.Column(db.Integer, db.ForeignKey('assistant_types.id'), nullable=False)
-    name = db.Column(db.String(100), nullable=False)
-    display_name = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text)
-    execution_type = db.Column(db.String(50), nullable=False)  # python_script, bash_command, api_call
-    script_content = db.Column(db.Text)
-    trigger_type = db.Column(db.String(50), nullable=False)  # scheduled, manual, event_based
-    trigger_config = db.Column(db.Text)  # JSON
-    output_format = db.Column(db.Text)  # JSON schema
-    timeout = db.Column(db.Integer, default=60)
-    is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Relationships
-    executions = db.relationship('ActionExecution', backref='action', lazy=True, cascade='all, delete-orphan')
-
-    def __repr__(self):
-        return f'<Action {self.name}>'
-
-    def get_trigger_config(self):
-        if self.trigger_config:
-            try:
-                return json.loads(self.trigger_config)
-            except:
-                return {}
-        return {}
-
-    def set_trigger_config(self, config):
-        self.trigger_config = json.dumps(config, ensure_ascii=False)
-
     def to_dict(self):
         return {
             'id': self.id,
-            'assistant_type_id': self.assistant_type_id,
             'name': self.name,
-            'display_name': self.display_name,
-            'description': self.description,
-            'execution_type': self.execution_type,
-            'trigger_type': self.trigger_type,
-            'trigger_config': self.get_trigger_config(),
-            'timeout': self.timeout,
-            'is_active': self.is_active
+            'related_action': self.related_action,
+            'create_time': self.create_time.isoformat() if self.create_time else None
         }
 
 
+# ===== Assistants =====
+
 class Assistant(db.Model):
-    """User's active assistants"""
+    """User's assistants"""
     __tablename__ = 'assistants'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
     assistant_type_id = db.Column(db.Integer, db.ForeignKey('assistant_types.id'), nullable=False)
-    script_id = db.Column(db.Integer, db.ForeignKey('scripts.id'))
-    name = db.Column(db.String(200))
-    description = db.Column(db.Text)
-    is_enabled = db.Column(db.Boolean, default=True)
-    settings = db.Column(db.Text)  # JSON
-    schedule = db.Column(db.Text)  # JSON - cron schedule
+    create_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    # Notification settings for this assistant
-    send_to_telegram = db.Column(db.Boolean, default=True)
-    send_to_email = db.Column(db.Boolean, default=False)
+    # Notification settings
+    telegram_notify = db.Column(db.Boolean, default=True)
+    email_notify = db.Column(db.Boolean, default=False)
+    notify_template_id = db.Column(db.Integer, db.ForeignKey('notify_templates.id'))
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    last_run_at = db.Column(db.DateTime)
+    # Scheduling
+    run_every = db.Column(db.String(20))  # minute, hour, day, week, month
+    next_run_time = db.Column(db.DateTime)
 
     # Relationships
-    assistant_type = db.relationship('AssistantType', backref='user_assistants')
-    linked_script = db.relationship('Script', backref='linked_to_assistant', foreign_keys=[script_id])
+    notify_template = db.relationship('NotifyTemplate')
     tasks = db.relationship('Task', backref='assistant', lazy=True, cascade='all, delete-orphan')
+    scripts = db.relationship('Script', backref='assistant', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Assistant {self.name or "Unnamed"} for user {self.user_id}>'
+        return f'<Assistant {self.name}>'
 
-    def get_settings(self):
-        if self.settings:
-            try:
-                return json.loads(self.settings)
-            except:
-                return {}
-        return {}
-
-    def set_settings(self, settings_dict):
-        self.settings = json.dumps(settings_dict, ensure_ascii=False)
-
-    def get_schedule(self):
-        if self.schedule:
-            try:
-                return json.loads(self.schedule)
-            except:
-                return {}
-        return {}
-
-    def set_schedule(self, schedule_dict):
-        self.schedule = json.dumps(schedule_dict, ensure_ascii=False)
-
-    def update_last_run(self):
-        self.last_run_at = datetime.utcnow()
-        db.session.commit()
-
-    def to_dict(self, lang='ar'):
+    def to_dict(self):
         return {
             'id': self.id,
-            'user_id': self.user_id,
-            'assistant_type': self.assistant_type.to_dict(lang) if self.assistant_type else None,
-            'script_id': self.script_id,
             'name': self.name,
-            'description': self.description,
-            'is_enabled': self.is_enabled,
-            'settings': self.get_settings(),
-            'schedule': self.get_schedule(),
-            'send_to_telegram': self.send_to_telegram,
-            'send_to_email': self.send_to_email,
+            'create_time': self.create_time.isoformat() if self.create_time else None,
+            'assistant_type_id': self.assistant_type_id,
+            'assistant_type': self.assistant_type.to_dict() if self.assistant_type else None,
+            'create_user_id': self.create_user_id,
+            'telegram_notify': self.telegram_notify,
+            'email_notify': self.email_notify,
+            'notify_template_id': self.notify_template_id,
+            'notify_template': self.notify_template.to_dict() if self.notify_template else None,
+            'run_every': self.run_every,
+            'next_run_time': self.next_run_time.isoformat() if self.next_run_time else None,
             'tasks_count': len(self.tasks) if self.tasks else 0,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'last_run_at': self.last_run_at.isoformat() if self.last_run_at else None
+            'scripts_count': len(self.scripts) if self.scripts else 0
         }
 
 
+# ===== Tasks =====
+
 class Task(db.Model):
-    """Tasks created by users or assistants"""
+    """Tasks for task-type assistants"""
     __tablename__ = 'tasks'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    assistant_id = db.Column(db.Integer, db.ForeignKey('assistants.id'))
-    title = db.Column(db.String(500), nullable=False)
+    name = db.Column(db.String(500), nullable=False)
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+    create_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     description = db.Column(db.Text)
-    priority = db.Column(db.String(20), default='medium')  # high, medium, low
-    status = db.Column(db.String(20), default='new')  # new, in_progress, completed, cancelled
-    due_date = db.Column(db.DateTime)
-    reminder_time = db.Column(db.DateTime)
-    tags = db.Column(db.Text)  # JSON array
-    extra_data = db.Column(db.Text)  # JSON
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    completed_at = db.Column(db.DateTime)
+    time = db.Column(db.DateTime)  # Due/reminder time
+    complete_time = db.Column(db.DateTime)
+    cancel_time = db.Column(db.DateTime)
+    assistant_id = db.Column(db.Integer, db.ForeignKey('assistants.id'))
+    notify_sent = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
-        return f'<Task {self.title}>'
+        return f'<Task {self.name}>'
 
-    def get_tags(self):
-        if self.tags:
-            try:
-                return json.loads(self.tags)
-            except:
-                return []
-        return []
-
-    def set_tags(self, tags_list):
-        self.tags = json.dumps(tags_list, ensure_ascii=False)
-
-    def get_extra_data(self):
-        if self.extra_data:
-            try:
-                return json.loads(self.extra_data)
-            except:
-                return {}
-        return {}
-
-    def set_extra_data(self, data_dict):
-        self.extra_data = json.dumps(data_dict, ensure_ascii=False)
+    def get_status(self):
+        """Get task status based on times"""
+        if self.cancel_time:
+            return 'cancelled'
+        if self.complete_time:
+            return 'completed'
+        if self.time and datetime.utcnow() > self.time:
+            return 'overdue'
+        return 'pending'
 
     def mark_completed(self):
-        self.status = 'completed'
-        self.completed_at = datetime.utcnow()
+        """Mark task as completed"""
+        self.complete_time = datetime.utcnow()
+        db.session.commit()
+
+    def mark_cancelled(self):
+        """Mark task as cancelled"""
+        self.cancel_time = datetime.utcnow()
         db.session.commit()
 
     def to_dict(self):
         return {
             'id': self.id,
-            'user_id': self.user_id,
+            'name': self.name,
+            'create_time': self.create_time.isoformat() if self.create_time else None,
+            'create_user_id': self.create_user_id,
+            'description': self.description,
+            'time': self.time.isoformat() if self.time else None,
+            'status': self.get_status(),
+            'complete_time': self.complete_time.isoformat() if self.complete_time else None,
+            'cancel_time': self.cancel_time.isoformat() if self.cancel_time else None,
             'assistant_id': self.assistant_id,
             'assistant_name': self.assistant.name if self.assistant else None,
-            'title': self.title,
-            'description': self.description,
-            'priority': self.priority,
-            'status': self.status,
-            'due_date': self.due_date.isoformat() if self.due_date else None,
-            'reminder_time': self.reminder_time.isoformat() if self.reminder_time else None,
-            'tags': self.get_tags(),
-            'extra_data': self.get_extra_data(),
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'completed_at': self.completed_at.isoformat() if self.completed_at else None
+            'notify_sent': self.notify_sent
         }
 
 
+# ===== Scripts =====
+
 class Script(db.Model):
-    """Scripts written by users"""
+    """Scripts for script-type assistants"""
     __tablename__ = 'scripts'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    assistant_id = db.Column(db.Integer, db.ForeignKey('assistants.id'))
     name = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text)
-    language = db.Column(db.String(50), default='python')  # python, javascript, bash
     code = db.Column(db.Text, nullable=False)
-
-    # Output notification settings
-    send_output_telegram = db.Column(db.Boolean, default=False)
-    send_output_email = db.Column(db.Boolean, default=False)
-
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    create_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+    notify_template_id = db.Column(db.Integer, db.ForeignKey('notify_templates.id'))
+    assistant_id = db.Column(db.Integer, db.ForeignKey('assistants.id'))
 
     # Relationships
-    linked_assistant = db.relationship('Assistant', backref='owned_scripts', foreign_keys=[assistant_id])
-    executions = db.relationship('ScriptExecution', backref='script', lazy=True, cascade='all, delete-orphan')
+    notify_template = db.relationship('NotifyTemplate')
+    executions = db.relationship('ScriptExecuteLog', backref='script', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Script {self.name}>'
@@ -425,44 +340,44 @@ class Script(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'user_id': self.user_id,
-            'assistant_id': self.assistant_id,
             'name': self.name,
-            'description': self.description,
-            'language': self.language,
             'code': self.code,
-            'send_output_telegram': self.send_output_telegram,
-            'send_output_email': self.send_output_email,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'create_user_id': self.create_user_id,
+            'create_time': self.create_time.isoformat() if self.create_time else None,
+            'notify_template_id': self.notify_template_id,
+            'notify_template': self.notify_template.to_dict() if self.notify_template else None,
+            'assistant_id': self.assistant_id,
+            'assistant_name': self.assistant.name if self.assistant else None
         }
 
 
-class ScriptExecution(db.Model):
+# ===== Script Execution Log =====
+
+class ScriptExecuteLog(db.Model):
     """Log of script executions"""
-    __tablename__ = 'script_executions'
+    __tablename__ = 'script_execute_logs'
 
     id = db.Column(db.Integer, primary_key=True)
     script_id = db.Column(db.Integer, db.ForeignKey('scripts.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    status = db.Column(db.String(20), default='running')  # running, success, failed, timeout
-    output = db.Column(db.Text)  # stdout
-    error = db.Column(db.Text)  # stderr
-    return_code = db.Column(db.Integer)
-    execution_time = db.Column(db.Float)  # seconds
-    started_at = db.Column(db.DateTime, default=datetime.utcnow)
-    completed_at = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+    input = db.Column(db.Text)
+    output = db.Column(db.Text)
+    start_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime)
+    state = db.Column(db.String(20), default='pending')  # pending, running, success, failed
 
     # Public sharing
     share_token = db.Column(db.String(64), unique=True)
     is_public = db.Column(db.Boolean, default=False)
 
-    # Notification sent flags
-    telegram_sent = db.Column(db.Boolean, default=False)
-    email_sent = db.Column(db.Boolean, default=False)
-
     def __repr__(self):
-        return f'<ScriptExecution {self.id} - {self.status}>'
+        return f'<ScriptExecuteLog {self.id} - {self.state}>'
+
+    def get_execution_time(self):
+        """Calculate execution time in seconds"""
+        if self.start_time and self.end_time:
+            return (self.end_time - self.start_time).total_seconds()
+        return None
 
     def generate_share_token(self):
         """Generate a unique share token"""
@@ -470,98 +385,20 @@ class ScriptExecution(db.Model):
         self.is_public = True
         return self.share_token
 
-    def get_share_url(self, base_url=''):
-        """Get the public share URL"""
-        if self.share_token:
-            return f"{base_url}/share/execution/{self.share_token}"
-        return None
-
     def to_dict(self, include_output=True):
         result = {
             'id': self.id,
             'script_id': self.script_id,
             'script_name': self.script.name if self.script else None,
-            'script_language': self.script.language if self.script else None,
-            'user_id': self.user_id,
-            'status': self.status,
-            'return_code': self.return_code,
-            'execution_time': self.execution_time,
-            'started_at': self.started_at.isoformat() if self.started_at else None,
-            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+            'create_time': self.create_time.isoformat() if self.create_time else None,
+            'start_time': self.start_time.isoformat() if self.start_time else None,
+            'end_time': self.end_time.isoformat() if self.end_time else None,
+            'state': self.state,
+            'execution_time': self.get_execution_time(),
             'is_public': self.is_public,
             'share_token': self.share_token if self.is_public else None
         }
         if include_output:
+            result['input'] = self.input
             result['output'] = self.output
-            result['error'] = self.error
         return result
-
-
-class ActionExecution(db.Model):
-    """Log of action executions"""
-    __tablename__ = 'action_executions'
-
-    id = db.Column(db.Integer, primary_key=True)
-    action_id = db.Column(db.Integer, db.ForeignKey('actions.id'), nullable=False)
-    assistant_id = db.Column(db.Integer, db.ForeignKey('assistants.id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    status = db.Column(db.String(20), default='pending')  # pending, running, success, failed
-    input_data = db.Column(db.Text)  # JSON
-    output_data = db.Column(db.Text)  # JSON
-    error_message = db.Column(db.Text)
-    execution_time = db.Column(db.Float)  # seconds
-    started_at = db.Column(db.DateTime)
-    completed_at = db.Column(db.DateTime)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    # Public sharing
-    share_token = db.Column(db.String(64), unique=True)
-    is_public = db.Column(db.Boolean, default=False)
-
-    def __repr__(self):
-        return f'<ActionExecution {self.id} - {self.status}>'
-
-    def generate_share_token(self):
-        self.share_token = secrets.token_urlsafe(32)
-        self.is_public = True
-        return self.share_token
-
-    def get_input_data(self):
-        if self.input_data:
-            try:
-                return json.loads(self.input_data)
-            except:
-                return {}
-        return {}
-
-    def set_input_data(self, data_dict):
-        self.input_data = json.dumps(data_dict, ensure_ascii=False)
-
-    def get_output_data(self):
-        if self.output_data:
-            try:
-                return json.loads(self.output_data)
-            except:
-                return {}
-        return {}
-
-    def set_output_data(self, data_dict):
-        self.output_data = json.dumps(data_dict, ensure_ascii=False)
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'action_id': self.action_id,
-            'assistant_id': self.assistant_id,
-            'user_id': self.user_id,
-            'status': self.status,
-            'input_data': self.get_input_data(),
-            'output_data': self.get_output_data(),
-            'error_message': self.error_message,
-            'execution_time': self.execution_time,
-            'started_at': self.started_at.isoformat() if self.started_at else None,
-            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'is_public': self.is_public,
-            'share_token': self.share_token if self.is_public else None
-        }

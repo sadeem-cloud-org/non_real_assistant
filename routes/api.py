@@ -24,116 +24,53 @@ def require_auth(f):
 @require_auth
 def dashboard_stats():
     """Get dashboard statistics"""
-    from models import Assistant, Task, ActionExecution
+    from models import Assistant, Task, ScriptExecuteLog, Script
 
     user_id = session['user_id']
 
-    active_assistants = Assistant.query.filter_by(
-        user_id=user_id,
-        is_enabled=True
-    ).count()
+    # Count assistants
+    total_assistants = Assistant.query.filter_by(create_user_id=user_id).count()
 
+    # Count pending tasks (not completed, not cancelled)
     pending_tasks = Task.query.filter(
-        Task.user_id == user_id,
-        Task.status.in_(['new', 'in_progress'])
+        Task.create_user_id == user_id,
+        Task.complete_time.is_(None),
+        Task.cancel_time.is_(None)
     ).count()
 
+    # Count completed today
+    today = datetime.utcnow().date()
     completed_today = Task.query.filter(
-        Task.user_id == user_id,
-        Task.status == 'completed',
-        Task.completed_at >= datetime.utcnow().date()
+        Task.create_user_id == user_id,
+        Task.complete_time >= datetime(today.year, today.month, today.day)
     ).count()
 
-    recent_executions = ActionExecution.query.filter_by(
-        user_id=user_id
-    ).order_by(ActionExecution.created_at.desc()).limit(5).all()
+    # Recent script executions
+    user_scripts = Script.query.filter_by(create_user_id=user_id).all()
+    script_ids = [s.id for s in user_scripts]
+
+    recent_executions = []
+    if script_ids:
+        recent_executions = ScriptExecuteLog.query.filter(
+            ScriptExecuteLog.script_id.in_(script_ids)
+        ).order_by(ScriptExecuteLog.create_time.desc()).limit(5).all()
 
     return jsonify({
-        'active_assistants': active_assistants,
+        'total_assistants': total_assistants,
         'pending_tasks': pending_tasks,
         'completed_today': completed_today,
         'recent_executions': [e.to_dict() for e in recent_executions]
     })
 
 
-# ===== Notifications =====
+# ===== Languages =====
 
-@api_bp.route('/notifications/permission', methods=['POST'])
-@require_auth
-def save_notification_permission():
-    """Save user's browser notification permission"""
-    from models import User
-
-    data = request.get_json()
-    permission = data.get('permission', 'default')
-
-    user = User.query.get(session['user_id'])
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-
-    extra_data = user.get_extra_data() if hasattr(user, 'get_extra_data') else {}
-    extra_data['browser_notifications'] = permission
-    extra_data['browser_notifications_updated_at'] = datetime.utcnow().isoformat()
-    if hasattr(user, 'set_extra_data'):
-        user.set_extra_data(extra_data)
-
-    db.session.commit()
-
-    return jsonify({
-        'success': True,
-        'permission': permission
-    })
-
-
-@api_bp.route('/notifications/check')
-@require_auth
-def check_notifications():
-    """Check for pending notifications"""
-    from models import Task
-
-    user_id = session['user_id']
-    now = datetime.utcnow()
-
-    tasks = Task.query.filter(
-        Task.user_id == user_id,
-        Task.status.in_(['new', 'in_progress']),
-        Task.reminder_time.isnot(None),
-        Task.reminder_time <= now + timedelta(minutes=1),
-        Task.reminder_time > now - timedelta(seconds=30)
-    ).all()
-
-    notifications = []
-    for task in tasks:
-        extra_data = task.get_extra_data() or {}
-
-        if extra_data.get('browser_notification_shown'):
-            shown_at = extra_data.get('browser_notification_shown_at')
-            if shown_at:
-                try:
-                    shown_time = datetime.fromisoformat(shown_at.replace('Z', '+00:00'))
-                    time_since = (now - shown_time).total_seconds()
-                    if time_since < 300:
-                        continue
-                except:
-                    pass
-
-        notifications.append({
-            'id': task.id,
-            'title': task.title,
-            'description': task.description,
-            'priority': task.priority,
-            'due_date': task.due_date.isoformat() if task.due_date else None,
-            'reminder_time': task.reminder_time.isoformat() if task.reminder_time else None
-        })
-
-        extra_data['browser_notification_shown'] = True
-        extra_data['browser_notification_shown_at'] = now.isoformat()
-        task.set_extra_data(extra_data)
-
-    if notifications:
-        db.session.commit()
-
-    return jsonify({'notifications': notifications})
+@api_bp.route('/languages')
+def get_languages():
+    """Get all languages"""
+    from models import Language
+    languages = Language.query.all()
+    return jsonify([l.to_dict() for l in languages])
 
 
 # ===== Assistant Types =====
@@ -141,11 +78,21 @@ def check_notifications():
 @api_bp.route('/assistant-types')
 @require_auth
 def get_assistant_types():
-    """Get all available assistant types"""
+    """Get all assistant types"""
     from models import AssistantType
-
-    types = AssistantType.query.filter_by(is_active=True).all()
+    types = AssistantType.query.all()
     return jsonify([t.to_dict() for t in types])
+
+
+# ===== Notify Templates =====
+
+@api_bp.route('/notify-templates')
+@require_auth
+def get_notify_templates():
+    """Get all notification templates"""
+    from models import NotifyTemplate
+    templates = NotifyTemplate.query.all()
+    return jsonify([t.to_dict() for t in templates])
 
 
 # ===== Assistants CRUD =====
@@ -154,12 +101,8 @@ def get_assistant_types():
 @require_auth
 def get_assistants():
     """Get user's assistants"""
-    from models import Assistant, AssistantType
-
-    if AssistantType.query.count() == 0:
-        _seed_assistant_types()
-
-    assistants = Assistant.query.filter_by(user_id=session['user_id']).all()
+    from models import Assistant
+    assistants = Assistant.query.filter_by(create_user_id=session['user_id']).all()
     return jsonify([a.to_dict() for a in assistants])
 
 
@@ -172,20 +115,37 @@ def create_assistant():
     data = request.get_json()
 
     assistant = Assistant(
-        user_id=session['user_id'],
-        assistant_type_id=data.get('assistant_type_id'),
-        script_id=data.get('script_id'),
         name=data.get('name'),
-        is_enabled=data.get('is_enabled', True)
+        assistant_type_id=data.get('assistant_type_id'),
+        create_user_id=session['user_id'],
+        telegram_notify=data.get('telegram_notify', True),
+        email_notify=data.get('email_notify', False),
+        notify_template_id=data.get('notify_template_id'),
+        run_every=data.get('run_every'),
+        next_run_time=data.get('next_run_time')
     )
-
-    if data.get('settings'):
-        assistant.set_settings(data['settings'])
 
     db.session.add(assistant)
     db.session.commit()
 
     return jsonify(assistant.to_dict()), 201
+
+
+@api_bp.route('/assistants/<int:assistant_id>', methods=['GET'])
+@require_auth
+def get_assistant(assistant_id):
+    """Get specific assistant"""
+    from models import Assistant
+
+    assistant = Assistant.query.filter_by(
+        id=assistant_id,
+        create_user_id=session['user_id']
+    ).first()
+
+    if not assistant:
+        return jsonify({'error': 'Not found'}), 404
+
+    return jsonify(assistant.to_dict())
 
 
 @api_bp.route('/assistants/<int:assistant_id>', methods=['PUT'])
@@ -196,7 +156,7 @@ def update_assistant(assistant_id):
 
     assistant = Assistant.query.filter_by(
         id=assistant_id,
-        user_id=session['user_id']
+        create_user_id=session['user_id']
     ).first()
 
     if not assistant:
@@ -206,12 +166,16 @@ def update_assistant(assistant_id):
 
     if 'name' in data:
         assistant.name = data['name']
-    if 'is_enabled' in data:
-        assistant.is_enabled = data['is_enabled']
-    if 'script_id' in data:
-        assistant.script_id = data['script_id']
-    if 'settings' in data:
-        assistant.set_settings(data['settings'])
+    if 'telegram_notify' in data:
+        assistant.telegram_notify = data['telegram_notify']
+    if 'email_notify' in data:
+        assistant.email_notify = data['email_notify']
+    if 'notify_template_id' in data:
+        assistant.notify_template_id = data['notify_template_id']
+    if 'run_every' in data:
+        assistant.run_every = data['run_every']
+    if 'next_run_time' in data:
+        assistant.next_run_time = data['next_run_time']
 
     db.session.commit()
 
@@ -226,7 +190,7 @@ def delete_assistant(assistant_id):
 
     assistant = Assistant.query.filter_by(
         id=assistant_id,
-        user_id=session['user_id']
+        create_user_id=session['user_id']
     ).first()
 
     if not assistant:
@@ -238,313 +202,6 @@ def delete_assistant(assistant_id):
     return jsonify({'success': True})
 
 
-# ===== Scripts CRUD =====
-
-@api_bp.route('/scripts')
-@require_auth
-def get_scripts():
-    """Get user's scripts"""
-    from models import Script
-
-    scripts = Script.query.filter_by(user_id=session['user_id']).all()
-    return jsonify([s.to_dict() for s in scripts])
-
-
-@api_bp.route('/scripts', methods=['POST'])
-@require_auth
-def create_script():
-    """Create new script"""
-    from models import Script
-
-    data = request.get_json()
-
-    script = Script(
-        user_id=session['user_id'],
-        name=data.get('name'),
-        description=data.get('description'),
-        language=data.get('language', 'python'),
-        code=data.get('code'),
-        send_output_telegram=data.get('send_output_telegram', False),
-        send_output_email=data.get('send_output_email', False)
-    )
-
-    db.session.add(script)
-    db.session.commit()
-
-    return jsonify(script.to_dict()), 201
-
-
-@api_bp.route('/scripts/<int:script_id>', methods=['PUT'])
-@require_auth
-def update_script(script_id):
-    """Update script"""
-    from models import Script
-
-    script = Script.query.filter_by(
-        id=script_id,
-        user_id=session['user_id']
-    ).first()
-
-    if not script:
-        return jsonify({'error': 'Not found'}), 404
-
-    data = request.get_json()
-
-    if 'name' in data:
-        script.name = data['name']
-    if 'description' in data:
-        script.description = data['description']
-    if 'language' in data:
-        script.language = data['language']
-    if 'code' in data:
-        script.code = data['code']
-    if 'send_output_telegram' in data:
-        script.send_output_telegram = data['send_output_telegram']
-    if 'send_output_email' in data:
-        script.send_output_email = data['send_output_email']
-
-    db.session.commit()
-
-    return jsonify(script.to_dict())
-
-
-@api_bp.route('/scripts/<int:script_id>', methods=['DELETE'])
-@require_auth
-def delete_script(script_id):
-    """Delete script"""
-    from models import Script
-
-    script = Script.query.filter_by(
-        id=script_id,
-        user_id=session['user_id']
-    ).first()
-
-    if not script:
-        return jsonify({'error': 'Not found'}), 404
-
-    db.session.delete(script)
-    db.session.commit()
-
-    return jsonify({'success': True})
-
-
-@api_bp.route('/scripts/<int:script_id>/run', methods=['POST'])
-@require_auth
-def run_script(script_id):
-    """Run a script"""
-    from models import Script, ScriptExecution, User
-    from services.telegram_bot import TelegramOTPSender
-    from services.email_service import EmailService
-    import subprocess
-    import tempfile
-    import os
-    import time
-
-    script = Script.query.filter_by(
-        id=script_id,
-        user_id=session['user_id']
-    ).first()
-
-    if not script:
-        return jsonify({'error': 'Not found'}), 404
-
-    execution = ScriptExecution(
-        script_id=script_id,
-        user_id=session['user_id'],
-        status='running'
-    )
-    db.session.add(execution)
-    db.session.commit()
-
-    start_time = time.time()
-
-    try:
-        extension = {
-            'python': '.py',
-            'javascript': '.js',
-            'bash': '.sh'
-        }.get(script.language, '.txt')
-
-        with tempfile.NamedTemporaryFile(mode='w', suffix=extension, delete=False) as f:
-            f.write(script.code)
-            temp_path = f.name
-
-        command = {
-            'python': ['python3', temp_path],
-            'javascript': ['node', temp_path],
-            'bash': ['bash', temp_path]
-        }.get(script.language)
-
-        if not command:
-            execution.status = 'failed'
-            execution.error = 'Unsupported language'
-            execution.completed_at = datetime.utcnow()
-            execution.execution_time = time.time() - start_time
-            db.session.commit()
-            return jsonify({'error': 'Unsupported language'}), 400
-
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-
-        os.unlink(temp_path)
-
-        execution.status = 'success' if result.returncode == 0 else 'failed'
-        execution.output = result.stdout
-        execution.error = result.stderr
-        execution.return_code = result.returncode
-        execution.execution_time = time.time() - start_time
-        execution.completed_at = datetime.utcnow()
-        db.session.commit()
-
-        # Send notifications if configured
-        user = User.query.get(session['user_id'])
-        _send_execution_notifications(script, execution, user)
-
-        return jsonify({
-            'success': True,
-            'execution_id': execution.id,
-            'output': result.stdout,
-            'error': result.stderr,
-            'return_code': result.returncode,
-            'execution_time': execution.execution_time
-        })
-
-    except subprocess.TimeoutExpired:
-        execution.status = 'timeout'
-        execution.error = 'Script execution timeout (30s)'
-        execution.execution_time = time.time() - start_time
-        execution.completed_at = datetime.utcnow()
-        db.session.commit()
-        return jsonify({'error': 'Script execution timeout'}), 408
-    except Exception as e:
-        execution.status = 'failed'
-        execution.error = str(e)
-        execution.execution_time = time.time() - start_time
-        execution.completed_at = datetime.utcnow()
-        db.session.commit()
-        return jsonify({'error': str(e)}), 500
-
-
-def _send_execution_notifications(script, execution, user):
-    """Send notifications for script execution results"""
-    from services.telegram_bot import TelegramOTPSender
-    from services.email_service import EmailService
-
-    # Determine if we should send notifications
-    send_telegram = getattr(script, 'send_output_telegram', False)
-    send_email = getattr(script, 'send_output_email', False)
-
-    if not send_telegram and not send_email:
-        return
-
-    # Prepare status emoji and text
-    status_emoji = {
-        'success': '✅',
-        'failed': '❌',
-        'timeout': '⏱️'
-    }.get(execution.status, '❓')
-
-    status_text = {
-        'success': 'نجح',
-        'failed': 'فشل',
-        'timeout': 'انتهت المهلة'
-    }.get(execution.status, execution.status)
-
-    # Generate share link if public sharing is needed
-    share_url = None
-    if execution.is_public and execution.share_token:
-        share_url = f"/share/execution/{execution.share_token}"
-
-    # Send to Telegram
-    if send_telegram and user and user.telegram_id and user.notify_telegram:
-        try:
-            telegram_sender = TelegramOTPSender()
-
-            output_preview = execution.output[:500] if execution.output else ''
-            if execution.output and len(execution.output) > 500:
-                output_preview += '\n... (تم اقتطاع النتيجة)'
-
-            error_preview = execution.error[:300] if execution.error else ''
-
-            message = f"{status_emoji} <b>نتيجة تنفيذ السكريبت</b>\n\n"
-            message += f"📝 <b>السكريبت:</b> {script.name}\n"
-            message += f"📊 <b>الحالة:</b> {status_text}\n"
-            message += f"⏱️ <b>وقت التنفيذ:</b> {execution.execution_time:.2f}s\n"
-
-            if output_preview:
-                message += f"\n<b>الناتج:</b>\n<pre>{output_preview}</pre>"
-
-            if error_preview:
-                message += f"\n<b>الخطأ:</b>\n<pre>{error_preview}</pre>"
-
-            if share_url:
-                message += f"\n\n🔗 <a href='{share_url}'>عرض النتيجة الكاملة</a>"
-
-            result = telegram_sender.send_message(user.telegram_id, message)
-
-            if result.get('success'):
-                execution.telegram_sent = True
-                db.session.commit()
-        except Exception as e:
-            print(f"Error sending Telegram notification: {e}")
-
-    # Send to Email
-    if send_email and user and user.email and user.notify_email:
-        try:
-            email_service = EmailService()
-
-            result = email_service.send_execution_result(
-                user=user,
-                script_name=script.name,
-                status=execution.status,
-                output=execution.output,
-                error=execution.error,
-                share_url=share_url
-            )
-
-            if result.get('success'):
-                execution.email_sent = True
-                db.session.commit()
-        except Exception as e:
-            print(f"Error sending email notification: {e}")
-
-
-# ===== Executions API =====
-
-@api_bp.route('/executions')
-@require_auth
-def get_executions():
-    """Get all script executions"""
-    from models import ScriptExecution
-
-    executions = ScriptExecution.query.filter_by(
-        user_id=session['user_id']
-    ).order_by(ScriptExecution.started_at.desc()).limit(100).all()
-
-    return jsonify([e.to_dict() for e in executions])
-
-
-@api_bp.route('/executions/<int:execution_id>')
-@require_auth
-def get_execution(execution_id):
-    """Get specific execution details"""
-    from models import ScriptExecution
-
-    execution = ScriptExecution.query.filter_by(
-        id=execution_id,
-        user_id=session['user_id']
-    ).first()
-
-    if not execution:
-        return jsonify({'error': 'Not found'}), 404
-
-    return jsonify(execution.to_dict())
-
-
 # ===== Tasks CRUD =====
 
 @api_bp.route('/tasks')
@@ -553,17 +210,20 @@ def get_tasks():
     """Get user's tasks"""
     from models import Task
 
+    assistant_id = request.args.get('assistant_id', type=int)
     status = request.args.get('status')
-    priority = request.args.get('priority')
 
-    query = Task.query.filter_by(user_id=session['user_id'])
+    query = Task.query.filter_by(create_user_id=session['user_id'])
 
+    if assistant_id:
+        query = query.filter_by(assistant_id=assistant_id)
+
+    tasks = query.order_by(Task.create_time.desc()).all()
+
+    # Filter by status if provided
     if status:
-        query = query.filter_by(status=status)
-    if priority:
-        query = query.filter_by(priority=priority)
+        tasks = [t for t in tasks if t.get_status() == status]
 
-    tasks = query.order_by(Task.created_at.desc()).all()
     return jsonify([t.to_dict() for t in tasks])
 
 
@@ -577,36 +237,39 @@ def create_task():
     data = request.get_json()
 
     task = Task(
-        user_id=session['user_id'],
-        assistant_id=data.get('assistant_id'),
-        title=data.get('title'),
+        name=data.get('name'),
+        create_user_id=session['user_id'],
         description=data.get('description'),
-        priority=data.get('priority', 'medium'),
-        status='new'
+        assistant_id=data.get('assistant_id')
     )
 
-    if data.get('due_date'):
+    if data.get('time'):
         try:
-            task.due_date = date_parser.parse(data['due_date'])
+            task.time = date_parser.parse(data['time'])
         except:
             pass
-
-    if data.get('reminder_time'):
-        try:
-            task.reminder_time = date_parser.parse(data['reminder_time'])
-        except:
-            pass
-
-    if data.get('tags'):
-        task.set_tags(data['tags'])
-
-    if data.get('extra_data'):
-        task.set_extra_data(data['extra_data'])
 
     db.session.add(task)
     db.session.commit()
 
     return jsonify(task.to_dict()), 201
+
+
+@api_bp.route('/tasks/<int:task_id>', methods=['GET'])
+@require_auth
+def get_task(task_id):
+    """Get specific task"""
+    from models import Task
+
+    task = Task.query.filter_by(
+        id=task_id,
+        create_user_id=session['user_id']
+    ).first()
+
+    if not task:
+        return jsonify({'error': 'Not found'}), 404
+
+    return jsonify(task.to_dict())
 
 
 @api_bp.route('/tasks/<int:task_id>', methods=['PUT'])
@@ -618,7 +281,7 @@ def update_task(task_id):
 
     task = Task.query.filter_by(
         id=task_id,
-        user_id=session['user_id']
+        create_user_id=session['user_id']
     ).first()
 
     if not task:
@@ -626,35 +289,17 @@ def update_task(task_id):
 
     data = request.get_json()
 
-    if 'title' in data:
-        task.title = data['title']
+    if 'name' in data:
+        task.name = data['name']
     if 'description' in data:
         task.description = data['description']
-    if 'priority' in data:
-        task.priority = data['priority']
-    if 'status' in data:
-        if data['status'] in ['completed', 'cancelled']:
-            task.status = data['status']
-            if data['status'] == 'completed':
-                task.mark_completed()
-
-    if 'due_date' in data:
+    if 'assistant_id' in data:
+        task.assistant_id = data['assistant_id']
+    if 'time' in data:
         try:
-            task.due_date = date_parser.parse(data['due_date']) if data['due_date'] else None
+            task.time = date_parser.parse(data['time']) if data['time'] else None
         except:
             pass
-
-    if 'reminder_time' in data:
-        try:
-            task.reminder_time = date_parser.parse(data['reminder_time']) if data['reminder_time'] else None
-        except:
-            pass
-
-    if 'tags' in data:
-        task.set_tags(data['tags'])
-
-    if 'extra_data' in data:
-        task.set_extra_data(data['extra_data'])
 
     db.session.commit()
 
@@ -669,7 +314,7 @@ def delete_task(task_id):
 
     task = Task.query.filter_by(
         id=task_id,
-        user_id=session['user_id']
+        create_user_id=session['user_id']
     ).first()
 
     if not task:
@@ -689,7 +334,7 @@ def complete_task(task_id):
 
     task = Task.query.filter_by(
         id=task_id,
-        user_id=session['user_id']
+        create_user_id=session['user_id']
     ).first()
 
     if not task:
@@ -700,79 +345,388 @@ def complete_task(task_id):
     return jsonify(task.to_dict())
 
 
-# ===== Actions =====
-
-@api_bp.route('/actions')
+@api_bp.route('/tasks/<int:task_id>/cancel', methods=['POST'])
 @require_auth
-def get_actions():
-    """Get all actions"""
-    from models import Action
+def cancel_task(task_id):
+    """Mark task as cancelled"""
+    from models import Task
 
-    assistant_type_id = request.args.get('assistant_type_id', type=int)
+    task = Task.query.filter_by(
+        id=task_id,
+        create_user_id=session['user_id']
+    ).first()
 
-    if assistant_type_id:
-        actions = Action.query.filter_by(
-            assistant_type_id=assistant_type_id,
-            is_active=True
-        ).all()
-    else:
-        actions = Action.query.filter_by(is_active=True).all()
+    if not task:
+        return jsonify({'error': 'Not found'}), 404
 
-    return jsonify([a.to_dict() for a in actions])
+    task.mark_cancelled()
+
+    return jsonify(task.to_dict())
 
 
-@api_bp.route('/actions/<int:action_id>/execute', methods=['POST'])
+# ===== Scripts CRUD =====
+
+@api_bp.route('/scripts')
 @require_auth
-def execute_action(action_id):
-    """Execute an action"""
-    from services.script_executor import ScriptExecutor
+def get_scripts():
+    """Get user's scripts"""
+    from models import Script
+
+    assistant_id = request.args.get('assistant_id', type=int)
+
+    query = Script.query.filter_by(create_user_id=session['user_id'])
+
+    if assistant_id:
+        query = query.filter_by(assistant_id=assistant_id)
+
+    scripts = query.order_by(Script.create_time.desc()).all()
+    return jsonify([s.to_dict() for s in scripts])
+
+
+@api_bp.route('/scripts', methods=['POST'])
+@require_auth
+def create_script():
+    """Create new script"""
+    from models import Script
+
+    data = request.get_json()
+
+    script = Script(
+        name=data.get('name'),
+        code=data.get('code', ''),
+        create_user_id=session['user_id'],
+        notify_template_id=data.get('notify_template_id'),
+        assistant_id=data.get('assistant_id')
+    )
+
+    db.session.add(script)
+    db.session.commit()
+
+    return jsonify(script.to_dict()), 201
+
+
+@api_bp.route('/scripts/<int:script_id>', methods=['GET'])
+@require_auth
+def get_script(script_id):
+    """Get specific script"""
+    from models import Script
+
+    script = Script.query.filter_by(
+        id=script_id,
+        create_user_id=session['user_id']
+    ).first()
+
+    if not script:
+        return jsonify({'error': 'Not found'}), 404
+
+    return jsonify(script.to_dict())
+
+
+@api_bp.route('/scripts/<int:script_id>', methods=['PUT'])
+@require_auth
+def update_script(script_id):
+    """Update script"""
+    from models import Script
+
+    script = Script.query.filter_by(
+        id=script_id,
+        create_user_id=session['user_id']
+    ).first()
+
+    if not script:
+        return jsonify({'error': 'Not found'}), 404
+
+    data = request.get_json()
+
+    if 'name' in data:
+        script.name = data['name']
+    if 'code' in data:
+        script.code = data['code']
+    if 'notify_template_id' in data:
+        script.notify_template_id = data['notify_template_id']
+    if 'assistant_id' in data:
+        script.assistant_id = data['assistant_id']
+
+    db.session.commit()
+
+    return jsonify(script.to_dict())
+
+
+@api_bp.route('/scripts/<int:script_id>', methods=['DELETE'])
+@require_auth
+def delete_script(script_id):
+    """Delete script"""
+    from models import Script
+
+    script = Script.query.filter_by(
+        id=script_id,
+        create_user_id=session['user_id']
+    ).first()
+
+    if not script:
+        return jsonify({'error': 'Not found'}), 404
+
+    db.session.delete(script)
+    db.session.commit()
+
+    return jsonify({'success': True})
+
+
+@api_bp.route('/scripts/<int:script_id>/run', methods=['POST'])
+@require_auth
+def run_script(script_id):
+    """Run a script"""
+    from models import Script, ScriptExecuteLog, User, Assistant
+    import subprocess
+    import tempfile
+    import os
+
+    script = Script.query.filter_by(
+        id=script_id,
+        create_user_id=session['user_id']
+    ).first()
+
+    if not script:
+        return jsonify({'error': 'Not found'}), 404
 
     data = request.get_json() or {}
-    input_data = data.get('input_data', {})
-    input_data['user_id'] = session['user_id']
+    input_data = data.get('input', '')
 
-    executor = ScriptExecutor()
-    result = executor.execute_action(action_id, session['user_id'], input_data)
+    # Create execution log
+    execution = ScriptExecuteLog(
+        script_id=script_id,
+        input=input_data,
+        state='running',
+        start_time=datetime.utcnow()
+    )
+    db.session.add(execution)
+    db.session.commit()
 
-    return jsonify(result)
+    try:
+        # Write script to temp file and execute
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            f.write(script.code)
+            temp_path = f.name
+
+        result = subprocess.run(
+            ['python3', temp_path],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            input=input_data
+        )
+
+        os.unlink(temp_path)
+
+        execution.output = result.stdout + result.stderr
+        execution.state = 'success' if result.returncode == 0 else 'failed'
+        execution.end_time = datetime.utcnow()
+        db.session.commit()
+
+        # Send notifications if assistant has them enabled
+        if script.assistant:
+            _send_script_notifications(script, execution)
+
+        return jsonify({
+            'success': True,
+            'execution_id': execution.id,
+            'output': execution.output,
+            'state': execution.state,
+            'execution_time': execution.get_execution_time()
+        })
+
+    except subprocess.TimeoutExpired:
+        execution.state = 'failed'
+        execution.output = 'Script execution timeout (30s)'
+        execution.end_time = datetime.utcnow()
+        db.session.commit()
+        return jsonify({'error': 'Script execution timeout'}), 408
+
+    except Exception as e:
+        execution.state = 'failed'
+        execution.output = str(e)
+        execution.end_time = datetime.utcnow()
+        db.session.commit()
+        return jsonify({'error': str(e)}), 500
 
 
-# ===== Action Executions =====
+def _send_script_notifications(script, execution):
+    """Send notifications for script execution"""
+    from models import User
+    from services.telegram_bot import TelegramOTPSender
 
-@api_bp.route('/action-executions')
+    assistant = script.assistant
+    if not assistant:
+        return
+
+    user = User.query.get(assistant.create_user_id)
+    if not user:
+        return
+
+    # Prepare message from template or default
+    if assistant.notify_template:
+        message = assistant.notify_template.render(
+            script_name=script.name,
+            output=execution.output[:500] if execution.output else '',
+            state=execution.state
+        )
+    else:
+        status_emoji = '✅' if execution.state == 'success' else '❌'
+        message = f"{status_emoji} تنفيذ السكريبت: {script.name}\n"
+        message += f"الحالة: {execution.state}\n"
+        if execution.output:
+            message += f"\nالناتج:\n{execution.output[:500]}"
+
+    # Send Telegram notification
+    if assistant.telegram_notify and user.telegram_id:
+        try:
+            sender = TelegramOTPSender()
+            sender.send_message(user.telegram_id, message)
+        except Exception as e:
+            print(f"Error sending Telegram notification: {e}")
+
+    # Send Email notification
+    if assistant.email_notify and user.email:
+        try:
+            from services.email_service import EmailService
+            email_service = EmailService()
+            email_service.send_email(
+                user.email,
+                f"نتيجة تنفيذ السكريبت: {script.name}",
+                f"<pre>{message}</pre>"
+            )
+        except Exception as e:
+            print(f"Error sending email notification: {e}")
+
+
+# ===== Executions API =====
+
+@api_bp.route('/executions')
 @require_auth
-def get_action_executions():
-    """Get action execution history"""
-    from models import ActionExecution
+def get_executions():
+    """Get script execution logs"""
+    from models import ScriptExecuteLog, Script
 
-    limit = request.args.get('limit', 50, type=int)
+    # Get user's scripts first
+    user_scripts = Script.query.filter_by(create_user_id=session['user_id']).all()
+    script_ids = [s.id for s in user_scripts]
 
-    executions = ActionExecution.query.filter_by(
-        user_id=session['user_id']
-    ).order_by(ActionExecution.created_at.desc()).limit(limit).all()
+    if not script_ids:
+        return jsonify([])
+
+    executions = ScriptExecuteLog.query.filter(
+        ScriptExecuteLog.script_id.in_(script_ids)
+    ).order_by(ScriptExecuteLog.create_time.desc()).limit(100).all()
 
     return jsonify([e.to_dict() for e in executions])
 
 
-# ===== Utility Functions =====
+@api_bp.route('/executions/<int:execution_id>')
+@require_auth
+def get_execution(execution_id):
+    """Get specific execution details"""
+    from models import ScriptExecuteLog, Script
 
-def _seed_assistant_types():
-    """Seed assistant types if they don't exist"""
-    from models import AssistantType
+    execution = ScriptExecuteLog.query.get(execution_id)
+    if not execution:
+        return jsonify({'error': 'Not found'}), 404
 
-    types = [
-        {'name': 'task_manager', 'display_name_ar': 'مدير مهام', 'display_name_en': 'Task Manager',
-         'description': 'يدير المهام اليومية ويرسل التذكيرات', 'icon': ''},
-        {'name': 'reminder', 'display_name_ar': 'تذكيرات', 'display_name_en': 'Reminder',
-         'description': 'يرسل تذكيرات بالمواعيد والمهام المهمة', 'icon': ''},
-        {'name': 'automation', 'display_name_ar': 'أتمتة', 'display_name_en': 'Automation',
-         'description': 'ينفذ مهام أوتوماتيكية حسب الجدول', 'icon': ''},
-        {'name': 'data_collector', 'display_name_ar': 'جمع بيانات', 'display_name_en': 'Data Collector',
-         'description': 'يجمع البيانات من مصادر مختلفة', 'icon': ''},
-        {'name': 'custom', 'display_name_ar': 'مخصص', 'display_name_en': 'Custom',
-         'description': 'مساعد مخصص حسب احتياجاتك', 'icon': ''}
-    ]
-    for type_data in types:
-        db.session.add(AssistantType(**type_data))
+    # Verify ownership
+    script = Script.query.get(execution.script_id)
+    if not script or script.create_user_id != session['user_id']:
+        return jsonify({'error': 'Not found'}), 404
+
+    return jsonify(execution.to_dict())
+
+
+@api_bp.route('/executions/<int:execution_id>/share', methods=['POST'])
+@require_auth
+def create_share_link(execution_id):
+    """Create a public share link for execution"""
+    from models import ScriptExecuteLog, Script
+
+    execution = ScriptExecuteLog.query.get(execution_id)
+    if not execution:
+        return jsonify({'error': 'Not found'}), 404
+
+    # Verify ownership
+    script = Script.query.get(execution.script_id)
+    if not script or script.create_user_id != session['user_id']:
+        return jsonify({'error': 'Not found'}), 404
+
+    token = execution.generate_share_token()
     db.session.commit()
-    print("Auto-seeded assistant types")
+
+    return jsonify({
+        'success': True,
+        'share_token': token,
+        'share_url': f'/share/execution/{token}'
+    })
+
+
+@api_bp.route('/executions/<int:execution_id>/share', methods=['DELETE'])
+@require_auth
+def remove_share_link(execution_id):
+    """Remove public share link"""
+    from models import ScriptExecuteLog, Script
+
+    execution = ScriptExecuteLog.query.get(execution_id)
+    if not execution:
+        return jsonify({'error': 'Not found'}), 404
+
+    # Verify ownership
+    script = Script.query.get(execution.script_id)
+    if not script or script.create_user_id != session['user_id']:
+        return jsonify({'error': 'Not found'}), 404
+
+    execution.share_token = None
+    execution.is_public = False
+    db.session.commit()
+
+    return jsonify({'success': True})
+
+
+# ===== User Profile =====
+
+@api_bp.route('/user/profile')
+@require_auth
+def get_user_profile():
+    """Get current user's profile"""
+    from models import User
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    return jsonify(user.to_dict())
+
+
+@api_bp.route('/user/profile', methods=['PUT'])
+@require_auth
+def update_user_profile():
+    """Update user's profile"""
+    from models import User
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    data = request.get_json()
+
+    if 'name' in data:
+        user.name = data['name']
+    if 'email' in data:
+        user.email = data['email']
+    if 'timezone' in data:
+        user.timezone = data['timezone']
+    if 'language_id' in data:
+        user.language_id = data['language_id']
+    if 'browser_notify' in data:
+        user.browser_notify = data['browser_notify']
+
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'user': user.to_dict()
+    })

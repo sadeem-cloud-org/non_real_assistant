@@ -18,17 +18,23 @@ class AuthService:
         """Generate a random 6-digit OTP code"""
         return ''.join([str(secrets.randbelow(10)) for _ in range(Config.OTP_LENGTH)])
 
-    def request_otp(self, phone: str) -> dict:
+    def request_otp(self, mobile: str) -> dict:
         """
-        Request OTP for a phone number
+        Request OTP for a mobile number
         Returns: dict with success status and message
         """
-        user = User.query.filter_by(phone=phone).first()
+        user = User.query.filter_by(mobile=mobile).first()
 
         if not user:
             return {
                 'success': False,
                 'message': 'رقم الهاتف غير مسجل / Phone number not registered'
+            }
+
+        if not user.telegram_id:
+            return {
+                'success': False,
+                'message': 'لم يتم ربط حساب تيليجرام / Telegram not linked'
             }
 
         # Invalidate any existing unused OTPs for this user
@@ -67,12 +73,12 @@ class AuthService:
             }
 
     @staticmethod
-    def verify_otp(phone: str, otp_code: str) -> dict:
+    def verify_otp(mobile: str, otp_code: str) -> dict:
         """
-        Verify OTP code for a phone number
+        Verify OTP code for a mobile number
         Returns: dict with success status, message, and user data
         """
-        user = User.query.filter_by(phone=phone).first()
+        user = User.query.filter_by(mobile=mobile).first()
 
         if not user:
             return {
@@ -85,7 +91,7 @@ class AuthService:
             user_id=user.id,
             code=otp_code,
             used=False
-        ).order_by(OTP.created_at.desc()).first()
+        ).order_by(OTP.create_time.desc()).first()
 
         if not otp:
             return {
@@ -102,14 +108,11 @@ class AuthService:
         # Mark OTP as used
         otp.mark_as_used()
 
-        # Update last login
-        user.update_last_login()
-
         return {
             'success': True,
             'message': 'تم تسجيل الدخول بنجاح / Login successful',
             'user': {
                 'id': user.id,
-                'phone': user.phone
+                'mobile': user.mobile
             }
         }

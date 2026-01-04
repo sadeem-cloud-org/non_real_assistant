@@ -12,8 +12,9 @@
 
 ### إدارة المساعدين
 - أنواع مساعدين متعددة (مدير مهام، تذكيرات، أتمتة، مراقبة سيرفرات، جمع بيانات)
-- ربط المهام بالمساعدين
-- جدولة وتنفيذ تلقائي
+- ربط المهام والسكريبتات بالمساعدين
+- جدولة وتنفيذ تلقائي (run_every)
+- إشعارات مخصصة لكل مساعد
 
 ### السكريبتات
 - محرر كود متكامل (Python, JavaScript, Bash)
@@ -23,19 +24,20 @@
 - روابط مشاركة عامة لنتائج التنفيذ
 
 ### الإشعارات
-- إشعارات Telegram تلقائية للتذكيرات
-- إشعارات البريد الإلكتروني
+- إشعارات Telegram تلقائية للتذكيرات (على مستوى المساعد)
+- إشعارات البريد الإلكتروني (على مستوى المساعد)
 - إشعارات المتصفح
+- قوالب إشعارات مخصصة
 
 ### دعم متعدد اللغات
 - واجهة عربية وإنجليزية
-- Flask-Babel للترجمة
 - تبديل اللغة من الواجهة
 
 ### دعم متعدد المستخدمين
 - كل مستخدم له بياناته الخاصة
 - إعدادات شخصية (اللغة، المنطقة الزمنية، الإشعارات)
-- إعدادات النظام (SMTP)
+- سجل تسجيل الدخول
+- إعدادات النظام
 
 ## المتطلبات
 
@@ -89,25 +91,25 @@ python bot_info.py
 1. أرسل رسالة لـ [@userinfobot](https://t.me/userinfobot)
 2. سيعطيك الـ ID الخاص بك
 
-### 7. إنشاء مستخدم
-
-```bash
-python create_user.py create --phone 01234567890 --telegram_id YOUR_TELEGRAM_ID
-```
-
-### 8. تحديث قاعدة البيانات
+### 7. تحديث قاعدة البيانات
 
 ```bash
 python -m migrations.migrate
 ```
 
-### 9. إضافة أنواع المساعدين
+هذا الأمر سيقوم بـ:
+- إنشاء جميع الجداول
+- إضافة اللغات (العربية، الإنجليزية)
+- إضافة أنواع المساعدين
+- إضافة قوالب الإشعارات
+
+### 8. إنشاء مستخدم
 
 ```bash
-python seed_assistant_types.py
+python create_user.py create --phone 01234567890 --telegram_id YOUR_TELEGRAM_ID
 ```
 
-### 10. تشغيل التطبيق
+### 9. تشغيل التطبيق
 
 ```bash
 python app.py
@@ -121,7 +123,7 @@ python app.py
 non_real_assistant/
 ├── app.py                      # نقطة الدخول الرئيسية
 ├── models.py                   # نماذج قاعدة البيانات
-├── scheduler.py                # جدولة المهام
+├── scheduler.py                # جدولة المهام والسكريبتات
 │
 ├── config/
 │   ├── __init__.py
@@ -150,10 +152,6 @@ non_real_assistant/
 │   ├── __init__.py
 │   └── migrate.py              # تحديث قاعدة البيانات
 │
-├── translations/
-│   ├── ar/LC_MESSAGES/         # الترجمة العربية
-│   └── en/LC_MESSAGES/         # الترجمة الإنجليزية
-│
 ├── static/
 │   ├── css/
 │   └── js/
@@ -181,32 +179,17 @@ non_real_assistant/
 ## قاعدة البيانات
 
 ### الجداول:
-- **users** - المستخدمين (مع الإعدادات الشخصية)
+- **languages** - اللغات المدعومة (ar, en)
+- **system_settings** - إعدادات النظام (telegram_bot_token, otp_expiration, etc.)
+- **users** - المستخدمين (mobile, name, telegram_id, email, timezone, language_id)
+- **user_login_history** - سجل تسجيل الدخول
 - **otps** - رموز التحقق
-- **assistant_types** - أنواع المساعدين المتاحة
-- **actions** - الإجراءات التي يمكن تنفيذها
-- **assistants** - المساعدين المفعلين للمستخدمين
-- **tasks** - المهام (مربوطة بالمساعدين)
-- **scripts** - السكريبتات
-- **script_executions** - سجل تنفيذ السكريبتات
-- **action_executions** - سجل تنفيذ الإجراءات
-- **system_settings** - إعدادات النظام
-
-## إعداد البريد الإلكتروني
-
-لتفعيل إشعارات البريد الإلكتروني:
-
-1. اذهب إلى **إعدادات النظام** من القائمة
-2. أدخل بيانات SMTP:
-   - خادم SMTP (مثل: smtp.gmail.com)
-   - المنفذ (587 للـ TLS)
-   - اسم المستخدم وكلمة المرور
-   - البريد المرسل
-3. استخدم "إرسال بريد تجريبي" للتحقق
-
-### لـ Gmail:
-- فعّل "Less secure app access" أو
-- استخدم App Password إذا كان 2FA مفعل
+- **notify_templates** - قوالب الإشعارات
+- **assistant_types** - أنواع المساعدين (name, related_action)
+- **assistants** - المساعدين (telegram_notify, email_notify, run_every, next_run_time)
+- **tasks** - المهام (مربوطة بالمساعدين، name, time, complete_time, cancel_time)
+- **scripts** - السكريبتات (مربوطة بالمساعدين)
+- **script_execute_logs** - سجل تنفيذ السكريبتات (share_token, is_public)
 
 ## API Endpoints
 
@@ -220,6 +203,7 @@ non_real_assistant/
 - `POST /api/assistants` - إنشاء مساعد
 - `PUT /api/assistants/:id` - تحديث مساعد
 - `DELETE /api/assistants/:id` - حذف مساعد
+- `GET /api/assistant-types` - أنواع المساعدين
 
 ### المهام
 - `GET /api/tasks` - قائمة المهام
@@ -227,6 +211,7 @@ non_real_assistant/
 - `PUT /api/tasks/:id` - تحديث مهمة
 - `DELETE /api/tasks/:id` - حذف مهمة
 - `POST /api/tasks/:id/complete` - إتمام مهمة
+- `POST /api/tasks/:id/cancel` - إلغاء مهمة
 
 ### السكريبتات
 - `GET /api/scripts` - قائمة السكريبتات
@@ -242,13 +227,14 @@ non_real_assistant/
 ### المشاركة
 - `POST /api/executions/:id/share` - إنشاء رابط مشاركة
 - `DELETE /api/executions/:id/share` - إزالة المشاركة
+- `GET /share/execution/:token` - صفحة المشاركة العامة
 
 ### الإعدادات
 - `GET /api/user/profile` - بيانات المستخدم
 - `PUT /api/user/profile` - تحديث البيانات
-- `GET /api/system/settings/email` - إعدادات البريد
-- `PUT /api/system/settings/email` - تحديث إعدادات البريد
-- `POST /api/system/settings/email/test` - إرسال بريد تجريبي
+- `GET /api/system/settings` - إعدادات النظام
+- `PUT /api/system/settings` - تحديث إعدادات النظام
+- `GET /api/languages` - قائمة اللغات
 
 ### اللغة
 - `GET /set-language/ar` - تبديل للعربية
@@ -256,11 +242,12 @@ non_real_assistant/
 
 ## الأمان
 
-- جميع OTP صالحة لمدة 5 دقائق فقط
+- جميع OTP صالحة لمدة 5 دقائق فقط (قابلة للتخصيص)
 - الأكواد المستخدمة يتم إلغاؤها تلقائياً
 - الجلسات محمية بـ SECRET_KEY
 - لا يتم تخزين كلمات المرور
 - روابط المشاركة عشوائية وآمنة
+- سجل تسجيل الدخول (IP, Browser)
 
 ## حل المشاكل الشائعة
 

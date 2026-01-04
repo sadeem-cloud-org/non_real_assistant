@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 import os
 from datetime import datetime
-from models import db, Action, ActionExecution, User
+from models import db, Script, ScriptExecuteLog, User
 from services.telegram_bot import TelegramOTPSender
 
 
@@ -17,90 +17,91 @@ class ScriptExecutor:
     def __init__(self):
         self.telegram_sender = TelegramOTPSender()
 
-    def execute_action(self, action_id, user_id, input_data=None):
+    def execute(self, script_code, input_data=None, timeout=30):
         """
-        Execute a specific action
+        Execute a script code
 
         Args:
-            action_id: Action ID
-            user_id: User ID
+            script_code: Python script code to execute
+            input_data: Input data (dict)
+            timeout: Timeout in seconds
+
+        Returns:
+            dict: Execution result with success, output, start_time, end_time
+        """
+        start_time = datetime.utcnow()
+
+        try:
+            result = self._execute_python_script(
+                script_code,
+                input_data or {},
+                timeout
+            )
+
+            end_time = datetime.utcnow()
+
+            return {
+                'success': result.get('success', False),
+                'output': result.get('message', '') or result.get('output', ''),
+                'start_time': start_time,
+                'end_time': end_time,
+                'data': result.get('data')
+            }
+
+        except Exception as e:
+            end_time = datetime.utcnow()
+            return {
+                'success': False,
+                'output': str(e),
+                'start_time': start_time,
+                'end_time': end_time
+            }
+
+    def execute_script(self, script_id, input_data=None):
+        """
+        Execute a script by ID and log the execution
+
+        Args:
+            script_id: Script ID
             input_data: Input data (dict)
 
         Returns:
             dict: Execution result
         """
-        action = Action.query.get(action_id)
+        script = Script.query.get(script_id)
 
-        if not action or not action.is_active:
+        if not script:
             return {
                 "success": False,
-                "message": "Action not found or inactive"
+                "message": "Script not found"
             }
 
-        # Create execution record
-        execution = ActionExecution(
-            action_id=action_id,
-            user_id=user_id,
-            status='pending'
+        # Create execution log
+        log = ScriptExecuteLog(
+            script_id=script_id,
+            input=json.dumps(input_data) if input_data else None,
+            state='pending'
         )
-        execution.set_input_data(input_data or {})
-        db.session.add(execution)
+        db.session.add(log)
         db.session.commit()
 
         try:
-            # Update status to running
-            execution.status = 'running'
-            execution.started_at = datetime.utcnow()
-            db.session.commit()
-
             # Execute script
-            if action.execution_type == 'python_script':
-                result = self._execute_python_script(
-                    action.script_content,
-                    input_data or {},
-                    action.timeout
-                )
-            elif action.execution_type == 'bash_command':
-                result = self._execute_bash_command(
-                    action.script_content,
-                    input_data or {},
-                    action.timeout
-                )
-            else:
-                result = {
-                    "success": False,
-                    "message": f"Unsupported execution type: {action.execution_type}"
-                }
+            result = self.execute(script.code, input_data)
 
-            # Save result
-            execution.status = 'success' if result.get('success') else 'failed'
-            execution.set_output_data(result)
-            execution.completed_at = datetime.utcnow()
-
-            if execution.started_at:
-                execution.execution_time = (
-                        execution.completed_at - execution.started_at
-                ).total_seconds()
-
+            # Update log
+            log.output = result.get('output', '')
+            log.start_time = result.get('start_time')
+            log.end_time = result.get('end_time')
+            log.state = 'success' if result.get('success') else 'failed'
             db.session.commit()
-
-            # Handle notifications
-            notification = result.get('notification')
-            if notification and notification.get('send_telegram'):
-                self._send_telegram_notification(user_id, notification)
 
             return result
 
         except Exception as e:
-            execution.status = 'failed'
-            execution.error_message = str(e)
-            execution.completed_at = datetime.utcnow()
-
-            if execution.started_at:
-                execution.execution_time = (
-                        execution.completed_at - execution.started_at
-                ).total_seconds()
-
+            log.output = str(e)
+            log.end_time = datetime.utcnow()
+            log.state = 'failed'
             db.session.commit()
 
             return {
@@ -135,30 +136,35 @@ class ScriptExecutor:
             if result.returncode != 0:
                 return {
                     "success": False,
-                    "message": f"Execution error: {result.stderr}"
+                    "message": f"Execution error: {result.stderr}",
+                    "output": result.stderr
                 }
 
             try:
                 output = json.loads(result.stdout)
                 return output
             except json.JSONDecodeError:
+                # Return raw output if not JSON
                 return {
-                    "success": False,
-                    "message": f"Error parsing result: {result.stdout}"
+                    "success": True,
+                    "message": result.stdout,
+                    "output": result.stdout
                 }
 
         except subprocess.TimeoutExpired:
             os.unlink(temp_path)
             return {
                 "success": False,
-                "message": f"Timeout ({timeout} seconds)"
+                "message": f"Timeout ({timeout} seconds)",
+                "output": f"Script timed out after {timeout} seconds"
             }
         except Exception as e:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
             return {
                 "success": False,
-                "message": f"Error: {str(e)}"
+                "message": f"Error: {str(e)}",
+                "output": str(e)
             }
 
     def _execute_bash_command(self, command, input_data, timeout):
@@ -180,7 +186,8 @@ class ScriptExecutor:
             if result.returncode != 0:
                 return {
                     "success": False,
-                    "message": f"Execution error: {result.stderr}"
+                    "message": f"Execution error: {result.stderr}",
+                    "output": result.stderr
                 }
 
             try:
@@ -190,36 +197,38 @@ class ScriptExecutor:
                 return {
                     "success": True,
                     "message": result.stdout,
-                    "data": {"raw_output": result.stdout}
+                    "output": result.stdout
                 }
 
         except subprocess.TimeoutExpired:
             return {
                 "success": False,
-                "message": f"Timeout ({timeout} seconds)"
+                "message": f"Timeout ({timeout} seconds)",
+                "output": f"Command timed out after {timeout} seconds"
             }
         except Exception as e:
             return {
                 "success": False,
-                "message": f"Error: {str(e)}"
+                "message": f"Error: {str(e)}",
+                "output": str(e)
             }
 
-    def _send_telegram_notification(self, user_id, notification):
+    def send_notification(self, user_id, notification):
         """Send Telegram notification"""
         try:
             user = User.query.get(user_id)
-            if not user:
-                print(f"User {user_id} not found")
-                return
+            if not user or not user.telegram_id:
+                print(f"User {user_id} not found or no telegram_id")
+                return False
 
             type_emoji = {
-                'info': 'i',
-                'success': '',
-                'warning': '',
-                'error': ''
+                'info': 'ℹ️',
+                'success': '✅',
+                'warning': '⚠️',
+                'error': '❌'
             }
 
-            emoji = type_emoji.get(notification.get('type', 'info'), 'i')
+            emoji = type_emoji.get(notification.get('type', 'info'), 'ℹ️')
             title = notification.get('title', 'Notification')
             body = notification.get('body', '')
 
@@ -229,6 +238,10 @@ class ScriptExecutor:
 
             if not result['success']:
                 print(f"Failed to send notification to user {user_id}: {result.get('error')}")
+                return False
+
+            return True
 
         except Exception as e:
             print(f"Error sending notification: {e}")
+            return False

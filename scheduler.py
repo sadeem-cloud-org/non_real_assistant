@@ -1,16 +1,17 @@
 """
-Background Scheduler for automatic task reminders
+Background Scheduler for automatic task reminders and script execution
 """
 
 import threading
 import time
 from datetime import datetime, timedelta
-from models import db, Task, User, Action, Assistant
+from models import db, Task, User, Assistant, Script, ScriptExecuteLog, NotifyTemplate
 from services.telegram_bot import TelegramOTPSender
 from services.script_executor import ScriptExecutor
 
+
 class TaskScheduler:
-    """Background scheduler for tasks and actions"""
+    """Background scheduler for tasks and scripts"""
 
     def __init__(self, app):
         self.app = app
@@ -45,8 +46,8 @@ class TaskScheduler:
                     # Check for task reminders
                     self._check_task_reminders()
 
-                    # Check for scheduled actions
-                    self._check_scheduled_actions()
+                    # Check for scheduled assistant scripts
+                    self._check_scheduled_assistants()
 
             except Exception as e:
                 print(f"❌ Scheduler error: {e}")
@@ -54,74 +55,41 @@ class TaskScheduler:
             # Sleep for 1 minute
             time.sleep(60)
 
-
-    def _auto_start_tasks(self, now):
-        """Automatically start tasks when their due date arrives"""
-        try:
-            # Find all 'new' tasks where due_date has passed or is now
-            tasks_to_start = Task.query.filter(
-                Task.status == 'new',
-                Task.due_date.isnot(None),
-                Task.due_date <= now
-            ).all()
-
-            for task in tasks_to_start:
-                task.status = 'in_progress'
-                db.session.add(task)
-                print(f"[Scheduler] Auto-started task #{task.id}: {task.title}")
-
-            if tasks_to_start:
-                db.session.commit()
-                print(f"[Scheduler] Auto-started {len(tasks_to_start)} tasks")
-
-        except Exception as e:
-            print(f"[Scheduler] Error auto-starting tasks: {str(e)}")
-            db.session.rollback()
-
     def _check_task_reminders(self):
         """Check and send task reminders"""
         now = datetime.utcnow()
 
-        # Auto-start tasks: Convert 'new' tasks to 'in_progress' when due_date arrives
-        self._auto_start_tasks(now)
-
-        # Get tasks with reminder_time in the next 1 minute (narrower window)
-        # This prevents sending same reminder multiple times
+        # Get pending tasks (not completed, not cancelled) with time in the next 1 minute
         upcoming_tasks = Task.query.filter(
-            Task.status.in_(['new', 'in_progress']),  # Check both new and in_progress
-            Task.reminder_time.isnot(None),
-            Task.reminder_time <= now + timedelta(minutes=1),
-            Task.reminder_time > now - timedelta(seconds=30)  # Only recent ones
+            Task.complete_time.is_(None),
+            Task.cancel_time.is_(None),
+            Task.notify_sent == False,
+            Task.time.isnot(None),
+            Task.time <= now + timedelta(minutes=1),
+            Task.time > now - timedelta(minutes=5)
         ).all()
 
         for task in upcoming_tasks:
-            # Check if we already sent reminder (avoid duplicates)
-            extra_data = task.get_extra_data()
-
-            # If reminder was sent in the last 5 minutes, skip
-            if extra_data.get('reminder_sent'):
-                reminder_sent_at = extra_data.get('reminder_sent_at')
-                if reminder_sent_at:
-                    try:
-                        sent_time = datetime.fromisoformat(reminder_sent_at.replace('Z', '+00:00'))
-                        time_since_sent = (now - sent_time).total_seconds()
-                        if time_since_sent < 300:  # 5 minutes
-                            continue
-                    except:
-                        pass
-
             # Get user
-            user = User.query.get(task.user_id)
+            user = User.query.get(task.create_user_id)
             if not user:
                 continue
 
+            # Check if task has an assistant with telegram_notify enabled
+            should_notify = True
+            if task.assistant_id:
+                assistant = Assistant.query.get(task.assistant_id)
+                if assistant and not assistant.telegram_notify:
+                    should_notify = False
+
+            if not should_notify or not user.telegram_id:
+                continue
+
             # Calculate time difference
-            time_diff = task.reminder_time - now
+            time_diff = task.time - now
             minutes_left = int(time_diff.total_seconds() / 60)
 
-            if minutes_left < 0:
-                time_text = "الآن"
-            elif minutes_left == 0:
+            if minutes_left <= 0:
                 time_text = "الآن"
             elif minutes_left < 60:
                 time_text = f"بعد {minutes_left} دقيقة"
@@ -130,27 +98,19 @@ class TaskScheduler:
                 time_text = f"بعد {hours} ساعة"
 
             # Prepare message
-            priority_emoji = {
-                'high': '🔴',
-                'medium': '🟡',
-                'low': '🟢'
-            }
-
-            emoji = priority_emoji.get(task.priority, '📝')
-
             message = f"""
 ⏰ <b>تذكير بمهمة</b>
 
-{emoji} <b>{task.title}</b>
+📝 <b>{task.name}</b>
 
 """
 
             if task.description:
                 message += f"📋 {task.description}\n\n"
 
-            if task.due_date:
-                due_text = task.due_date.strftime('%Y-%m-%d %H:%M')
-                message += f"📅 موعد الاستحقاق: {due_text}\n"
+            if task.time:
+                time_text_formatted = task.time.strftime('%Y-%m-%d %H:%M')
+                message += f"📅 الموعد: {time_text_formatted}\n"
 
             message += f"⏱ {time_text}\n\n"
             message += "💪 حان وقت إنجاز هذه المهمة!"
@@ -162,27 +122,131 @@ class TaskScheduler:
             )
 
             if result['success']:
-                # Mark reminder as sent with timestamp
-                extra_data['reminder_sent'] = True
-                extra_data['reminder_sent_at'] = now.isoformat()
-                task.set_extra_data(extra_data)
+                # Mark notification as sent
+                task.notify_sent = True
                 db.session.commit()
 
                 print(f"✅ Sent reminder for task #{task.id} to user #{user.id}")
             else:
                 print(f"❌ Failed to send reminder for task #{task.id}: {result.get('error')}")
 
-    def _check_scheduled_actions(self):
-        """Check and execute scheduled actions"""
-        # This will be implemented when we add cron support
-        # For now, we can execute actions based on time
-        pass
+    def _check_scheduled_assistants(self):
+        """Check and execute scheduled assistant scripts"""
+        now = datetime.utcnow()
+
+        # Get assistants that are due for execution
+        due_assistants = Assistant.query.filter(
+            Assistant.run_every.isnot(None),
+            Assistant.next_run_time.isnot(None),
+            Assistant.next_run_time <= now
+        ).all()
+
+        for assistant in due_assistants:
+            # Get scripts for this assistant
+            scripts = Script.query.filter_by(assistant_id=assistant.id).all()
+
+            for script in scripts:
+                try:
+                    # Execute script
+                    result = self.script_executor.execute(script.code)
+
+                    # Log execution
+                    log = ScriptExecuteLog(
+                        script_id=script.id,
+                        input=None,
+                        output=result.get('output', ''),
+                        start_time=result.get('start_time'),
+                        end_time=result.get('end_time'),
+                        state='success' if result.get('success') else 'failed'
+                    )
+                    db.session.add(log)
+
+                    # Send notification if enabled
+                    if assistant.telegram_notify:
+                        self._send_script_notification(assistant, script, result)
+
+                    print(f"✅ Executed script #{script.id} for assistant #{assistant.id}")
+
+                except Exception as e:
+                    # Log failed execution
+                    log = ScriptExecuteLog(
+                        script_id=script.id,
+                        input=None,
+                        output=str(e),
+                        start_time=now,
+                        end_time=datetime.utcnow(),
+                        state='failed'
+                    )
+                    db.session.add(log)
+                    print(f"❌ Failed to execute script #{script.id}: {e}")
+
+            # Update next run time
+            assistant.next_run_time = self._calculate_next_run(assistant.run_every)
+            db.session.commit()
+
+    def _calculate_next_run(self, run_every):
+        """Calculate next run time based on run_every value"""
+        now = datetime.utcnow()
+
+        if run_every == 'minute':
+            return now + timedelta(minutes=1)
+        elif run_every == 'hourly':
+            return now + timedelta(hours=1)
+        elif run_every == 'daily':
+            return now + timedelta(days=1)
+        elif run_every == 'weekly':
+            return now + timedelta(weeks=1)
+        elif run_every == 'monthly':
+            return now + timedelta(days=30)
+        else:
+            # Default to daily
+            return now + timedelta(days=1)
+
+    def _send_script_notification(self, assistant, script, result):
+        """Send script execution notification"""
+        user = User.query.get(assistant.create_user_id)
+        if not user or not user.telegram_id:
+            return
+
+        # Get notification template if set
+        template_text = None
+        if assistant.notify_template_id:
+            template = NotifyTemplate.query.get(assistant.notify_template_id)
+            if template:
+                template_text = template.text
+
+        if result.get('success'):
+            if template_text:
+                message = template_text.format(
+                    script_name=script.name,
+                    output=result.get('output', '')[:500]
+                )
+            else:
+                message = f"""
+✅ <b>تم تنفيذ السكريبت</b>
+
+📜 {script.name}
+
+النتيجة:
+<code>{result.get('output', '')[:500]}</code>
+"""
+        else:
+            message = f"""
+❌ <b>فشل تنفيذ السكريبت</b>
+
+📜 {script.name}
+
+الخطأ:
+<code>{result.get('output', '')[:500]}</code>
+"""
+
+        self.telegram_sender.send_message(user.telegram_id, message.strip())
 
     def send_daily_summary(self, user_id):
         """Send daily task summary to user"""
         with self.app.app_context():
             user = User.query.get(user_id)
-            if not user:
+            if not user or not user.telegram_id:
                 return
 
             # Get today's tasks
@@ -190,11 +254,12 @@ class TaskScheduler:
             today_end = today_start + timedelta(days=1)
 
             pending_tasks = Task.query.filter(
-                Task.user_id == user_id,
-                Task.status == 'pending',
-                Task.due_date >= today_start,
-                Task.due_date < today_end
-            ).order_by(Task.due_date).all()
+                Task.create_user_id == user_id,
+                Task.complete_time.is_(None),
+                Task.cancel_time.is_(None),
+                Task.time >= today_start,
+                Task.time < today_end
+            ).order_by(Task.time).all()
 
             if not pending_tasks:
                 message = "🎉 <b>صباح الخير!</b>\n\nلا توجد مهام لليوم. استمتع بيومك!"
@@ -202,16 +267,9 @@ class TaskScheduler:
                 message = f"🌅 <b>صباح الخير!</b>\n\nعندك {len(pending_tasks)} مهام اليوم:\n\n"
 
                 for i, task in enumerate(pending_tasks, 1):
-                    priority_emoji = {
-                        'high': '🔴',
-                        'medium': '🟡',
-                        'low': '🟢'
-                    }
+                    time_text = task.time.strftime('%H:%M') if task.time else ''
 
-                    emoji = priority_emoji.get(task.priority, '📝')
-                    time_text = task.due_date.strftime('%H:%M') if task.due_date else ''
-
-                    message += f"{i}. {emoji} {task.title}"
+                    message += f"{i}. 📝 {task.name}"
                     if time_text:
                         message += f" ({time_text})"
                     message += "\n"

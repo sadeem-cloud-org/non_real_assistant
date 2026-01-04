@@ -2,6 +2,7 @@
 
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from services.auth import AuthService
+from models import db, UserLoginHistory
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -36,15 +37,15 @@ def logout():
 def request_otp():
     """API endpoint to request OTP"""
     data = request.get_json()
-    phone = data.get('phone', '').strip()
+    mobile = data.get('phone', '').strip()  # Keep 'phone' for backward compatibility
 
-    if not phone:
+    if not mobile:
         return jsonify({
             'success': False,
             'message': 'يرجى إدخال رقم الهاتف / Please enter phone number'
         }), 400
 
-    result = auth_service.request_otp(phone)
+    result = auth_service.request_otp(mobile)
     return jsonify(result)
 
 
@@ -52,21 +53,33 @@ def request_otp():
 def verify_otp():
     """API endpoint to verify OTP"""
     data = request.get_json()
-    phone = data.get('phone', '').strip()
+    mobile = data.get('phone', '').strip()  # Keep 'phone' for backward compatibility
     otp_code = data.get('otp', '').strip()
 
-    if not phone or not otp_code:
+    if not mobile or not otp_code:
         return jsonify({
             'success': False,
             'message': 'يرجى إدخال جميع البيانات / Please enter all fields'
         }), 400
 
-    result = auth_service.verify_otp(phone, otp_code)
+    result = auth_service.verify_otp(mobile, otp_code)
 
     if result['success']:
         # Create session
         session.permanent = True
         session['user_id'] = result['user']['id']
-        session['phone'] = result['user']['phone']
+        session['mobile'] = result['user']['mobile']
+
+        # Track login history
+        try:
+            login_history = UserLoginHistory(
+                user_id=result['user']['id'],
+                ip=request.remote_addr,
+                browser=request.user_agent.string[:200] if request.user_agent else None
+            )
+            db.session.add(login_history)
+            db.session.commit()
+        except Exception as e:
+            print(f"Error tracking login history: {e}")
 
     return jsonify(result)
