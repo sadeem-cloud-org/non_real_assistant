@@ -413,10 +413,11 @@ async function editAssistant(assistantId) {
         document.getElementById('modal-title').textContent = 'تعديل المساعد';
         document.getElementById('btn-save-assistant').textContent = 'حفظ التعديلات';
 
-        // Show modal using Bootstrap API (safer approach)
-        const modalElement = document.getElementById('modal-assistant');
-        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-        modal.show();
+        // Show modal by clicking the trigger button
+        const triggerBtn = document.querySelector('[data-bs-target="#modal-assistant"]');
+        if (triggerBtn) {
+            triggerBtn.click();
+        }
 
     } catch (error) {
         console.error('Error loading assistant:', error);

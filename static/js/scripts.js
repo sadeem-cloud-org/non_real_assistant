@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Theme is initialized by theme.js
     initializeNotifications();
     initializeCodeEditor();
+    loadScriptAssistants();
     loadScripts();
 
     // Modal event listener
@@ -151,23 +152,27 @@ async function loadScripts() {
 
 // Update statistics
 function updateStats() {
-    const stats = {
-        total: allScripts.length,
-        python: 0,
-        javascript: 0,
-        bash: 0
-    };
+    document.getElementById('stat-total').textContent = allScripts.length;
+
+    // Count by assistant if present
+    let withAssistant = 0;
+    let withoutAssistant = 0;
 
     allScripts.forEach(script => {
-        if (script.language === 'python') stats.python++;
-        else if (script.language === 'javascript') stats.javascript++;
-        else if (script.language === 'bash') stats.bash++;
+        if (script.assistant_id) {
+            withAssistant++;
+        } else {
+            withoutAssistant++;
+        }
     });
 
-    document.getElementById('stat-total').textContent = stats.total;
-    document.getElementById('stat-python').textContent = stats.python;
-    document.getElementById('stat-javascript').textContent = stats.javascript;
-    document.getElementById('stat-bash').textContent = stats.bash;
+    const pythonEl = document.getElementById('stat-python');
+    const jsEl = document.getElementById('stat-javascript');
+    const bashEl = document.getElementById('stat-bash');
+
+    if (pythonEl) pythonEl.textContent = withAssistant;
+    if (jsEl) jsEl.textContent = withoutAssistant;
+    if (bashEl) bashEl.textContent = '0';
 }
 
 // Display scripts
@@ -200,46 +205,40 @@ function displayScripts(scripts) {
 
 // Create script card HTML
 function createScriptCard(script) {
-    const languageIcons = {
-        'python': {icon: 'brand-python', color: 'cyan'},
-        'javascript': {icon: 'brand-javascript', color: 'yellow'},
-        'bash': {icon: 'terminal', color: 'green'}
-    };
-
-    const lang = languageIcons[script.language] || {icon: 'code', color: 'blue'};
     const codePreview = script.code ? script.code.substring(0, 200) : 'لا يوجد كود';
 
     return `
         <div class="col-md-6 col-lg-4">
             <div class="card script-card">
-                <div class="card-status-top bg-${lang.color}"></div>
+                <div class="card-status-top bg-cyan"></div>
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
-                        <span class="avatar bg-${lang.color}-lt text-${lang.color} me-3">
-                            <i class="ti ti-${lang.icon}"></i>
+                        <span class="avatar bg-cyan-lt text-cyan me-3">
+                            <i class="ti ti-code"></i>
                         </span>
                         <div class="flex-fill">
                             <h3 class="card-title mb-0">${escapeHtml(script.name)}</h3>
-                            <div class="text-muted small">${script.language.toUpperCase()}</div>
+                            ${script.assistant_name ? `
+                                <div class="text-muted small">
+                                    <i class="ti ti-robot"></i>
+                                    ${escapeHtml(script.assistant_name)}
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
-                    
-                    ${script.description ? `
-                        <p class="text-muted mb-3">${escapeHtml(script.description)}</p>
-                    ` : ''}
-                    
+
                     <div class="code-preview mb-3">
                         <code>${escapeHtml(codePreview)}${script.code && script.code.length > 200 ? '...' : ''}</code>
                     </div>
-                    
-                    ${script.created_at ? `
+
+                    ${script.create_time ? `
                         <div class="text-muted small">
                             <i class="ti ti-clock icon"></i>
-                            تم الإنشاء ${formatDateTime(script.created_at)}
+                            تم الإنشاء ${formatDateTime(script.create_time)}
                         </div>
                     ` : ''}
                 </div>
-                
+
                 <div class="card-footer">
                     <div class="btn-list justify-content-center">
                         <button class="btn btn-success btn-sm" onclick="runScript(${script.id})" title="تشغيل">
@@ -247,9 +246,6 @@ function createScriptCard(script) {
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="editScript(${script.id})" title="تعديل">
                             <i class="ti ti-edit"></i>
-                        </button>
-                        <button class="btn btn-info btn-sm" onclick="viewScriptCode(${script.id})" title="عرض الكود">
-                            <i class="ti ti-eye"></i>
                         </button>
                         <button class="btn btn-danger btn-sm" onclick="deleteScript(${script.id})" title="حذف">
                             <i class="ti ti-trash"></i>
@@ -282,13 +278,13 @@ async function saveScript() {
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>جاري الحفظ...';
 
+    const assistantSelect = document.getElementById('script-assistant');
+    const assistantId = assistantSelect ? assistantSelect.value : null;
+
     const scriptData = {
         name: name,
-        description: document.getElementById('script-description').value.trim(),
-        language: document.getElementById('script-language').value,
         code: code,
-        send_output_telegram: document.getElementById('send-output-telegram').checked,
-        send_output_email: document.getElementById('send-output-email').checked
+        assistant_id: assistantId ? parseInt(assistantId) : null
     };
 
     try {
@@ -347,17 +343,16 @@ async function editScript(scriptId) {
 
         // Fill form
         document.getElementById('script-name').value = script.name;
-        document.getElementById('script-description').value = script.description || '';
-        document.getElementById('script-language').value = script.language;
 
-        // Set notification settings
-        document.getElementById('send-output-telegram').checked = script.send_output_telegram || false;
-        document.getElementById('send-output-email').checked = script.send_output_email || false;
+        // Set assistant
+        const assistantSelect = document.getElementById('script-assistant');
+        if (assistantSelect) {
+            assistantSelect.value = script.assistant_id || '';
+        }
 
         // Set code editor
         if (codeEditor) {
             codeEditor.setValue(script.code || '');
-            updateCodeEditor();
         }
 
         // Set edit mode
@@ -366,7 +361,6 @@ async function editScript(scriptId) {
         document.getElementById('btn-save-script').textContent = 'حفظ التعديلات';
 
         // Show modal
-        const modalElement = document.getElementById('modal-script');
         const triggerBtn = document.querySelector('[data-bs-target="#modal-script"]');
         if (triggerBtn) {
             triggerBtn.click();
@@ -408,13 +402,28 @@ async function runScript(scriptId) {
     }
 }
 
-// View script code
-function viewScriptCode(scriptId) {
-    const script = allScripts.find(s => s.id === scriptId);
-    if (!script) return;
+// Load assistants for dropdown
+async function loadScriptAssistants() {
+    try {
+        const response = await fetch('/api/assistants');
+        const assistants = await response.json();
 
-    // TODO: Show code in a modal or redirect to view page
-    showToast('عرض الكود الكامل - قريباً!', 'info');
+        // Filter only script-type assistants
+        const scriptAssistants = assistants.filter(a => a.assistant_type && a.assistant_type.related_action === 'script');
+
+        const assistantSelect = document.getElementById('script-assistant');
+        if (assistantSelect) {
+            assistantSelect.innerHTML = '<option value="">بدون مساعد</option>';
+            scriptAssistants.forEach(a => {
+                const option = document.createElement('option');
+                option.value = a.id;
+                option.textContent = a.name;
+                assistantSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading assistants:', error);
+    }
 }
 
 // Delete script
@@ -446,12 +455,9 @@ async function deleteScript(scriptId) {
 // Close modal
 function closeScriptModal() {
     document.getElementById('script-name').value = '';
-    document.getElementById('script-description').value = '';
-    document.getElementById('script-language').value = 'python';
 
-    // Reset notification settings
-    document.getElementById('send-output-telegram').checked = false;
-    document.getElementById('send-output-email').checked = false;
+    const assistantSelect = document.getElementById('script-assistant');
+    if (assistantSelect) assistantSelect.value = '';
 
     if (codeEditor) {
         codeEditor.setValue('# اكتب الكود هنا\nprint("Hello World")');
