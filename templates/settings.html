@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block title %}الإعدادات - Non Real Assistant{% endblock %}
+
+{% block page_title %}الإعدادات{% endblock %}
+{% block page_subtitle %}إدارة حسابك وتفضيلاتك{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Profile Settings -->
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-user me-2"></i>
+                    الملف الشخصي
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">الاسم</label>
+                    <input type="text" class="form-control" id="user-name" placeholder="اسمك">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">البريد الإلكتروني</label>
+                    <input type="email" class="form-control" id="user-email" placeholder="email@example.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">رقم الهاتف</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="user-phone" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="showChangePhone()">تغيير</button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">معرف التليجرام</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="user-telegram" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="showChangeTelegram()">تغيير</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary" onclick="saveProfile()">حفظ التغييرات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preferences -->
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-settings me-2"></i>
+                    التفضيلات
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">اللغة</label>
+                    <select class="form-select" id="user-language">
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">المنطقة الزمنية</label>
+                    <select class="form-select" id="user-timezone">
+                        <option value="Africa/Cairo">القاهرة (Africa/Cairo)</option>
+                        <option value="Asia/Riyadh">الرياض (Asia/Riyadh)</option>
+                        <option value="Asia/Dubai">دبي (Asia/Dubai)</option>
+                        <option value="Europe/London">لندن (Europe/London)</option>
+                        <option value="America/New_York">نيويورك (America/New_York)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-bell me-2"></i>
+                    الإشعارات
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-check">
+                        <input class="form-check-input" type="checkbox" id="notify-telegram">
+                        <span class="form-check-label">إشعارات التليجرام</span>
+                    </label>
+                    <small class="form-hint">استلام التنبيهات ونتائج التنفيذ عبر تليجرام</small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-check">
+                        <input class="form-check-input" type="checkbox" id="notify-email">
+                        <span class="form-check-label">إشعارات البريد الإلكتروني</span>
+                    </label>
+                    <small class="form-hint">استلام التنبيهات ونتائج التنفيذ عبر الإيميل</small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-check">
+                        <input class="form-check-input" type="checkbox" id="notify-browser">
+                        <span class="form-check-label">إشعارات المتصفح</span>
+                    </label>
+                    <small class="form-hint">إشعارات فورية في المتصفح</small>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary" onclick="savePreferences()">حفظ التفضيلات</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Account Info -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-info-circle me-2"></i>
+                    معلومات الحساب
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">تاريخ التسجيل</label>
+                            <div id="account-created"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">آخر تسجيل دخول</label>
+                            <div id="account-last-login"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">رقم المستخدم</label>
+                            <div id="account-id"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Change Phone Modal -->
+<div class="modal fade" id="modal-change-phone" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تغيير رقم الهاتف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">رقم الهاتف الجديد</label>
+                    <input type="tel" class="form-control" id="new-phone" placeholder="01234567890">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="changePhone()">تغيير</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Telegram Modal -->
+<div class="modal fade" id="modal-change-telegram" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تغيير معرف التليجرام</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">معرف التليجرام الجديد</label>
+                    <input type="text" class="form-control" id="new-telegram" placeholder="123456789">
+                    <small class="form-hint">يمكنك الحصول على معرفك من @userinfobot</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="changeTelegram()">تغيير</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+let userData = {};
+
+document.addEventListener('DOMContentLoaded', loadUserProfile);
+
+function loadUserProfile() {
+    fetch('/api/user/profile')
+        .then(r => r.json())
+        .then(data => {
+            userData = data;
+            document.getElementById('user-name').value = data.name || '';
+            document.getElementById('user-email').value = data.email || '';
+            document.getElementById('user-phone').value = data.phone || '';
+            document.getElementById('user-telegram').value = data.telegram_id || '';
+            document.getElementById('user-language').value = data.language || 'ar';
+            document.getElementById('user-timezone').value = data.timezone || 'Africa/Cairo';
+            document.getElementById('notify-telegram').checked = data.notify_telegram;
+            document.getElementById('notify-email').checked = data.notify_email;
+            document.getElementById('notify-browser').checked = data.notify_browser;
+
+            document.getElementById('account-id').textContent = '#' + data.id;
+            document.getElementById('account-created').textContent = data.created_at ? new Date(data.created_at).toLocaleDateString('ar') : '-';
+            document.getElementById('account-last-login').textContent = data.last_login ? new Date(data.last_login).toLocaleDateString('ar') : '-';
+        });
+}
+
+function saveProfile() {
+    const data = {
+        name: document.getElementById('user-name').value,
+        email: document.getElementById('user-email').value
+    };
+
+    fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('تم حفظ الملف الشخصي بنجاح');
+        } else {
+            alert('خطأ: ' + (data.error || 'فشل الحفظ'));
+        }
+    });
+}
+
+function savePreferences() {
+    const data = {
+        language: document.getElementById('user-language').value,
+        timezone: document.getElementById('user-timezone').value,
+        notify_telegram: document.getElementById('notify-telegram').checked,
+        notify_email: document.getElementById('notify-email').checked,
+        notify_browser: document.getElementById('notify-browser').checked
+    };
+
+    fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('تم حفظ التفضيلات بنجاح');
+            if (data.user.language !== userData.language) {
+                location.reload(); // Reload to apply language change
+            }
+        } else {
+            alert('خطأ: ' + (data.error || 'فشل الحفظ'));
+        }
+    });
+}
+
+function showChangePhone() {
+    document.getElementById('new-phone').value = '';
+    new bootstrap.Modal(document.getElementById('modal-change-phone')).show();
+}
+
+function showChangeTelegram() {
+    document.getElementById('new-telegram').value = '';
+    new bootstrap.Modal(document.getElementById('modal-change-telegram')).show();
+}
+
+function changePhone() {
+    const phone = document.getElementById('new-phone').value.trim();
+    if (!phone) {
+        alert('يرجى إدخال رقم الهاتف');
+        return;
+    }
+
+    fetch('/api/user/phone', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({phone})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('modal-change-phone')).hide();
+            loadUserProfile();
+            alert('تم تغيير رقم الهاتف بنجاح');
+        } else {
+            alert('خطأ: ' + (data.error || 'فشل التغيير'));
+        }
+    });
+}
+
+function changeTelegram() {
+    const telegram_id = document.getElementById('new-telegram').value.trim();
+    if (!telegram_id) {
+        alert('يرجى إدخال معرف التليجرام');
+        return;
+    }
+
+    fetch('/api/user/telegram', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({telegram_id})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('modal-change-telegram')).hide();
+            loadUserProfile();
+            alert('تم تغيير معرف التليجرام بنجاح');
+        } else {
+            alert('خطأ: ' + (data.error || 'فشل التغيير'));
+        }
+    });
+}
+</script>
+{% endblock %}

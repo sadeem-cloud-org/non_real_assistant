@@ -263,7 +263,9 @@ def create_script():
         name=data.get('name'),
         description=data.get('description'),
         language=data.get('language', 'python'),
-        code=data.get('code')
+        code=data.get('code'),
+        send_output_telegram=data.get('send_output_telegram', False),
+        send_output_email=data.get('send_output_email', False)
     )
 
     db.session.add(script)
@@ -296,6 +298,10 @@ def update_script(script_id):
         script.language = data['language']
     if 'code' in data:
         script.code = data['code']
+    if 'send_output_telegram' in data:
+        script.send_output_telegram = data['send_output_telegram']
+    if 'send_output_email' in data:
+        script.send_output_email = data['send_output_email']
 
     db.session.commit()
 
@@ -326,7 +332,9 @@ def delete_script(script_id):
 @require_auth
 def run_script(script_id):
     """Run a script"""
-    from models import Script, ScriptExecution
+    from models import Script, ScriptExecution, User
+    from services.telegram_bot import TelegramOTPSender
+    from services.email_service import EmailService
     import subprocess
     import tempfile
     import os
@@ -392,6 +400,10 @@ def run_script(script_id):
         execution.completed_at = datetime.utcnow()
         db.session.commit()
 
+        # Send notifications if configured
+        user = User.query.get(session['user_id'])
+        _send_execution_notifications(script, execution, user)
+
         return jsonify({
             'success': True,
             'execution_id': execution.id,
@@ -415,6 +427,90 @@ def run_script(script_id):
         execution.completed_at = datetime.utcnow()
         db.session.commit()
         return jsonify({'error': str(e)}), 500
+
+
+def _send_execution_notifications(script, execution, user):
+    """Send notifications for script execution results"""
+    from services.telegram_bot import TelegramOTPSender
+    from services.email_service import EmailService
+
+    # Determine if we should send notifications
+    send_telegram = getattr(script, 'send_output_telegram', False)
+    send_email = getattr(script, 'send_output_email', False)
+
+    if not send_telegram and not send_email:
+        return
+
+    # Prepare status emoji and text
+    status_emoji = {
+        'success': '✅',
+        'failed': '❌',
+        'timeout': '⏱️'
+    }.get(execution.status, '❓')
+
+    status_text = {
+        'success': 'نجح',
+        'failed': 'فشل',
+        'timeout': 'انتهت المهلة'
+    }.get(execution.status, execution.status)
+
+    # Generate share link if public sharing is needed
+    share_url = None
+    if execution.is_public and execution.share_token:
+        share_url = f"/share/execution/{execution.share_token}"
+
+    # Send to Telegram
+    if send_telegram and user and user.telegram_id and user.notify_telegram:
+        try:
+            telegram_sender = TelegramOTPSender()
+
+            output_preview = execution.output[:500] if execution.output else ''
+            if execution.output and len(execution.output) > 500:
+                output_preview += '\n... (تم اقتطاع النتيجة)'
+
+            error_preview = execution.error[:300] if execution.error else ''
+
+            message = f"{status_emoji} <b>نتيجة تنفيذ السكريبت</b>\n\n"
+            message += f"📝 <b>السكريبت:</b> {script.name}\n"
+            message += f"📊 <b>الحالة:</b> {status_text}\n"
+            message += f"⏱️ <b>وقت التنفيذ:</b> {execution.execution_time:.2f}s\n"
+
+            if output_preview:
+                message += f"\n<b>الناتج:</b>\n<pre>{output_preview}</pre>"
+
+            if error_preview:
+                message += f"\n<b>الخطأ:</b>\n<pre>{error_preview}</pre>"
+
+            if share_url:
+                message += f"\n\n🔗 <a href='{share_url}'>عرض النتيجة الكاملة</a>"
+
+            result = telegram_sender.send_message(user.telegram_id, message)
+
+            if result.get('success'):
+                execution.telegram_sent = True
+                db.session.commit()
+        except Exception as e:
+            print(f"Error sending Telegram notification: {e}")
+
+    # Send to Email
+    if send_email and user and user.email and user.notify_email:
+        try:
+            email_service = EmailService()
+
+            result = email_service.send_execution_result(
+                user=user,
+                script_name=script.name,
+                status=execution.status,
+                output=execution.output,
+                error=execution.error,
+                share_url=share_url
+            )
+
+            if result.get('success'):
+                execution.email_sent = True
+                db.session.commit()
+        except Exception as e:
+            print(f"Error sending email notification: {e}")
 
 
 # ===== Executions API =====

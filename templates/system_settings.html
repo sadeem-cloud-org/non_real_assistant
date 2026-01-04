@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}إعدادات النظام - Non Real Assistant{% endblock %}
+
+{% block page_title %}إعدادات النظام{% endblock %}
+{% block page_subtitle %}إدارة إعدادات النظام العامة{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Email Settings -->
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-mail me-2"></i>
+                    إعدادات البريد الإلكتروني (SMTP)
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">خادم SMTP</label>
+                    <input type="text" class="form-control" id="smtp-host" placeholder="smtp.gmail.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">المنفذ (Port)</label>
+                    <input type="number" class="form-control" id="smtp-port" placeholder="587">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">اسم المستخدم</label>
+                    <input type="text" class="form-control" id="smtp-user" placeholder="your-email@gmail.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">كلمة المرور</label>
+                    <input type="password" class="form-control" id="smtp-password" placeholder="**********">
+                    <small class="form-hint">لـ Gmail استخدم App Password</small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-check">
+                        <input class="form-check-input" type="checkbox" id="smtp-tls" checked>
+                        <span class="form-check-label">استخدام TLS</span>
+                    </label>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <label class="form-label">عنوان المرسل</label>
+                    <input type="email" class="form-control" id="from-email" placeholder="noreply@example.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">اسم المرسل</label>
+                    <input type="text" class="form-control" id="from-name" placeholder="Non Real Assistant">
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button class="btn btn-primary" onclick="saveEmailSettings()">
+                    <i class="ti ti-device-floppy me-1"></i>
+                    حفظ
+                </button>
+                <button class="btn btn-outline-secondary" onclick="testEmailSettings()">
+                    <i class="ti ti-send me-1"></i>
+                    إرسال بريد تجريبي
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Telegram Settings -->
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-brand-telegram me-2"></i>
+                    إعدادات التليجرام
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="ti ti-info-circle me-2"></i>
+                    إعدادات التليجرام موجودة في ملف .env
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Bot Token</label>
+                    <input type="text" class="form-control" id="telegram-token" disabled placeholder="يتم تعيينه من ملف .env">
+                    <small class="form-hint">TELEGRAM_BOT_TOKEN في ملف .env</small>
+                </div>
+                <a href="https://core.telegram.org/bots#6-botfather" target="_blank" class="btn btn-outline-primary">
+                    <i class="ti ti-external-link me-1"></i>
+                    كيفية إنشاء بوت
+                </a>
+            </div>
+        </div>
+
+        <!-- App Settings -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-adjustments me-2"></i>
+                    إعدادات التطبيق
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">اسم التطبيق</label>
+                    <input type="text" class="form-control" id="app-name" value="Non Real Assistant">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">اللغة الافتراضية</label>
+                    <select class="form-select" id="default-language">
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">المنطقة الزمنية الافتراضية</label>
+                    <select class="form-select" id="default-timezone">
+                        <option value="Africa/Cairo">القاهرة (Africa/Cairo)</option>
+                        <option value="Asia/Riyadh">الرياض (Asia/Riyadh)</option>
+                        <option value="UTC">UTC</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary" onclick="saveAppSettings()">حفظ</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Test Email Modal -->
+<div class="modal fade" id="modal-test-email" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">إرسال بريد تجريبي</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">عنوان البريد الإلكتروني</label>
+                    <input type="email" class="form-control" id="test-email" placeholder="test@example.com">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="sendTestEmail()">إرسال</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+document.addEventListener('DOMContentLoaded', loadSettings);
+
+function loadSettings() {
+    // Load email settings
+    fetch('/api/system/settings/email')
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('smtp-host').value = data.smtp_host || '';
+            document.getElementById('smtp-port').value = data.smtp_port || 587;
+            document.getElementById('smtp-user').value = data.smtp_user || '';
+            document.getElementById('smtp-tls').checked = data.smtp_use_tls !== false;
+            document.getElementById('from-email').value = data.from_email || '';
+            document.getElementById('from-name').value = data.from_name || 'Non Real Assistant';
+        });
+
+    // Load app settings
+    fetch('/api/system/settings')
+        .then(r => r.json())
+        .then(data => {
+            if (data.app_name) document.getElementById('app-name').value = data.app_name.value;
+            if (data.default_language) document.getElementById('default-language').value = data.default_language.value;
+            if (data.default_timezone) document.getElementById('default-timezone').value = data.default_timezone.value;
+        });
+}
+
+function saveEmailSettings() {
+    const data = {
+        smtp_host: document.getElementById('smtp-host').value,
+        smtp_port: parseInt(document.getElementById('smtp-port').value),
+        smtp_user: document.getElementById('smtp-user').value,
+        smtp_password: document.getElementById('smtp-password').value,
+        smtp_use_tls: document.getElementById('smtp-tls').checked,
+        from_email: document.getElementById('from-email').value,
+        from_name: document.getElementById('from-name').value
+    };
+
+    fetch('/api/system/settings/email', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('تم حفظ إعدادات البريد الإلكتروني');
+        } else {
+            alert('خطأ: ' + (data.error || 'فشل الحفظ'));
+        }
+    });
+}
+
+function testEmailSettings() {
+    // First save settings
+    saveEmailSettings();
+
+    // Then show test modal
+    document.getElementById('test-email').value = '';
+    new bootstrap.Modal(document.getElementById('modal-test-email')).show();
+}
+
+function sendTestEmail() {
+    const email = document.getElementById('test-email').value.trim();
+    if (!email) {
+        alert('يرجى إدخال عنوان البريد الإلكتروني');
+        return;
+    }
+
+    fetch('/api/system/settings/email/test', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email})
+    })
+    .then(r => r.json())
+    .then(data => {
+        bootstrap.Modal.getInstance(document.getElementById('modal-test-email')).hide();
+        if (data.success) {
+            alert('تم إرسال البريد التجريبي بنجاح! تحقق من صندوق البريد.');
+        } else {
+            alert('فشل الإرسال: ' + (data.error || 'خطأ غير معروف'));
+        }
+    });
+}
+
+function saveAppSettings() {
+    const data = {
+        app_name: {value: document.getElementById('app-name').value, type: 'string'},
+        default_language: {value: document.getElementById('default-language').value, type: 'string'},
+        default_timezone: {value: document.getElementById('default-timezone').value, type: 'string'}
+    };
+
+    fetch('/api/system/settings', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('تم حفظ إعدادات التطبيق');
+        } else {
+            alert('خطأ: ' + (data.error || 'فشل الحفظ'));
+        }
+    });
+}
+</script>
+{% endblock %}

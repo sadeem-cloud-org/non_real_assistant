@@ -1,0 +1,323 @@
+# English translations for Non Real Assistant
+# Copyright (C) 2024
+# This file is distributed under the same license as the project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Non Real Assistant 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: \n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# Navigation
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Assistants"
+msgstr "Assistants"
+
+msgid "Tasks"
+msgstr "Tasks"
+
+msgid "Scripts"
+msgstr "Scripts"
+
+msgid "Executions"
+msgstr "Execution Log"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "System Settings"
+msgstr "System Settings"
+
+msgid "Logout"
+msgstr "Logout"
+
+# Common Actions
+msgid "Save"
+msgstr "Save"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "Add"
+msgstr "Add"
+
+msgid "Create"
+msgstr "Create"
+
+msgid "Update"
+msgstr "Update"
+
+msgid "Close"
+msgstr "Close"
+
+msgid "Submit"
+msgstr "Submit"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "Filter"
+msgstr "Filter"
+
+# Status
+msgid "Active"
+msgstr "Active"
+
+msgid "Inactive"
+msgstr "Inactive"
+
+msgid "Enabled"
+msgstr "Enabled"
+
+msgid "Disabled"
+msgstr "Disabled"
+
+msgid "Success"
+msgstr "Success"
+
+msgid "Failed"
+msgstr "Failed"
+
+msgid "Pending"
+msgstr "Pending"
+
+msgid "Running"
+msgstr "Running"
+
+msgid "Completed"
+msgstr "Completed"
+
+msgid "Error"
+msgstr "Error"
+
+# Dashboard
+msgid "Active Assistants"
+msgstr "Active Assistants"
+
+msgid "Pending Tasks"
+msgstr "Pending Tasks"
+
+msgid "Completed Today"
+msgstr "Completed Today"
+
+msgid "Recent Executions"
+msgstr "Recent Executions"
+
+# Assistants
+msgid "Add Assistant"
+msgstr "Add Assistant"
+
+msgid "Assistant Name"
+msgstr "Assistant Name"
+
+msgid "Assistant Type"
+msgstr "Assistant Type"
+
+msgid "No assistants yet"
+msgstr "No assistants yet"
+
+msgid "Create your first assistant"
+msgstr "Create your first assistant"
+
+# Tasks
+msgid "Add Task"
+msgstr "Add Task"
+
+msgid "Task Title"
+msgstr "Task Title"
+
+msgid "Task Description"
+msgstr "Task Description"
+
+msgid "Due Date"
+msgstr "Due Date"
+
+msgid "Reminder Time"
+msgstr "Reminder Time"
+
+msgid "Priority"
+msgstr "Priority"
+
+msgid "High"
+msgstr "High"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "Low"
+msgstr "Low"
+
+msgid "No tasks yet"
+msgstr "No tasks yet"
+
+# Scripts
+msgid "Add Script"
+msgstr "Add Script"
+
+msgid "Script Name"
+msgstr "Script Name"
+
+msgid "Script Description"
+msgstr "Script Description"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Run Script"
+msgstr "Run Script"
+
+msgid "Send to Telegram"
+msgstr "Send to Telegram"
+
+msgid "Send to Email"
+msgstr "Send to Email"
+
+msgid "No scripts yet"
+msgstr "No scripts yet"
+
+# Settings
+msgid "Profile"
+msgstr "Profile"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Phone"
+msgstr "Phone"
+
+msgid "Telegram ID"
+msgstr "Telegram ID"
+
+msgid "Preferences"
+msgstr "Preferences"
+
+msgid "Default Language"
+msgstr "Default Language"
+
+msgid "Timezone"
+msgstr "Timezone"
+
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "Telegram Notifications"
+msgstr "Telegram Notifications"
+
+msgid "Email Notifications"
+msgstr "Email Notifications"
+
+msgid "Browser Notifications"
+msgstr "Browser Notifications"
+
+# System Settings
+msgid "SMTP Settings"
+msgstr "SMTP Settings"
+
+msgid "SMTP Host"
+msgstr "SMTP Host"
+
+msgid "SMTP Port"
+msgstr "SMTP Port"
+
+msgid "SMTP Username"
+msgstr "SMTP Username"
+
+msgid "SMTP Password"
+msgstr "SMTP Password"
+
+msgid "Use TLS"
+msgstr "Use TLS"
+
+msgid "From Email"
+msgstr "From Email"
+
+msgid "From Name"
+msgstr "From Name"
+
+msgid "Send Test Email"
+msgstr "Send Test Email"
+
+msgid "App Settings"
+msgstr "App Settings"
+
+msgid "App Name"
+msgstr "App Name"
+
+# Share
+msgid "Share Results"
+msgstr "Share Results"
+
+msgid "Create Share Link"
+msgstr "Create Share Link"
+
+msgid "Remove Share"
+msgstr "Remove Share"
+
+msgid "Share link copied"
+msgstr "Share link copied"
+
+# Messages
+msgid "Saved successfully"
+msgstr "Saved successfully"
+
+msgid "Deleted successfully"
+msgstr "Deleted successfully"
+
+msgid "An error occurred"
+msgstr "An error occurred"
+
+msgid "Please fill all required fields"
+msgstr "Please fill all required fields"
+
+msgid "Are you sure?"
+msgstr "Are you sure?"
+
+msgid "This action cannot be undone"
+msgstr "This action cannot be undone"
+
+# Time
+msgid "Just now"
+msgstr "Just now"
+
+msgid "seconds ago"
+msgstr "seconds ago"
+
+msgid "minute ago"
+msgstr "minute ago"
+
+msgid "minutes ago"
+msgstr "minutes ago"
+
+msgid "hour ago"
+msgstr "hour ago"
+
+msgid "hours ago"
+msgstr "hours ago"
+
+msgid "day ago"
+msgstr "day ago"
+
+msgid "days ago"
+msgstr "days ago"

@@ -15,35 +15,70 @@ def seed_assistant_types():
             'display_name_ar': 'مدير مهام',
             'display_name_en': 'Task Manager',
             'description': 'يدير المهام اليومية ويرسل التذكيرات',
-            'icon': '✅'
+            'description_ar': 'يدير المهام اليومية ويرسل التذكيرات',
+            'description_en': 'Manages daily tasks and sends reminders',
+            'icon': 'checkbox',
+            'color': 'blue'
         },
         {
             'name': 'reminder',
             'display_name_ar': 'تذكيرات',
             'display_name_en': 'Reminder',
             'description': 'يرسل تذكيرات بالمواعيد والمهام المهمة',
-            'icon': '🔔'
+            'description_ar': 'يرسل تذكيرات بالمواعيد والمهام المهمة',
+            'description_en': 'Sends reminders for appointments and important tasks',
+            'icon': 'bell',
+            'color': 'yellow'
         },
         {
             'name': 'automation',
             'display_name_ar': 'أتمتة',
             'display_name_en': 'Automation',
             'description': 'ينفذ مهام أوتوماتيكية حسب الجدول',
-            'icon': '🤖'
+            'description_ar': 'ينفذ مهام أوتوماتيكية حسب الجدول',
+            'description_en': 'Executes automated tasks according to schedule',
+            'icon': 'robot',
+            'color': 'purple'
+        },
+        {
+            'name': 'server_monitor',
+            'display_name_ar': 'مراقبة السيرفرات',
+            'display_name_en': 'Server Monitor',
+            'description': 'يراقب حالة السيرفرات ويرسل تقارير',
+            'description_ar': 'يراقب حالة السيرفرات ويرسل تقارير',
+            'description_en': 'Monitors server status and sends reports',
+            'icon': 'server',
+            'color': 'green'
         },
         {
             'name': 'data_collector',
             'display_name_ar': 'جمع بيانات',
             'display_name_en': 'Data Collector',
             'description': 'يجمع البيانات من مصادر مختلفة',
-            'icon': '📊'
+            'description_ar': 'يجمع البيانات من مصادر مختلفة',
+            'description_en': 'Collects data from various sources',
+            'icon': 'chart-bar',
+            'color': 'cyan'
+        },
+        {
+            'name': 'notification',
+            'display_name_ar': 'إشعارات',
+            'display_name_en': 'Notification',
+            'description': 'يرسل إشعارات عبر قنوات مختلفة',
+            'description_ar': 'يرسل إشعارات عبر قنوات مختلفة',
+            'description_en': 'Sends notifications through various channels',
+            'icon': 'notification',
+            'color': 'orange'
         },
         {
             'name': 'custom',
             'display_name_ar': 'مخصص',
             'display_name_en': 'Custom',
             'description': 'مساعد مخصص حسب احتياجاتك',
-            'icon': '⚙️'
+            'description_ar': 'مساعد مخصص حسب احتياجاتك',
+            'description_en': 'Custom assistant according to your needs',
+            'icon': 'settings',
+            'color': 'gray'
         }
     ]
 

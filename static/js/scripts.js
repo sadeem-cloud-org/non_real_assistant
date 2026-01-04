@@ -286,7 +286,9 @@ async function saveScript() {
         name: name,
         description: document.getElementById('script-description').value.trim(),
         language: document.getElementById('script-language').value,
-        code: code
+        code: code,
+        send_output_telegram: document.getElementById('send-output-telegram').checked,
+        send_output_email: document.getElementById('send-output-email').checked
     };
 
     try {
@@ -347,6 +349,10 @@ async function editScript(scriptId) {
         document.getElementById('script-name').value = script.name;
         document.getElementById('script-description').value = script.description || '';
         document.getElementById('script-language').value = script.language;
+
+        // Set notification settings
+        document.getElementById('send-output-telegram').checked = script.send_output_telegram || false;
+        document.getElementById('send-output-email').checked = script.send_output_email || false;
 
         // Set code editor
         if (codeEditor) {
@@ -442,6 +448,10 @@ function closeScriptModal() {
     document.getElementById('script-name').value = '';
     document.getElementById('script-description').value = '';
     document.getElementById('script-language').value = 'python';
+
+    // Reset notification settings
+    document.getElementById('send-output-telegram').checked = false;
+    document.getElementById('send-output-email').checked = false;
 
     if (codeEditor) {
         codeEditor.setValue('# اكتب الكود هنا\nprint("Hello World")');

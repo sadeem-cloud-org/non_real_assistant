@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html dir="{{ 'rtl' if session.get('language', 'ar') == 'ar' else 'ltr' }}" lang="{{ session.get('language', 'ar') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,6 +49,19 @@
 
         .flatpickr-time {
             direction: ltr;
+        }
+        /* LTR overrides for English */
+        [dir="ltr"] .navbar-brand {
+            margin-left: 0;
+            margin-right: auto;
+        }
+        [dir="ltr"] .nav-link {
+            padding-left: 0;
+            padding-right: 1rem;
+        }
+        [dir="ltr"] .dropdown-item i {
+            margin-left: 0.5rem;
+            margin-right: 0;
         }
     </style>
 
