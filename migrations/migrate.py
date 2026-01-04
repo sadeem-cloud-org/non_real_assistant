@@ -71,20 +71,27 @@ def _handle_schema_migration(db):
             tables_to_recreate.append('tasks')
             print("tasks table has old schema, will recreate")
 
-    # Check users table for mobile column
+    # Check users table for mobile column and language_id
     if 'users' in existing_tables:
         columns = [c['name'] for c in inspector.get_columns('users')]
+        needs_recreate = False
+
+        if 'language_id' not in columns or 'create_time' not in columns:
+            needs_recreate = True
+
         if 'mobile' not in columns and 'phone' in columns:
-            # Rename phone to mobile
+            # Try to rename phone to mobile
             try:
                 db.session.execute(text('ALTER TABLE users RENAME COLUMN phone TO mobile'))
                 db.session.commit()
                 print("Renamed users.phone to users.mobile")
             except Exception as e:
                 print(f"Could not rename phone column: {e}")
-                # SQLite doesn't support RENAME COLUMN in older versions
-                # We'll need to recreate the table
-                tables_to_recreate.append('users')
+                needs_recreate = True
+
+        if needs_recreate:
+            tables_to_recreate.append('users')
+            print("users table has old schema, will recreate")
 
     # Check scripts table
     if 'scripts' in existing_tables:
@@ -92,6 +99,13 @@ def _handle_schema_migration(db):
         if 'create_user_id' not in columns:
             tables_to_recreate.append('scripts')
             print("scripts table has old schema, will recreate")
+
+    # Check assistants table
+    if 'assistants' in existing_tables:
+        columns = [c['name'] for c in inspector.get_columns('assistants')]
+        if 'create_time' not in columns or 'create_user_id' not in columns:
+            tables_to_recreate.append('assistants')
+            print("assistants table has old schema, will recreate")
 
     # Drop old tables that no longer exist in new schema
     old_tables = ['actions', 'action_executions', 'script_executions']
