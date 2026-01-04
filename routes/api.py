@@ -111,8 +111,17 @@ def get_assistants():
 def create_assistant():
     """Create new assistant"""
     from models import Assistant
+    from dateutil import parser as date_parser
 
     data = request.get_json()
+
+    # Parse next_run_time if provided as string
+    next_run_time = None
+    if data.get('next_run_time'):
+        try:
+            next_run_time = date_parser.parse(data['next_run_time'])
+        except:
+            next_run_time = None
 
     assistant = Assistant(
         name=data.get('name'),
@@ -122,7 +131,7 @@ def create_assistant():
         email_notify=data.get('email_notify', False),
         notify_template_id=data.get('notify_template_id'),
         run_every=data.get('run_every'),
-        next_run_time=data.get('next_run_time')
+        next_run_time=next_run_time
     )
 
     db.session.add(assistant)
@@ -175,7 +184,11 @@ def update_assistant(assistant_id):
     if 'run_every' in data:
         assistant.run_every = data['run_every']
     if 'next_run_time' in data:
-        assistant.next_run_time = data['next_run_time']
+        from dateutil import parser as date_parser
+        try:
+            assistant.next_run_time = date_parser.parse(data['next_run_time']) if data['next_run_time'] else None
+        except:
+            pass
 
     db.session.commit()
 
