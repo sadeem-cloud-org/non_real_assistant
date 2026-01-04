@@ -56,12 +56,12 @@
                 <div class="row align-items-center">
                     <div class="col-auto">
                         <span class="bg-green text-white avatar">
-                            <i class="ti ti-circle-check"></i>
+                            <i class="ti ti-subtask"></i>
                         </span>
                     </div>
                     <div class="col">
-                        <div class="font-weight-medium" id="stat-active">0</div>
-                        <div class="text-muted">نشط</div>
+                        <div class="font-weight-medium" id="stat-tasks">0</div>
+                        <div class="text-muted">مساعدين المهام</div>
                     </div>
                 </div>
             </div>
@@ -73,13 +73,13 @@
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <span class="bg-yellow text-white avatar">
-                            <i class="ti ti-player-pause"></i>
+                        <span class="bg-cyan text-white avatar">
+                            <i class="ti ti-code"></i>
                         </span>
                     </div>
                     <div class="col">
-                        <div class="font-weight-medium" id="stat-paused">0</div>
-                        <div class="text-muted">متوقف</div>
+                        <div class="font-weight-medium" id="stat-scripts">0</div>
+                        <div class="text-muted">مساعدين السكريبتات</div>
                     </div>
                 </div>
             </div>
@@ -128,74 +128,74 @@
                     <label class="form-label required">اسم المساعد</label>
                     <input type="text" class="form-control" id="assistant-name" placeholder="مثال: مساعد المهام اليومية">
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">الوصف</label>
-                    <textarea class="form-control" id="assistant-description" rows="3" placeholder="وصف قصير لوظيفة المساعد..."></textarea>
-                </div>
+
                 <div class="mb-3">
                     <label class="form-label required">نوع المساعد</label>
-                    <select class="form-select" id="assistant-type" onchange="toggleScriptSelector()">
-                        <option value="task_manager">مدير مهام</option>
-                        <option value="reminder">تذكيرات</option>
-                        <option value="automation">أتمتة</option>
-                        <option value="data_collector">جمع بيانات</option>
-                        <option value="custom">مخصص</option>
+                    <select class="form-select" id="assistant-type">
+                        <!-- Will be populated from API -->
                     </select>
+                    <small class="form-hint" id="type-hint">اختر نوع المساعد حسب الوظيفة المطلوبة</small>
                 </div>
 
-                <!-- Script selector - shown only for automation type -->
-                <div class="mb-3" id="script-selector" style="display: none;">
-                    <label class="form-label required">السكريبت المرتبط</label>
-                    <select class="form-select" id="assistant-script">
-                        <option value="">اختر سكريبت...</option>
-                    </select>
-                    <small class="form-hint">يجب اختيار سكريبت لمساعد الأتمتة</small>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="mb-3">
-                            <label class="form-label">الحالة</label>
-                            <select class="form-select" id="assistant-status">
-                                <option value="active" selected>نشط</option>
-                                <option value="paused">متوقف</option>
+                <!-- Notification Settings -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h4 class="card-title">
+                            <i class="ti ti-bell me-2"></i>
+                            إعدادات الإشعارات
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="assistant-telegram-notify" checked>
+                                    <span class="form-check-label">
+                                        <i class="ti ti-brand-telegram text-info"></i>
+                                        إشعارات التليجرام
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="assistant-email-notify">
+                                    <span class="form-check-label">
+                                        <i class="ti ti-mail text-warning"></i>
+                                        إشعارات البريد الإلكتروني
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">قالب الإشعار</label>
+                            <select class="form-select" id="assistant-notify-template">
+                                <option value="">القالب الافتراضي</option>
+                                <!-- Will be populated from API -->
                             </select>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="mb-3">
-                            <label class="form-label">الأولوية</label>
-                            <select class="form-select" id="assistant-priority">
-                                <option value="low">منخفضة</option>
-                                <option value="medium" selected>متوسطة</option>
-                                <option value="high">عالية</option>
-                            </select>
-                        </div>
+                </div>
+
+                <!-- Schedule Settings -->
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">
+                            <i class="ti ti-clock me-2"></i>
+                            الجدولة (اختياري)
+                        </h4>
                     </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">
-                        <input type="checkbox" id="assistant-scheduled" class="form-check-input me-2">
-                        تشغيل حسب جدول زمني
-                    </label>
-                </div>
-                <div id="schedule-config" style="display: none;">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">إعدادات الجدول الزمني</h4>
-                            <div class="mb-3">
-                                <label class="form-label">نوع الجدولة</label>
-                                <select class="form-select" id="schedule-type">
-                                    <option value="interval">فاصل زمني</option>
-                                    <option value="daily">يومي</option>
-                                    <option value="weekly">أسبوعي</option>
-                                    <option value="cron">Cron Expression</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">القيمة</label>
-                                <input type="text" class="form-control" id="schedule-value" placeholder="مثال: 3600 للفاصل الزمني بالثواني">
-                            </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">تشغيل تلقائي كل</label>
+                            <select class="form-select" id="assistant-run-every">
+                                <option value="">بدون جدولة</option>
+                                <option value="minute">دقيقة</option>
+                                <option value="hourly">ساعة</option>
+                                <option value="daily">يوم</option>
+                                <option value="weekly">أسبوع</option>
+                                <option value="monthly">شهر</option>
+                            </select>
+                            <small class="form-hint">سيتم تنفيذ السكريبتات المرتبطة بهذا المساعد تلقائياً</small>
                         </div>
                     </div>
                 </div>
