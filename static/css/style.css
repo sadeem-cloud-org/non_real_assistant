@@ -295,25 +295,14 @@ html[dir="rtl"] .input-group label {
     text-align: left !important;
 }
 
-[data-bs-theme="dark"] .hide-theme-dark {
-    display: none !important; /* يخفي زرار Dark في الوضع الليلي */
+
+/* في القسم <style> في الـ head */
+.theme-toggle {
+    display: inline-block;
+    text-decoration: none;
 }
 
-body:not([data-bs-theme]) .hide-theme-light,
-[data-bs-theme="light"] .hide-theme-light {
-    display: none !important; /* يخفي زرار Light في الوضع النهاري */
-}
-
-.btn-link.nav-link {
-    padding: 0.5rem;
-    border: none;
-    background: none;
-}
-
-.btn-link.nav-link:hover {
-    background: rgba(0,0,0,0.05);  /* Light mode hover */
-}
-
-[data-bs-theme="dark"] .btn-link.nav-link:hover {
-    background: rgba(255,255,255,0.1);  /* Dark mode hover */
+/* يمكنك إضافة تنسيق إضافي إذا أردت */
+.theme-toggle:hover {
+    opacity: 0.8;
 }
