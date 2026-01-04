@@ -161,14 +161,11 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Theme Management -->
-<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
-
 <!-- CodeMirror -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/shell/shell.min.js"></script>
+<script src="{{ url_for('static', filename='js/external/codemirror.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/external/python.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/external/javascript.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/external/shell.min.js') }}"></script>
 
 <!-- Fix CodeMirror RTL Issue -->
 <script>
