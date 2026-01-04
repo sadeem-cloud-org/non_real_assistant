@@ -149,18 +149,22 @@ def _seed_languages(db):
 
 
 def seed_assistant_types(db):
-    """Seed default assistant types"""
+    """Seed default assistant types - only 2 types: task notifications and script execution"""
     from models import AssistantType
 
+    # Only 2 assistant types as per user requirements
     types = [
-        {'name': 'reminder', 'related_action': 'task'},
-        {'name': 'task_manager', 'related_action': 'task'},
-        {'name': 'server_monitor', 'related_action': 'script'},
-        {'name': 'automation', 'related_action': 'script'},
-        {'name': 'data_collector', 'related_action': 'script'},
-        {'name': 'notification', 'related_action': 'task'},
-        {'name': 'custom', 'related_action': 'task'}
+        {'name': 'task_notify', 'related_action': 'task'},
+        {'name': 'script_runner', 'related_action': 'script'}
     ]
+
+    # Remove old types if they exist
+    old_types = ['reminder', 'task_manager', 'server_monitor', 'automation', 'data_collector', 'notification', 'custom']
+    for old_name in old_types:
+        old_type = AssistantType.query.filter_by(name=old_name).first()
+        if old_type:
+            db.session.delete(old_type)
+            print(f"Removed old assistant type: {old_name}")
 
     for type_data in types:
         existing = AssistantType.query.filter_by(name=type_data['name']).first()

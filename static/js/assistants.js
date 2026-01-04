@@ -57,24 +57,10 @@ function populateAssistantTypes() {
 
     select.innerHTML = '';
 
+    // Only 2 types: task notifications and script execution
     const typeNames = {
-        'task_manager': 'مدير مهام',
-        'reminder': 'تذكيرات',
-        'server_monitor': 'مراقبة سيرفرات',
-        'automation': 'أتمتة',
-        'data_collector': 'جمع بيانات',
-        'notification': 'إشعارات',
-        'custom': 'مخصص'
-    };
-
-    const typeIcons = {
-        'task_manager': 'checkbox',
-        'reminder': 'bell',
-        'server_monitor': 'server',
-        'automation': 'robot',
-        'data_collector': 'database',
-        'notification': 'notification',
-        'custom': 'adjustments'
+        'task_notify': 'تنبيه بالمهام',
+        'script_runner': 'تشغيل سكريبتات'
     };
 
     allAssistantTypes.forEach(type => {
@@ -220,24 +206,15 @@ function displayAssistants(assistants) {
 
 // Create assistant card HTML
 function createAssistantCard(assistant) {
+    // Only 2 types: task notifications and script execution
     const typeIcons = {
-        'task_manager': 'checkbox',
-        'reminder': 'bell',
-        'server_monitor': 'server',
-        'automation': 'robot',
-        'data_collector': 'database',
-        'notification': 'notification',
-        'custom': 'adjustments'
+        'task_notify': 'bell-ringing',
+        'script_runner': 'code'
     };
 
     const typeNames = {
-        'task_manager': 'مدير مهام',
-        'reminder': 'تذكيرات',
-        'server_monitor': 'مراقبة سيرفرات',
-        'automation': 'أتمتة',
-        'data_collector': 'جمع بيانات',
-        'notification': 'إشعارات',
-        'custom': 'مخصص'
+        'task_notify': 'تنبيه بالمهام',
+        'script_runner': 'تشغيل سكريبتات'
     };
 
     const runEveryNames = {
@@ -436,9 +413,9 @@ async function editAssistant(assistantId) {
         document.getElementById('modal-title').textContent = 'تعديل المساعد';
         document.getElementById('btn-save-assistant').textContent = 'حفظ التعديلات';
 
-        // Show modal
+        // Show modal using Bootstrap API (safer approach)
         const modalElement = document.getElementById('modal-assistant');
-        const modal = new bootstrap.Modal(modalElement);
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
         modal.show();
 
     } catch (error) {
@@ -470,13 +447,18 @@ async function deleteAssistant(assistantId) {
     }
 }
 
-// View assistant details
+// View assistant details - redirect to relevant page based on type
 function viewAssistantDetails(assistantId) {
     const assistant = allAssistants.find(a => a.id === assistantId);
     if (!assistant) return;
 
-    // TODO: Show detailed modal with tasks, scripts, logs
-    showToast('عرض التفاصيل - قريباً!', 'info');
+    // Redirect to tasks or scripts page filtered by this assistant
+    const relatedAction = assistant.assistant_type ? assistant.assistant_type.related_action : 'task';
+    if (relatedAction === 'task') {
+        window.location.href = `/tasks?assistant_id=${assistantId}`;
+    } else {
+        window.location.href = `/scripts?assistant_id=${assistantId}`;
+    }
 }
 
 // Close modal
