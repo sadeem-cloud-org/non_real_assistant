@@ -64,10 +64,6 @@ register_blueprints(app)
 with app.app_context():
     db.create_all()
 
-# Start background scheduler for reminders
-from scheduler import start_scheduler
-scheduler = start_scheduler(app)
-
 
 @app.route('/favicon.ico')
 def favicon():
@@ -76,4 +72,8 @@ def favicon():
 
 
 if __name__ == '__main__':
+    # Start background scheduler for reminders (only when running as main)
+    from scheduler import start_scheduler
+    scheduler = start_scheduler(app)
+
     app.run(debug=True, host='0.0.0.0', port=5000)

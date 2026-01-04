@@ -5,7 +5,7 @@ Creates and updates all database tables.
 Usage: python -m migrations.migrate
 """
 
-from sqlalchemy import text
+from sqlalchemy import text, inspect
 
 
 def migrate_database(app, db):
@@ -16,6 +16,9 @@ def migrate_database(app, db):
         print("Starting database migration...")
 
         try:
+            # Check if we need to handle old schema
+            _handle_schema_migration(db)
+
             # Create all tables from models
             db.create_all()
             print("Base tables created/updated")
@@ -44,6 +47,72 @@ def migrate_database(app, db):
             import traceback
             traceback.print_exc()
             return False
+
+
+def _handle_schema_migration(db):
+    """Handle migration from old schema to new schema"""
+    inspector = inspect(db.engine)
+    existing_tables = inspector.get_table_names()
+
+    # Tables that need to be dropped and recreated due to schema changes
+    tables_to_recreate = []
+
+    # Check assistant_types table
+    if 'assistant_types' in existing_tables:
+        columns = [c['name'] for c in inspector.get_columns('assistant_types')]
+        if 'create_time' not in columns or 'related_action' not in columns:
+            tables_to_recreate.append('assistant_types')
+            print("assistant_types table has old schema, will recreate")
+
+    # Check tasks table
+    if 'tasks' in existing_tables:
+        columns = [c['name'] for c in inspector.get_columns('tasks')]
+        if 'name' not in columns:
+            tables_to_recreate.append('tasks')
+            print("tasks table has old schema, will recreate")
+
+    # Check users table for mobile column
+    if 'users' in existing_tables:
+        columns = [c['name'] for c in inspector.get_columns('users')]
+        if 'mobile' not in columns and 'phone' in columns:
+            # Rename phone to mobile
+            try:
+                db.session.execute(text('ALTER TABLE users RENAME COLUMN phone TO mobile'))
+                db.session.commit()
+                print("Renamed users.phone to users.mobile")
+            except Exception as e:
+                print(f"Could not rename phone column: {e}")
+                # SQLite doesn't support RENAME COLUMN in older versions
+                # We'll need to recreate the table
+                tables_to_recreate.append('users')
+
+    # Check scripts table
+    if 'scripts' in existing_tables:
+        columns = [c['name'] for c in inspector.get_columns('scripts')]
+        if 'create_user_id' not in columns:
+            tables_to_recreate.append('scripts')
+            print("scripts table has old schema, will recreate")
+
+    # Drop old tables that no longer exist in new schema
+    old_tables = ['actions', 'action_executions', 'script_executions']
+    for table in old_tables:
+        if table in existing_tables:
+            try:
+                db.session.execute(text(f'DROP TABLE IF EXISTS {table}'))
+                db.session.commit()
+                print(f"Dropped old table: {table}")
+            except Exception as e:
+                print(f"Could not drop {table}: {e}")
+
+    # Drop and recreate tables with changed schema
+    # Note: This will delete data! In production, you'd migrate data first
+    for table in tables_to_recreate:
+        try:
+            db.session.execute(text(f'DROP TABLE IF EXISTS {table}'))
+            db.session.commit()
+            print(f"Dropped table for recreation: {table}")
+        except Exception as e:
+            print(f"Could not drop {table}: {e}")
 
 
 def _seed_languages(db):
