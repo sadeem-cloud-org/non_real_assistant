@@ -87,24 +87,14 @@
             <div class="card-body">
                 <div class="mb-3">
                     <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="notify-telegram">
-                        <span class="form-check-label">إشعارات التليجرام</span>
-                    </label>
-                    <small class="form-hint">استلام التنبيهات ونتائج التنفيذ عبر تليجرام</small>
-                </div>
-                <div class="mb-3">
-                    <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="notify-email">
-                        <span class="form-check-label">إشعارات البريد الإلكتروني</span>
-                    </label>
-                    <small class="form-hint">استلام التنبيهات ونتائج التنفيذ عبر الإيميل</small>
-                </div>
-                <div class="mb-3">
-                    <label class="form-check">
                         <input class="form-check-input" type="checkbox" id="notify-browser">
                         <span class="form-check-label">إشعارات المتصفح</span>
                     </label>
                     <small class="form-hint">إشعارات فورية في المتصفح</small>
+                </div>
+                <div class="alert alert-info">
+                    <i class="ti ti-info-circle me-2"></i>
+                    إشعارات التليجرام والبريد الإلكتروني يتم تحديدها لكل مساعد على حدة من صفحة المساعدين
                 </div>
             </div>
             <div class="card-footer">
@@ -211,17 +201,22 @@ function loadUserProfile() {
             userData = data;
             document.getElementById('user-name').value = data.name || '';
             document.getElementById('user-email').value = data.email || '';
-            document.getElementById('user-phone').value = data.phone || '';
+            document.getElementById('user-phone').value = data.mobile || '';
             document.getElementById('user-telegram').value = data.telegram_id || '';
-            document.getElementById('user-language').value = data.language || 'ar';
+
+            // Handle language - can be object or id
+            if (data.language && data.language.iso_code) {
+                document.getElementById('user-language').value = data.language.iso_code;
+            } else {
+                document.getElementById('user-language').value = 'ar';
+            }
+
             document.getElementById('user-timezone').value = data.timezone || 'Africa/Cairo';
-            document.getElementById('notify-telegram').checked = data.notify_telegram;
-            document.getElementById('notify-email').checked = data.notify_email;
-            document.getElementById('notify-browser').checked = data.notify_browser;
+            document.getElementById('notify-browser').checked = data.browser_notify;
 
             document.getElementById('account-id').textContent = '#' + data.id;
-            document.getElementById('account-created').textContent = data.created_at ? new Date(data.created_at).toLocaleDateString('ar') : '-';
-            document.getElementById('account-last-login').textContent = data.last_login ? new Date(data.last_login).toLocaleDateString('ar') : '-';
+            document.getElementById('account-created').textContent = data.create_time ? new Date(data.create_time).toLocaleDateString('ar') : '-';
+            document.getElementById('account-last-login').textContent = '-'; // TODO: get from login history
         });
 }
 
@@ -247,12 +242,14 @@ function saveProfile() {
 }
 
 function savePreferences() {
+    // Get language id from iso_code
+    const languageCode = document.getElementById('user-language').value;
+    const languageIdMap = {'ar': 1, 'en': 2}; // Matching seed data
+
     const data = {
-        language: document.getElementById('user-language').value,
+        language_id: languageIdMap[languageCode] || 1,
         timezone: document.getElementById('user-timezone').value,
-        notify_telegram: document.getElementById('notify-telegram').checked,
-        notify_email: document.getElementById('notify-email').checked,
-        notify_browser: document.getElementById('notify-browser').checked
+        browser_notify: document.getElementById('notify-browser').checked
     };
 
     fetch('/api/user/profile', {
@@ -261,14 +258,16 @@ function savePreferences() {
         body: JSON.stringify(data)
     })
     .then(r => r.json())
-    .then(data => {
-        if (data.success) {
+    .then(response => {
+        if (response.success) {
             alert('تم حفظ التفضيلات بنجاح');
-            if (data.user.language !== userData.language) {
+            // Check if language changed
+            const oldLang = userData.language ? userData.language.iso_code : 'ar';
+            if (languageCode !== oldLang) {
                 location.reload(); // Reload to apply language change
             }
         } else {
-            alert('خطأ: ' + (data.error || 'فشل الحفظ'));
+            alert('خطأ: ' + (response.error || 'فشل الحفظ'));
         }
     });
 }

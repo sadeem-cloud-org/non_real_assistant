@@ -34,21 +34,18 @@
                 <label class="form-label">الحالة</label>
                 <select class="form-select" id="filter-status" onchange="loadTasks()">
                     <option value="">الكل</option>
-                    <option value="new" selected>جديدة</option>
-                    <option value="in_progress">قيد التنفيذ</option>
+                    <option value="pending" selected>قيد الانتظار</option>
                     <option value="completed">مكتملة</option>
                     <option value="cancelled">ملغاة</option>
                 </select>
             </div>
 
-            <!-- Priority Filter -->
+            <!-- Assistant Filter -->
             <div class="col-lg-3 col-md-6">
-                <label class="form-label">الأولوية</label>
-                <select class="form-select" id="filter-priority" onchange="loadTasks()">
+                <label class="form-label">المساعد</label>
+                <select class="form-select" id="filter-assistant" onchange="loadTasks()">
                     <option value="">الكل</option>
-                    <option value="high">عالية</option>
-                    <option value="medium">متوسطة</option>
-                    <option value="low">منخفضة</option>
+                    <!-- Will be populated from API -->
                 </select>
             </div>
 
@@ -74,12 +71,12 @@
                 <div class="row align-items-center">
                     <div class="col-auto">
                         <span class="bg-blue text-white avatar">
-                            <i class="ti ti-sparkles"></i>
+                            <i class="ti ti-list-check"></i>
                         </span>
                     </div>
                     <div class="col">
-                        <div class="font-weight-medium" id="stat-new">0</div>
-                        <div class="text-muted">جديدة</div>
+                        <div class="font-weight-medium" id="stat-total">0</div>
+                        <div class="text-muted">إجمالي</div>
                     </div>
                 </div>
             </div>
@@ -92,12 +89,12 @@
                 <div class="row align-items-center">
                     <div class="col-auto">
                         <span class="bg-cyan text-white avatar">
-                            <i class="ti ti-player-play"></i>
+                            <i class="ti ti-clock"></i>
                         </span>
                     </div>
                     <div class="col">
-                        <div class="font-weight-medium" id="stat-in-progress">0</div>
-                        <div class="text-muted">قيد التنفيذ</div>
+                        <div class="font-weight-medium" id="stat-pending">0</div>
+                        <div class="text-muted">قيد الانتظار</div>
                     </div>
                 </div>
             </div>
@@ -162,35 +159,27 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <label class="form-label required">عنوان المهمة</label>
-                    <input type="text" class="form-control" id="task-title" placeholder="اكتب عنوان المهمة">
+                    <input type="text" class="form-control" id="task-name" placeholder="اكتب عنوان المهمة">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">الوصف</label>
                     <textarea class="form-control" id="task-description" rows="3" placeholder="تفاصيل المهمة (اختياري)"></textarea>
                 </div>
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-lg-6">
                         <div class="mb-3">
-                            <label class="form-label">الأولوية</label>
-                            <select class="form-select" id="task-priority">
-                                <option value="low">منخفضة</option>
-                                <option value="medium" selected>متوسطة</option>
-                                <option value="high">عالية</option>
+                            <label class="form-label">المساعد</label>
+                            <select class="form-select" id="task-assistant">
+                                <option value="">بدون مساعد</option>
+                                <!-- Will be populated from API -->
                             </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="mb-3">
-                            <label class="form-label">تاريخ الاستحقاق</label>
-                            <input type="text" class="form-control" id="task-due-date" placeholder="dd/mm/yyyy hh:mm" readonly>
+                            <small class="form-hint">اختر المساعد لربط المهمة به وتفعيل الإشعارات التلقائية</small>
                         </div>
                     </div>
                     <div class="col-lg-6">
                         <div class="mb-3">
-                            <label class="form-label">وقت التذكير</label>
-                            <input type="text" class="form-control" id="task-reminder" placeholder="dd/mm/yyyy hh:mm" readonly>
+                            <label class="form-label">وقت التنبيه</label>
+                            <input type="text" class="form-control" id="task-time" placeholder="dd/mm/yyyy hh:mm" readonly>
                         </div>
                     </div>
                 </div>

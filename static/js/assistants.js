@@ -2,34 +2,21 @@
 
 let editingAssistantId = null;
 let allAssistants = [];
-let allScripts = [];
+let allAssistantTypes = [];
+let allNotifyTemplates = [];
 
 // Load on page ready
 document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
-    initializeNotifications();
+    loadAssistantTypes();
+    loadNotifyTemplates();
     loadAssistants();
-    loadScripts();  // Load scripts for dropdown
-
-    // Schedule checkbox toggle
-    const scheduledCheckbox = document.getElementById('assistant-scheduled');
-    if (scheduledCheckbox) {
-        scheduledCheckbox.addEventListener('change', function() {
-            const scheduleConfig = document.getElementById('schedule-config');
-            scheduleConfig.style.display = this.checked ? 'block' : 'none';
-        });
-    }
 
     // Modal event listener
     const modalElement = document.getElementById('modal-assistant');
     if (modalElement) {
         modalElement.addEventListener('hidden.bs.modal', function () {
             closeAssistantModal();
-        });
-
-        // Populate scripts when modal opens
-        modalElement.addEventListener('show.bs.modal', function() {
-            populateScriptsList();
         });
     }
 });
@@ -52,97 +39,97 @@ function initializeTheme() {
     }
 }
 
-// Initialize notifications
-async function initializeNotifications() {
-    const permission = await notificationManager.checkPermission();
-    updateNotificationBell(permission);
-}
-
-// Request notification permission
-async function requestNotificationPermission(event) {
-    event.preventDefault();
-
+// Load assistant types from API
+async function loadAssistantTypes() {
     try {
-        const permission = await notificationManager.requestPermission();
-        updateNotificationBell(permission);
-
-        await fetch('/api/notifications/permission', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ permission })
-        });
-
-        if (permission === 'granted') {
-            showToast('تم تفعيل الإشعارات بنجاح ✓', 'success');
-        }
+        const response = await fetch('/api/assistant-types');
+        allAssistantTypes = await response.json();
+        populateAssistantTypes();
     } catch (error) {
-        console.error('Error requesting permission:', error);
-        showToast('حدث خطأ في تفعيل الإشعارات', 'danger');
+        console.error('Error loading assistant types:', error);
     }
 }
 
-// Update notification bell
-function updateNotificationBell(permission) {
-    const bell = document.getElementById('notification-bell');
-    if (!bell) return;
-
-    const icon = bell.querySelector('i');
-
-    if (permission === 'granted') {
-        icon.className = 'ti ti-bell-ringing icon text-green';
-        bell.title = 'الإشعارات مفعّلة';
-    } else if (permission === 'denied') {
-        icon.className = 'ti ti-bell-off icon text-red';
-        bell.title = 'الإشعارات مغلقة';
-    } else {
-        icon.className = 'ti ti-bell icon text-muted';
-        bell.title = 'اضغط لتفعيل الإشعارات';
-    }
-}
-
-// Load scripts for dropdown
-async function loadScripts() {
-    try {
-        const response = await fetch('/api/scripts');
-        allScripts = await response.json();
-    } catch (error) {
-        console.error('Error loading scripts:', error);
-    }
-}
-
-// Populate scripts dropdown
-function populateScriptsList() {
-    const select = document.getElementById('assistant-script');
+// Populate assistant types dropdown
+function populateAssistantTypes() {
+    const select = document.getElementById('assistant-type');
     if (!select) return;
 
-    // Clear and add empty option
-    select.innerHTML = '<option value="">اختر سكريبت...</option>';
+    select.innerHTML = '';
 
-    allScripts.forEach(script => {
-        const languageEmoji = {
-            'python': '🐍',
-            'javascript': '📜',
-            'bash': '💻'
-        }[script.language] || '📄';
+    const typeNames = {
+        'task_manager': 'مدير مهام',
+        'reminder': 'تذكيرات',
+        'server_monitor': 'مراقبة سيرفرات',
+        'automation': 'أتمتة',
+        'data_collector': 'جمع بيانات',
+        'notification': 'إشعارات',
+        'custom': 'مخصص'
+    };
 
+    const typeIcons = {
+        'task_manager': 'checkbox',
+        'reminder': 'bell',
+        'server_monitor': 'server',
+        'automation': 'robot',
+        'data_collector': 'database',
+        'notification': 'notification',
+        'custom': 'adjustments'
+    };
+
+    allAssistantTypes.forEach(type => {
         const option = document.createElement('option');
-        option.value = script.id;
-        option.textContent = `${languageEmoji} ${script.name}`;
+        option.value = type.id;
+        option.dataset.name = type.name;
+        option.dataset.relatedAction = type.related_action;
+        option.textContent = typeNames[type.name] || type.name;
         select.appendChild(option);
     });
+
+    // Update hint based on selection
+    select.addEventListener('change', updateTypeHint);
 }
 
-// Toggle script selector based on assistant type
-function toggleScriptSelector() {
-    const type = document.getElementById('assistant-type').value;
-    const scriptSelector = document.getElementById('script-selector');
+function updateTypeHint() {
+    const select = document.getElementById('assistant-type');
+    const hint = document.getElementById('type-hint');
+    const selectedOption = select.options[select.selectedIndex];
 
-    if (type === 'automation') {
-        scriptSelector.style.display = 'block';
-    } else {
-        scriptSelector.style.display = 'none';
-        document.getElementById('assistant-script').value = '';
+    if (selectedOption && selectedOption.dataset.relatedAction) {
+        const action = selectedOption.dataset.relatedAction;
+        if (action === 'task') {
+            hint.textContent = 'هذا المساعد يعمل مع المهام';
+        } else if (action === 'script') {
+            hint.textContent = 'هذا المساعد يعمل مع السكريبتات';
+        }
     }
+}
+
+// Load notify templates from API
+async function loadNotifyTemplates() {
+    try {
+        const response = await fetch('/api/notify-templates');
+        allNotifyTemplates = await response.json();
+        populateNotifyTemplates();
+    } catch (error) {
+        console.error('Error loading notify templates:', error);
+    }
+}
+
+// Populate notify templates dropdown
+function populateNotifyTemplates() {
+    const select = document.getElementById('assistant-notify-template');
+    if (!select) return;
+
+    // Keep the default option
+    select.innerHTML = '<option value="">القالب الافتراضي</option>';
+
+    allNotifyTemplates.forEach(template => {
+        const option = document.createElement('option');
+        option.value = template.id;
+        option.textContent = template.name;
+        select.appendChild(option);
+    });
 }
 
 // Load all assistants
@@ -177,25 +164,30 @@ async function loadAssistants() {
 
 // Update statistics
 function updateStats() {
-    const stats = {
-        total: allAssistants.length,
-        active: 0,
-        paused: 0,
-        scheduled: 0
-    };
+    let taskAssistants = 0;
+    let scriptAssistants = 0;
+    let scheduledCount = 0;
 
     allAssistants.forEach(assistant => {
-        if (assistant.is_enabled) stats.active++;
-        else stats.paused++;
+        // Check assistant type
+        if (assistant.assistant_type) {
+            if (assistant.assistant_type.related_action === 'task') {
+                taskAssistants++;
+            } else if (assistant.assistant_type.related_action === 'script') {
+                scriptAssistants++;
+            }
+        }
 
-        const settings = assistant.settings || {};
-        if (settings.schedule_type) stats.scheduled++;
+        // Check if scheduled
+        if (assistant.run_every) {
+            scheduledCount++;
+        }
     });
 
-    document.getElementById('stat-total').textContent = stats.total;
-    document.getElementById('stat-active').textContent = stats.active;
-    document.getElementById('stat-paused').textContent = stats.paused;
-    document.getElementById('stat-scheduled').textContent = stats.scheduled;
+    document.getElementById('stat-total').textContent = allAssistants.length;
+    document.getElementById('stat-tasks').textContent = taskAssistants;
+    document.getElementById('stat-scripts').textContent = scriptAssistants;
+    document.getElementById('stat-scheduled').textContent = scheduledCount;
 }
 
 // Display assistants
@@ -228,101 +220,101 @@ function displayAssistants(assistants) {
 
 // Create assistant card HTML
 function createAssistantCard(assistant) {
-    // Get settings
-    const settings = assistant.settings || {};
-    const type = settings.type || 'custom';
-    const description = settings.description || '';
-    const priority = settings.priority || 'medium';
-
-    const statusClass = assistant.is_enabled ? 'success' : 'warning';
-    const statusText = assistant.is_enabled ? 'نشط' : 'متوقف';
-    const statusIcon = assistant.is_enabled ? 'circle-check' : 'player-pause';
-
     const typeIcons = {
         'task_manager': 'checkbox',
         'reminder': 'bell',
+        'server_monitor': 'server',
         'automation': 'robot',
         'data_collector': 'database',
+        'notification': 'notification',
         'custom': 'adjustments'
     };
 
     const typeNames = {
         'task_manager': 'مدير مهام',
         'reminder': 'تذكيرات',
+        'server_monitor': 'مراقبة سيرفرات',
         'automation': 'أتمتة',
         'data_collector': 'جمع بيانات',
+        'notification': 'إشعارات',
         'custom': 'مخصص'
     };
 
-    const typeIcon = typeIcons[type] || 'robot';
-    const typeName = typeNames[type] || type;
+    const runEveryNames = {
+        'minute': 'كل دقيقة',
+        'hourly': 'كل ساعة',
+        'daily': 'يومياً',
+        'weekly': 'أسبوعياً',
+        'monthly': 'شهرياً'
+    };
 
-    const priorityClass = priority === 'high' ? 'danger' : priority === 'medium' ? 'warning' : 'info';
-
-    const hasSchedule = settings.schedule_type && settings.schedule_value;
-
-    // Check if linked to script
-    const script = allScripts.find(s => s.id === assistant.script_id);
-    const scriptBadge = script ? `
-        <span class="badge bg-cyan">
-            <i class="ti ti-code"></i>
-            ${escapeHtml(script.name)}
-        </span>
-    ` : '';
+    const typeName = assistant.assistant_type ? (typeNames[assistant.assistant_type.name] || assistant.assistant_type.name) : 'مخصص';
+    const typeIcon = assistant.assistant_type ? (typeIcons[assistant.assistant_type.name] || 'robot') : 'robot';
+    const relatedAction = assistant.assistant_type ? assistant.assistant_type.related_action : 'task';
+    const actionColor = relatedAction === 'task' ? 'green' : 'cyan';
 
     return `
         <div class="col-md-6 col-lg-4">
             <div class="card assistant-card">
-                <div class="card-status-top bg-${statusClass}"></div>
+                <div class="card-status-top bg-${actionColor}"></div>
                 <div class="card-body text-center">
                     <div class="mb-3">
-                        <span class="avatar avatar-xl assistant-avatar bg-${statusClass}-lt text-${statusClass}">
+                        <span class="avatar avatar-xl assistant-avatar bg-${actionColor}-lt text-${actionColor}">
                             <i class="ti ti-${typeIcon}"></i>
                         </span>
                     </div>
                     <h3 class="card-title mb-1">${escapeHtml(assistant.name)}</h3>
                     <div class="text-muted mb-3">${typeName}</div>
-                    
-                    ${description ? `
-                        <p class="text-muted small mb-3">${escapeHtml(description)}</p>
-                    ` : ''}
-                    
-                    <div class="d-flex justify-content-center gap-2 mb-3">
-                        <span class="badge bg-${statusClass}">
-                            <i class="ti ti-${statusIcon}"></i>
-                            ${statusText}
+
+                    <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+                        <span class="badge bg-${actionColor}">
+                            <i class="ti ti-${relatedAction === 'task' ? 'subtask' : 'code'}"></i>
+                            ${relatedAction === 'task' ? 'مهام' : 'سكريبتات'}
                         </span>
-                        <span class="badge bg-${priorityClass}">
-                            ${priority === 'high' ? 'أولوية عالية' : priority === 'medium' ? 'أولوية متوسطة' : 'أولوية منخفضة'}
-                        </span>
-                        ${hasSchedule ? `
-                            <span class="badge bg-purple">
-                                <i class="ti ti-calendar-event"></i>
-                                مجدول
+
+                        ${assistant.telegram_notify ? `
+                            <span class="badge bg-info">
+                                <i class="ti ti-brand-telegram"></i>
+                                تليجرام
                             </span>
                         ` : ''}
-                        ${scriptBadge}
+
+                        ${assistant.email_notify ? `
+                            <span class="badge bg-warning">
+                                <i class="ti ti-mail"></i>
+                                إيميل
+                            </span>
+                        ` : ''}
+
+                        ${assistant.run_every ? `
+                            <span class="badge bg-purple">
+                                <i class="ti ti-calendar-event"></i>
+                                ${runEveryNames[assistant.run_every] || assistant.run_every}
+                            </span>
+                        ` : ''}
                     </div>
-                    
-                    ${assistant.created_at ? `
+
+                    <div class="d-flex justify-content-center gap-3 text-muted small mb-3">
+                        <span>
+                            <i class="ti ti-subtask"></i>
+                            ${assistant.tasks_count || 0} مهام
+                        </span>
+                        <span>
+                            <i class="ti ti-code"></i>
+                            ${assistant.scripts_count || 0} سكريبتات
+                        </span>
+                    </div>
+
+                    ${assistant.create_time ? `
                         <div class="text-muted small">
                             <i class="ti ti-clock icon"></i>
-                            تم الإنشاء ${formatDateTime(assistant.created_at)}
+                            تم الإنشاء ${formatDateTime(assistant.create_time)}
                         </div>
                     ` : ''}
                 </div>
-                
+
                 <div class="card-footer">
                     <div class="btn-list justify-content-center">
-                        ${assistant.is_enabled ? `
-                            <button class="btn btn-warning btn-sm" onclick="pauseAssistant(${assistant.id})" title="إيقاف">
-                                <i class="ti ti-player-pause"></i>
-                            </button>
-                        ` : `
-                            <button class="btn btn-success btn-sm" onclick="activateAssistant(${assistant.id})" title="تشغيل">
-                                <i class="ti ti-player-play"></i>
-                            </button>
-                        `}
                         <button class="btn btn-primary btn-sm" onclick="editAssistant(${assistant.id})" title="تعديل">
                             <i class="ti ti-edit"></i>
                         </button>
@@ -342,20 +334,16 @@ function createAssistantCard(assistant) {
 // Save assistant
 async function saveAssistant() {
     const name = document.getElementById('assistant-name').value.trim();
-    const selectedType = document.getElementById('assistant-type').value;
+    const assistantTypeId = document.getElementById('assistant-type').value;
 
     if (!name) {
         showToast('يرجى إدخال اسم المساعد', 'warning');
         return;
     }
 
-    // Validate automation type has a script
-    if (selectedType === 'automation') {
-        const scriptId = document.getElementById('assistant-script').value;
-        if (!scriptId) {
-            showToast('يجب اختيار سكريبت لمساعد الأتمتة', 'warning');
-            return;
-        }
+    if (!assistantTypeId) {
+        showToast('يرجى اختيار نوع المساعد', 'warning');
+        return;
     }
 
     const saveBtn = document.getElementById('btn-save-assistant');
@@ -364,37 +352,21 @@ async function saveAssistant() {
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>جاري الحفظ...';
 
-    // Map type to assistant_type_id (hardcoded for now)
-    const typeMap = {
-        'task_manager': 1,
-        'reminder': 2,
-        'automation': 3,
-        'data_collector': 4,
-        'custom': 5
-    };
-
-    const assistantTypeId = typeMap[selectedType] || 1;
+    const runEvery = document.getElementById('assistant-run-every').value;
+    const notifyTemplateId = document.getElementById('assistant-notify-template').value;
 
     const assistantData = {
         name: name,
-        assistant_type_id: assistantTypeId,
-        is_enabled: document.getElementById('assistant-status').value === 'active',
-        settings: {
-            description: document.getElementById('assistant-description').value.trim(),
-            priority: document.getElementById('assistant-priority').value,
-            type: selectedType  // Store original type for display
-        }
+        assistant_type_id: parseInt(assistantTypeId),
+        telegram_notify: document.getElementById('assistant-telegram-notify').checked,
+        email_notify: document.getElementById('assistant-email-notify').checked,
+        notify_template_id: notifyTemplateId ? parseInt(notifyTemplateId) : null,
+        run_every: runEvery || null
     };
 
-    // Add script_id if automation type
-    if (selectedType === 'automation') {
-        assistantData.script_id = parseInt(document.getElementById('assistant-script').value);
-    }
-
-    // Schedule configuration
-    if (document.getElementById('assistant-scheduled').checked) {
-        assistantData.settings.schedule_type = document.getElementById('schedule-type').value;
-        assistantData.settings.schedule_value = document.getElementById('schedule-value').value.trim();
+    // Calculate next_run_time if scheduling
+    if (runEvery) {
+        assistantData.next_run_time = new Date().toISOString();
     }
 
     try {
@@ -415,7 +387,7 @@ async function saveAssistant() {
         }
 
         if (response.ok) {
-            showToast(editingAssistantId ? 'تم تحديث المساعد بنجاح ✓' : 'تم إضافة المساعد بنجاح ✓', 'success');
+            showToast(editingAssistantId ? 'تم تحديث المساعد بنجاح' : 'تم إضافة المساعد بنجاح', 'success');
 
             const modalElement = document.getElementById('modal-assistant');
             const closeBtn = modalElement.querySelector('[data-bs-dismiss="modal"]');
@@ -451,36 +423,13 @@ async function editAssistant(assistantId) {
             return;
         }
 
-        const settings = assistant.settings || {};
-
         // Fill form
         document.getElementById('assistant-name').value = assistant.name;
-        document.getElementById('assistant-description').value = settings.description || '';
-        document.getElementById('assistant-type').value = settings.type || 'custom';
-        document.getElementById('assistant-status').value = assistant.is_enabled ? 'active' : 'paused';
-        document.getElementById('assistant-priority').value = settings.priority || 'medium';
-
-        // Show/hide script selector based on type
-        toggleScriptSelector();
-
-        // Set script if automation type
-        if (settings.type === 'automation' && assistant.script_id) {
-            document.getElementById('assistant-script').value = assistant.script_id;
-        }
-
-        // Schedule
-        const scheduledCheckbox = document.getElementById('assistant-scheduled');
-        const scheduleConfig = document.getElementById('schedule-config');
-
-        if (settings.schedule_type) {
-            scheduledCheckbox.checked = true;
-            scheduleConfig.style.display = 'block';
-            document.getElementById('schedule-type').value = settings.schedule_type;
-            document.getElementById('schedule-value').value = settings.schedule_value || '';
-        } else {
-            scheduledCheckbox.checked = false;
-            scheduleConfig.style.display = 'none';
-        }
+        document.getElementById('assistant-type').value = assistant.assistant_type_id;
+        document.getElementById('assistant-telegram-notify').checked = assistant.telegram_notify;
+        document.getElementById('assistant-email-notify').checked = assistant.email_notify;
+        document.getElementById('assistant-notify-template').value = assistant.notify_template_id || '';
+        document.getElementById('assistant-run-every').value = assistant.run_every || '';
 
         // Set edit mode
         editingAssistantId = assistantId;
@@ -489,56 +438,12 @@ async function editAssistant(assistantId) {
 
         // Show modal
         const modalElement = document.getElementById('modal-assistant');
-        const triggerBtn = document.querySelector('[data-bs-target="#modal-assistant"]');
-        if (triggerBtn) {
-            triggerBtn.click();
-        }
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
 
     } catch (error) {
         console.error('Error loading assistant:', error);
         showToast('حدث خطأ في تحميل المساعد', 'danger');
-    }
-}
-
-// Pause assistant
-async function pauseAssistant(assistantId) {
-    try {
-        const response = await fetch(`/api/assistants/${assistantId}`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({is_enabled: false})
-        });
-
-        if (response.ok) {
-            showToast('تم إيقاف المساعد', 'warning');
-            await loadAssistants();
-        } else {
-            showToast('حدث خطأ', 'danger');
-        }
-    } catch (error) {
-        console.error('Error pausing assistant:', error);
-        showToast('حدث خطأ في الاتصال', 'danger');
-    }
-}
-
-// Activate assistant
-async function activateAssistant(assistantId) {
-    try {
-        const response = await fetch(`/api/assistants/${assistantId}`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({is_enabled: true})
-        });
-
-        if (response.ok) {
-            showToast('تم تشغيل المساعد ✓', 'success');
-            await loadAssistants();
-        } else {
-            showToast('حدث خطأ', 'danger');
-        }
-    } catch (error) {
-        console.error('Error activating assistant:', error);
-        showToast('حدث خطأ في الاتصال', 'danger');
     }
 }
 
@@ -554,7 +459,7 @@ async function deleteAssistant(assistantId) {
         });
 
         if (response.ok) {
-            showToast('تم حذف المساعد ✓', 'success');
+            showToast('تم حذف المساعد', 'success');
             await loadAssistants();
         } else {
             showToast('حدث خطأ في حذف المساعد', 'danger');
@@ -570,23 +475,18 @@ function viewAssistantDetails(assistantId) {
     const assistant = allAssistants.find(a => a.id === assistantId);
     if (!assistant) return;
 
-    // TODO: Show detailed modal with logs, tasks, etc.
+    // TODO: Show detailed modal with tasks, scripts, logs
     showToast('عرض التفاصيل - قريباً!', 'info');
 }
 
 // Close modal
 function closeAssistantModal() {
     document.getElementById('assistant-name').value = '';
-    document.getElementById('assistant-description').value = '';
-    document.getElementById('assistant-type').value = 'task_manager';
-    document.getElementById('assistant-status').value = 'active';
-    document.getElementById('assistant-priority').value = 'medium';
-    document.getElementById('assistant-scheduled').checked = false;
-    document.getElementById('schedule-config').style.display = 'none';
-    document.getElementById('schedule-type').value = 'interval';
-    document.getElementById('schedule-value').value = '';
-    document.getElementById('assistant-script').value = '';
-    document.getElementById('script-selector').style.display = 'none';
+    document.getElementById('assistant-type').selectedIndex = 0;
+    document.getElementById('assistant-telegram-notify').checked = true;
+    document.getElementById('assistant-email-notify').checked = false;
+    document.getElementById('assistant-notify-template').value = '';
+    document.getElementById('assistant-run-every').value = '';
 
     editingAssistantId = null;
     document.getElementById('modal-title').textContent = 'إضافة مساعد جديد';

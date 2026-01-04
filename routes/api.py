@@ -730,3 +730,63 @@ def update_user_profile():
         'success': True,
         'user': user.to_dict()
     })
+
+
+@api_bp.route('/user/phone', methods=['PUT'])
+@require_auth
+def update_user_phone():
+    """Update user's phone number"""
+    from models import User
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    data = request.get_json()
+    phone = data.get('phone', '').strip()
+
+    if not phone:
+        return jsonify({'error': 'Phone number is required'}), 400
+
+    # Check if phone already exists for another user
+    existing = User.query.filter(User.mobile == phone, User.id != user.id).first()
+    if existing:
+        return jsonify({'error': 'Phone number already in use'}), 400
+
+    user.mobile = phone
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'user': user.to_dict()
+    })
+
+
+@api_bp.route('/user/telegram', methods=['PUT'])
+@require_auth
+def update_user_telegram():
+    """Update user's telegram ID"""
+    from models import User
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    data = request.get_json()
+    telegram_id = data.get('telegram_id', '').strip()
+
+    if not telegram_id:
+        return jsonify({'error': 'Telegram ID is required'}), 400
+
+    # Check if telegram_id already exists for another user
+    existing = User.query.filter(User.telegram_id == telegram_id, User.id != user.id).first()
+    if existing:
+        return jsonify({'error': 'Telegram ID already in use'}), 400
+
+    user.telegram_id = telegram_id
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'user': user.to_dict()
+    })
