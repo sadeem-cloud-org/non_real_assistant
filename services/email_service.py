@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
-from models import SystemSettings
+from models import SystemSetting
 
 
 class EmailService:
@@ -18,13 +18,13 @@ class EmailService:
         """Get email configuration from system settings"""
         if self._config is None:
             self._config = {
-                'smtp_host': SystemSettings.get('email_smtp_host', 'smtp.gmail.com'),
-                'smtp_port': SystemSettings.get('email_smtp_port', 587),
-                'smtp_user': SystemSettings.get('email_smtp_user', ''),
-                'smtp_password': SystemSettings.get('email_smtp_password', ''),
-                'smtp_use_tls': SystemSettings.get('email_smtp_use_tls', True),
-                'from_email': SystemSettings.get('email_from_address', ''),
-                'from_name': SystemSettings.get('email_from_name', 'Non Real Assistant'),
+                'smtp_host': SystemSetting.get('email_smtp_host', 'smtp.gmail.com'),
+                'smtp_port': SystemSetting.get('email_smtp_port', 587),
+                'smtp_user': SystemSetting.get('email_smtp_user', ''),
+                'smtp_password': SystemSetting.get('email_smtp_password', ''),
+                'smtp_use_tls': SystemSetting.get('email_smtp_use_tls', True),
+                'from_email': SystemSetting.get('email_from_address', ''),
+                'from_name': SystemSetting.Zget('email_from_name', 'Non Real Assistant'),
             }
         return self._config
 
