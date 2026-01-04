@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نتيجة التنفيذ - Non Real Assistant</title>
+
+    <!-- Tabler CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+    <style>
+        body {
+            background: #f6f8fb;
+        }
+        .output-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 500px;
+            overflow-y: auto;
+            direction: ltr;
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .error-box {
+            background: #2d1f1f;
+            color: #f48771;
+        }
+        .share-header {
+            background: linear-gradient(135deg, #206bc4 0%, #4299e1 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="share-header">
+        <h1><i class="ti ti-robot"></i> Non Real Assistant</h1>
+        <p>نتيجة تنفيذ مشاركة</p>
+    </div>
+
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">
+                        <i class="ti ti-code me-2"></i>
+                        {{ execution.script_name or 'Script' }}
+                    </h3>
+                    <span class="badge
+                        {% if execution.status == 'success' %}bg-success
+                        {% elif execution.status == 'failed' %}bg-danger
+                        {% elif execution.status == 'timeout' %}bg-warning
+                        {% else %}bg-info{% endif %}">
+                        {{ execution.status }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <strong>اللغة:</strong> {{ execution.script_language or '-' }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>وقت التنفيذ:</strong>
+                        {% if execution.execution_time %}
+                            {{ "%.2f"|format(execution.execution_time) }} ثانية
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>التاريخ:</strong>
+                        {{ execution.started_at[:10] if execution.started_at else '-' }}
+                    </div>
+                </div>
+
+                {% if execution.output %}
+                <h4>الناتج (Output)</h4>
+                <div class="output-box mb-3">{{ execution.output }}</div>
+                {% endif %}
+
+                {% if execution.error %}
+                <h4>الأخطاء (Errors)</h4>
+                <div class="output-box error-box">{{ execution.error }}</div>
+                {% endif %}
+
+                {% if not execution.output and not execution.error %}
+                <div class="text-center text-muted py-4">
+                    <i class="ti ti-file-off" style="font-size: 3rem;"></i>
+                    <p>لا يوجد ناتج</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer text-muted text-center">
+                تمت المشاركة عبر Non Real Assistant
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+</body>
+</html>

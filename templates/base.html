@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html dir="{{ 'rtl' if session.get('language', 'ar') == 'ar' else 'ltr' }}" lang="{{ session.get('language', 'ar') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,6 +46,19 @@
         .flatpickr-time {
             direction: ltr;
         }
+        /* LTR overrides for English */
+        [dir="ltr"] .navbar-brand {
+            margin-left: 0;
+            margin-right: auto;
+        }
+        [dir="ltr"] .nav-link {
+            padding-left: 0;
+            padding-right: 1rem;
+        }
+        [dir="ltr"] .dropdown-item i {
+            margin-left: 0.5rem;
+            margin-right: 0;
+        }
     </style>
 
     {% block page_css %}{% endblock %}
@@ -72,6 +85,20 @@
                             <span class="badge bg-red" id="notification-badge" style="display: none;"></span>
                         </a>
                     </div>
+                    <!-- Language switcher -->
+                    <div class="nav-item dropdown d-none d-md-flex me-3">
+                        <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1">
+                            <i class="ti ti-language icon"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <a href="/set-language/ar" class="dropdown-item {% if session.get('language', 'ar') == 'ar' %}active{% endif %}">
+                                العربية
+                            </a>
+                            <a href="/set-language/en" class="dropdown-item {% if session.get('language', 'ar') == 'en' %}active{% endif %}">
+                                English
+                            </a>
+                        </div>
+                    </div>
                     <!-- Theme switcher -->
                     <div class="d-none d-md-flex">
                         <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="تفعيل الوضع الليلي" data-bs-toggle="tooltip" data-bs-placement="bottom">
@@ -92,6 +119,15 @@
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <a href="/settings" class="dropdown-item">
+                                <i class="ti ti-settings ms-2"></i>
+                                الإعدادات
+                            </a>
+                            <a href="/settings/system" class="dropdown-item">
+                                <i class="ti ti-adjustments ms-2"></i>
+                                إعدادات النظام
+                            </a>
+                            <div class="dropdown-divider"></div>
                             <a href="/logout" class="dropdown-item">
                                 <i class="ti ti-logout ms-2"></i>
                                 تسجيل الخروج

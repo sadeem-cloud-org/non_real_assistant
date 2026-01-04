@@ -1,0 +1,323 @@
+# Arabic translations for Non Real Assistant
+# Copyright (C) 2024
+# This file is distributed under the same license as the project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Non Real Assistant 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: \n"
+"Language: ar\n"
+"Language-Team: Arabic\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# Navigation
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+msgid "Assistants"
+msgstr "المساعدين"
+
+msgid "Tasks"
+msgstr "المهام"
+
+msgid "Scripts"
+msgstr "السكريبتات"
+
+msgid "Executions"
+msgstr "سجل التنفيذ"
+
+msgid "Settings"
+msgstr "الإعدادات"
+
+msgid "System Settings"
+msgstr "إعدادات النظام"
+
+msgid "Logout"
+msgstr "تسجيل الخروج"
+
+# Common Actions
+msgid "Save"
+msgstr "حفظ"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Add"
+msgstr "إضافة"
+
+msgid "Create"
+msgstr "إنشاء"
+
+msgid "Update"
+msgstr "تحديث"
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Submit"
+msgstr "إرسال"
+
+msgid "Search"
+msgstr "بحث"
+
+msgid "Filter"
+msgstr "تصفية"
+
+# Status
+msgid "Active"
+msgstr "نشط"
+
+msgid "Inactive"
+msgstr "غير نشط"
+
+msgid "Enabled"
+msgstr "مفعّل"
+
+msgid "Disabled"
+msgstr "معطّل"
+
+msgid "Success"
+msgstr "نجاح"
+
+msgid "Failed"
+msgstr "فشل"
+
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+msgid "Running"
+msgstr "قيد التنفيذ"
+
+msgid "Completed"
+msgstr "مكتمل"
+
+msgid "Error"
+msgstr "خطأ"
+
+# Dashboard
+msgid "Active Assistants"
+msgstr "المساعدين النشطين"
+
+msgid "Pending Tasks"
+msgstr "المهام المعلقة"
+
+msgid "Completed Today"
+msgstr "المكتملة اليوم"
+
+msgid "Recent Executions"
+msgstr "آخر التنفيذات"
+
+# Assistants
+msgid "Add Assistant"
+msgstr "إضافة مساعد"
+
+msgid "Assistant Name"
+msgstr "اسم المساعد"
+
+msgid "Assistant Type"
+msgstr "نوع المساعد"
+
+msgid "No assistants yet"
+msgstr "لا يوجد مساعدين"
+
+msgid "Create your first assistant"
+msgstr "أنشئ أول مساعد لك"
+
+# Tasks
+msgid "Add Task"
+msgstr "إضافة مهمة"
+
+msgid "Task Title"
+msgstr "عنوان المهمة"
+
+msgid "Task Description"
+msgstr "وصف المهمة"
+
+msgid "Due Date"
+msgstr "تاريخ الاستحقاق"
+
+msgid "Reminder Time"
+msgstr "وقت التذكير"
+
+msgid "Priority"
+msgstr "الأولوية"
+
+msgid "High"
+msgstr "عالية"
+
+msgid "Medium"
+msgstr "متوسطة"
+
+msgid "Low"
+msgstr "منخفضة"
+
+msgid "No tasks yet"
+msgstr "لا يوجد مهام"
+
+# Scripts
+msgid "Add Script"
+msgstr "إضافة سكريبت"
+
+msgid "Script Name"
+msgstr "اسم السكريبت"
+
+msgid "Script Description"
+msgstr "وصف السكريبت"
+
+msgid "Language"
+msgstr "اللغة"
+
+msgid "Code"
+msgstr "الكود"
+
+msgid "Run Script"
+msgstr "تشغيل السكريبت"
+
+msgid "Send to Telegram"
+msgstr "إرسال للتليجرام"
+
+msgid "Send to Email"
+msgstr "إرسال للبريد الإلكتروني"
+
+msgid "No scripts yet"
+msgstr "لا يوجد سكريبتات"
+
+# Settings
+msgid "Profile"
+msgstr "الملف الشخصي"
+
+msgid "Name"
+msgstr "الاسم"
+
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Phone"
+msgstr "رقم الهاتف"
+
+msgid "Telegram ID"
+msgstr "معرف التليجرام"
+
+msgid "Preferences"
+msgstr "التفضيلات"
+
+msgid "Default Language"
+msgstr "اللغة الافتراضية"
+
+msgid "Timezone"
+msgstr "المنطقة الزمنية"
+
+msgid "Notifications"
+msgstr "الإشعارات"
+
+msgid "Telegram Notifications"
+msgstr "إشعارات التليجرام"
+
+msgid "Email Notifications"
+msgstr "إشعارات البريد الإلكتروني"
+
+msgid "Browser Notifications"
+msgstr "إشعارات المتصفح"
+
+# System Settings
+msgid "SMTP Settings"
+msgstr "إعدادات SMTP"
+
+msgid "SMTP Host"
+msgstr "خادم SMTP"
+
+msgid "SMTP Port"
+msgstr "منفذ SMTP"
+
+msgid "SMTP Username"
+msgstr "اسم المستخدم"
+
+msgid "SMTP Password"
+msgstr "كلمة المرور"
+
+msgid "Use TLS"
+msgstr "استخدام TLS"
+
+msgid "From Email"
+msgstr "البريد المرسل"
+
+msgid "From Name"
+msgstr "اسم المرسل"
+
+msgid "Send Test Email"
+msgstr "إرسال بريد تجريبي"
+
+msgid "App Settings"
+msgstr "إعدادات التطبيق"
+
+msgid "App Name"
+msgstr "اسم التطبيق"
+
+# Share
+msgid "Share Results"
+msgstr "مشاركة النتائج"
+
+msgid "Create Share Link"
+msgstr "إنشاء رابط مشاركة"
+
+msgid "Remove Share"
+msgstr "إزالة المشاركة"
+
+msgid "Share link copied"
+msgstr "تم نسخ رابط المشاركة"
+
+# Messages
+msgid "Saved successfully"
+msgstr "تم الحفظ بنجاح"
+
+msgid "Deleted successfully"
+msgstr "تم الحذف بنجاح"
+
+msgid "An error occurred"
+msgstr "حدث خطأ"
+
+msgid "Please fill all required fields"
+msgstr "يرجى ملء جميع الحقول المطلوبة"
+
+msgid "Are you sure?"
+msgstr "هل أنت متأكد؟"
+
+msgid "This action cannot be undone"
+msgstr "لا يمكن التراجع عن هذا الإجراء"
+
+# Time
+msgid "Just now"
+msgstr "الآن"
+
+msgid "seconds ago"
+msgstr "ثانية مضت"
+
+msgid "minute ago"
+msgstr "دقيقة مضت"
+
+msgid "minutes ago"
+msgstr "دقيقة مضت"
+
+msgid "hour ago"
+msgstr "ساعة مضت"
+
+msgid "hours ago"
+msgstr "ساعة مضت"
+
+msgid "day ago"
+msgstr "يوم مضى"
+
+msgid "days ago"
+msgstr "يوم مضى"

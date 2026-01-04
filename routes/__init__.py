@@ -12,6 +12,8 @@ from .assistants import assistants_bp
 from .scripts import scripts_bp
 from .executions import executions_bp
 from .api import api_bp
+from .settings import settings_bp
+from .share import share_bp
 
 
 def register_blueprints(app):
@@ -22,6 +24,8 @@ def register_blueprints(app):
     app.register_blueprint(assistants_bp)
     app.register_blueprint(scripts_bp)
     app.register_blueprint(executions_bp)
+    app.register_blueprint(settings_bp)
+    app.register_blueprint(share_bp)
     app.register_blueprint(api_bp, url_prefix='/api')
 
 
@@ -33,5 +37,7 @@ __all__ = [
     'assistants_bp',
     'scripts_bp',
     'executions_bp',
+    'settings_bp',
+    'share_bp',
     'api_bp'
 ]
