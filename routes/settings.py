@@ -1,7 +1,7 @@
 """Settings routes - User and System settings"""
 
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from models import db, User, SystemSettings
+from models import db, User, SystemSetting, Language
 
 settings_bp = Blueprint('settings', __name__)
 
@@ -11,14 +11,16 @@ settings_bp = Blueprint('settings', __name__)
 @settings_bp.route('/set-language/<lang>')
 def set_language(lang):
     """Set user's preferred language"""
-    if lang in ['ar', 'en']:
+    # Find language by iso_code
+    language = Language.query.filter_by(iso_code=lang).first()
+    if language:
         session['language'] = lang
 
         # If user is logged in, save preference
         if 'user_id' in session:
             user = User.query.get(session['user_id'])
             if user:
-                user.language = lang
+                user.language_id = language.id
                 db.session.commit()
 
     # Redirect back to previous page
@@ -33,7 +35,8 @@ def user_settings():
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))
 
-    return render_template('settings.html', active_page='settings')
+    languages = Language.query.all()
+    return render_template('settings.html', active_page='settings', languages=languages)
 
 
 @settings_bp.route('/settings/system')
@@ -42,7 +45,6 @@ def system_settings():
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))
 
-    # TODO: Add admin check
     return render_template('system_settings.html', active_page='system_settings')
 
 
@@ -78,17 +80,16 @@ def update_user_profile():
         user.name = data['name']
     if 'email' in data:
         user.email = data['email']
-    if 'language' in data and data['language'] in ['ar', 'en']:
-        user.language = data['language']
-        session['language'] = data['language']
+    if 'language_id' in data:
+        user.language_id = data['language_id']
+        # Update session language
+        lang = Language.query.get(data['language_id'])
+        if lang:
+            session['language'] = lang.iso_code
     if 'timezone' in data:
         user.timezone = data['timezone']
-    if 'notify_telegram' in data:
-        user.notify_telegram = bool(data['notify_telegram'])
-    if 'notify_email' in data:
-        user.notify_email = bool(data['notify_email'])
-    if 'notify_browser' in data:
-        user.notify_browser = bool(data['notify_browser'])
+    if 'browser_notify' in data:
+        user.browser_notify = bool(data['browser_notify'])
 
     db.session.commit()
 
@@ -98,30 +99,30 @@ def update_user_profile():
     })
 
 
-@settings_bp.route('/api/user/phone', methods=['PUT'])
-def update_user_phone():
-    """Update user's phone (requires OTP verification)"""
+@settings_bp.route('/api/user/mobile', methods=['PUT'])
+def update_user_mobile():
+    """Update user's mobile (requires verification)"""
     if 'user_id' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
 
     data = request.get_json()
-    new_phone = data.get('phone', '').strip()
+    new_mobile = data.get('mobile', '').strip()
 
-    if not new_phone:
-        return jsonify({'error': 'Phone number is required'}), 400
+    if not new_mobile:
+        return jsonify({'error': 'Mobile number is required'}), 400
 
-    # Check if phone already exists
-    existing = User.query.filter_by(phone=new_phone).first()
+    # Check if mobile already exists
+    existing = User.query.filter_by(mobile=new_mobile).first()
     if existing and existing.id != session['user_id']:
-        return jsonify({'error': 'Phone number already in use'}), 400
+        return jsonify({'error': 'Mobile number already in use'}), 400
 
     user = User.query.get(session['user_id'])
-    user.phone = new_phone
+    user.mobile = new_mobile
     db.session.commit()
 
     return jsonify({
         'success': True,
-        'message': 'Phone number updated'
+        'message': 'Mobile number updated'
     })
 
 
@@ -156,22 +157,12 @@ def update_user_telegram():
 
 @settings_bp.route('/api/system/settings')
 def get_system_settings():
-    """Get all system settings"""
+    """Get system settings"""
     if 'user_id' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
 
-    # TODO: Add admin check
-
-    settings = SystemSettings.query.all()
-    result = {}
-    for s in settings:
-        result[s.key] = {
-            'value': s.get_value(),
-            'type': s.value_type,
-            'description': s.description
-        }
-
-    return jsonify(result)
+    settings = SystemSetting.get_settings()
+    return jsonify(settings.to_dict())
 
 
 @settings_bp.route('/api/system/settings', methods=['PUT'])
@@ -180,94 +171,27 @@ def update_system_settings():
     if 'user_id' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
 
-    # TODO: Add admin check
-
     data = request.get_json()
+    settings = SystemSetting.get_settings()
 
-    for key, config in data.items():
-        value = config.get('value')
-        value_type = config.get('type', 'string')
-        description = config.get('description')
+    if 'title' in data:
+        settings.title = data['title']
+    if 'default_language_id' in data:
+        settings.default_language_id = data['default_language_id']
+    if 'otp_expiration_seconds' in data:
+        settings.otp_expiration_seconds = data['otp_expiration_seconds']
+    if 'telegram_bot_token' in data:
+        settings.telegram_bot_token = data['telegram_bot_token']
 
-        SystemSettings.set(key, value, value_type, description)
+    db.session.commit()
 
     return jsonify({'success': True})
 
 
-@settings_bp.route('/api/system/settings/email', methods=['GET'])
-def get_email_settings():
-    """Get email configuration"""
-    if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
+# ===== Languages API =====
 
-    return jsonify({
-        'smtp_host': SystemSettings.get('email_smtp_host', 'smtp.gmail.com'),
-        'smtp_port': SystemSettings.get('email_smtp_port', 587),
-        'smtp_user': SystemSettings.get('email_smtp_user', ''),
-        'smtp_use_tls': SystemSettings.get('email_smtp_use_tls', True),
-        'from_email': SystemSettings.get('email_from_address', ''),
-        'from_name': SystemSettings.get('email_from_name', 'Non Real Assistant'),
-        # Don't return password
-    })
-
-
-@settings_bp.route('/api/system/settings/email', methods=['PUT'])
-def update_email_settings():
-    """Update email configuration"""
-    if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    data = request.get_json()
-
-    if 'smtp_host' in data:
-        SystemSettings.set('email_smtp_host', data['smtp_host'])
-    if 'smtp_port' in data:
-        SystemSettings.set('email_smtp_port', data['smtp_port'], 'int')
-    if 'smtp_user' in data:
-        SystemSettings.set('email_smtp_user', data['smtp_user'])
-    if 'smtp_password' in data and data['smtp_password']:
-        SystemSettings.set('email_smtp_password', data['smtp_password'])
-    if 'smtp_use_tls' in data:
-        SystemSettings.set('email_smtp_use_tls', data['smtp_use_tls'], 'bool')
-    if 'from_email' in data:
-        SystemSettings.set('email_from_address', data['from_email'])
-    if 'from_name' in data:
-        SystemSettings.set('email_from_name', data['from_name'])
-
-    return jsonify({'success': True})
-
-
-@settings_bp.route('/api/system/settings/email/test', methods=['POST'])
-def test_email_settings():
-    """Test email configuration by sending a test email"""
-    if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    data = request.get_json()
-    test_email = data.get('email')
-
-    if not test_email:
-        return jsonify({'error': 'Test email address is required'}), 400
-
-    from services.email_service import get_email_service
-
-    email_service = get_email_service()
-
-    result = email_service.send_email(
-        test_email,
-        'Test Email - Non Real Assistant',
-        """
-        <html>
-        <body style="font-family: Arial, sans-serif; text-align: center; padding: 40px;">
-            <h1 style="color: #10b981;"> Email Configuration Works!</h1>
-            <p>This is a test email from Non Real Assistant.</p>
-            <p>If you received this email, your SMTP configuration is correct.</p>
-        </body>
-        </html>
-        """
-    )
-
-    if result['success']:
-        return jsonify({'success': True, 'message': 'Test email sent successfully'})
-    else:
-        return jsonify({'success': False, 'error': result['error']}), 400
+@settings_bp.route('/api/languages')
+def get_languages():
+    """Get all languages"""
+    languages = Language.query.all()
+    return jsonify([l.to_dict() for l in languages])

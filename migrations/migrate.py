@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Consolidated Database Migration Script
-Contains all database migrations in one place.
+Database Migration Script
+Creates and updates all database tables.
 Usage: python -m migrations.migrate
 """
 
@@ -11,171 +11,119 @@ from sqlalchemy import text
 def migrate_database(app, db):
     """
     Run all database migrations.
-    Creates or updates all database tables.
     """
     with app.app_context():
         print("Starting database migration...")
 
         try:
-            # Create all tables
+            # Create all tables from models
             db.create_all()
             print("Base tables created/updated")
 
-            # Run additional migrations
-            _add_script_id_to_assistants(db)
-            _add_user_profile_fields(db)
-            _add_script_notification_fields(db)
-            _add_execution_share_fields(db)
-            _add_assistant_type_fields(db)
+            # Seed default languages
+            _seed_languages(db)
 
             print("\nMigration completed successfully!")
             print("\nTables created/updated:")
+            print("   - languages")
+            print("   - system_settings")
             print("   - users")
+            print("   - user_login_history")
             print("   - otps")
+            print("   - notify_templates")
             print("   - assistant_types")
-            print("   - actions")
             print("   - assistants")
             print("   - tasks")
             print("   - scripts")
-            print("   - script_executions")
-            print("   - action_executions")
-            print("   - system_settings")
+            print("   - script_execute_logs")
 
             return True
 
         except Exception as e:
             print(f"\nMigration failed: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
 
-def _add_script_id_to_assistants(db):
-    """Add script_id column to assistants table if not exists"""
-    try:
-        db.session.execute(
-            text('ALTER TABLE assistants ADD COLUMN script_id INTEGER REFERENCES scripts(id)')
-        )
-        db.session.commit()
-        print("Added script_id column to assistants table")
-    except Exception as e:
-        error_str = str(e).lower()
-        if 'duplicate column name' in error_str or 'already exists' in error_str:
-            print("script_id column already exists in assistants table")
-        else:
-            db.session.rollback()
+def _seed_languages(db):
+    """Seed default languages if not exist"""
+    from models import Language
 
-
-def _add_user_profile_fields(db):
-    """Add new user profile fields"""
-    columns = [
-        ('name', 'VARCHAR(100)'),
-        ('email', 'VARCHAR(200)'),
-        ('language', "VARCHAR(10) DEFAULT 'ar'"),
-        ('timezone', "VARCHAR(50) DEFAULT 'Africa/Cairo'"),
-        ('notify_telegram', 'BOOLEAN DEFAULT 1'),
-        ('notify_email', 'BOOLEAN DEFAULT 0'),
-        ('notify_browser', 'BOOLEAN DEFAULT 1'),
-        ('settings', 'TEXT'),
+    languages = [
+        {'name': 'العربية', 'iso_code': 'ar'},
+        {'name': 'English', 'iso_code': 'en'}
     ]
 
-    for col_name, col_type in columns:
-        try:
-            db.session.execute(
-                text(f'ALTER TABLE users ADD COLUMN {col_name} {col_type}')
-            )
-            db.session.commit()
-            print(f"Added {col_name} column to users table")
-        except Exception as e:
-            db.session.rollback()
-            error_str = str(e).lower()
-            if 'duplicate column name' in error_str or 'already exists' in error_str:
-                pass  # Column already exists
+    for lang_data in languages:
+        existing = Language.query.filter_by(iso_code=lang_data['iso_code']).first()
+        if not existing:
+            lang = Language(**lang_data)
+            db.session.add(lang)
+            print(f"Added language: {lang_data['name']}")
+
+    db.session.commit()
 
 
-def _add_script_notification_fields(db):
-    """Add notification fields to scripts table"""
-    columns = [
-        ('send_output_telegram', 'BOOLEAN DEFAULT 0'),
-        ('send_output_email', 'BOOLEAN DEFAULT 0'),
+def seed_assistant_types(db):
+    """Seed default assistant types"""
+    from models import AssistantType
+
+    types = [
+        {'name': 'reminder', 'related_action': 'task'},
+        {'name': 'task_manager', 'related_action': 'task'},
+        {'name': 'server_monitor', 'related_action': 'script'},
+        {'name': 'automation', 'related_action': 'script'},
+        {'name': 'data_collector', 'related_action': 'script'},
+        {'name': 'notification', 'related_action': 'task'},
+        {'name': 'custom', 'related_action': 'task'}
     ]
 
-    for col_name, col_type in columns:
-        try:
-            db.session.execute(
-                text(f'ALTER TABLE scripts ADD COLUMN {col_name} {col_type}')
-            )
-            db.session.commit()
-            print(f"Added {col_name} column to scripts table")
-        except Exception as e:
-            db.session.rollback()
-            error_str = str(e).lower()
-            if 'duplicate column name' in error_str or 'already exists' in error_str:
-                pass
+    for type_data in types:
+        existing = AssistantType.query.filter_by(name=type_data['name']).first()
+        if not existing:
+            assistant_type = AssistantType(**type_data)
+            db.session.add(assistant_type)
+            print(f"Added assistant type: {type_data['name']}")
+
+    db.session.commit()
 
 
-def _add_execution_share_fields(db):
-    """Add sharing fields to execution tables"""
-    # Script executions
-    script_exec_columns = [
-        ('share_token', 'VARCHAR(64) UNIQUE'),
-        ('is_public', 'BOOLEAN DEFAULT 0'),
-        ('telegram_sent', 'BOOLEAN DEFAULT 0'),
-        ('email_sent', 'BOOLEAN DEFAULT 0'),
+def seed_notify_templates(db):
+    """Seed default notification templates"""
+    from models import NotifyTemplate
+
+    templates = [
+        {
+            'name': 'task_reminder',
+            'text': '⏰ تذكير: {task_name}\n\n{description}\n\nالموعد: {time}'
+        },
+        {
+            'name': 'task_completed',
+            'text': '✅ تم إتمام المهمة: {task_name}'
+        },
+        {
+            'name': 'script_success',
+            'text': '✅ تم تنفيذ السكريبت: {script_name}\n\nالنتيجة:\n{output}'
+        },
+        {
+            'name': 'script_failed',
+            'text': '❌ فشل تنفيذ السكريبت: {script_name}\n\nالخطأ:\n{error}'
+        },
+        {
+            'name': 'server_status',
+            'text': '🖥️ حالة السيرفر: {server_name}\n\nالحالة: {status}\n{details}'
+        }
     ]
 
-    for col_name, col_type in script_exec_columns:
-        try:
-            db.session.execute(
-                text(f'ALTER TABLE script_executions ADD COLUMN {col_name} {col_type}')
-            )
-            db.session.commit()
-            print(f"Added {col_name} column to script_executions table")
-        except Exception as e:
-            db.session.rollback()
-            error_str = str(e).lower()
-            if 'duplicate column name' in error_str or 'already exists' in error_str:
-                pass
+    for template_data in templates:
+        existing = NotifyTemplate.query.filter_by(name=template_data['name']).first()
+        if not existing:
+            template = NotifyTemplate(**template_data)
+            db.session.add(template)
+            print(f"Added notify template: {template_data['name']}")
 
-    # Action executions
-    action_exec_columns = [
-        ('share_token', 'VARCHAR(64) UNIQUE'),
-        ('is_public', 'BOOLEAN DEFAULT 0'),
-    ]
-
-    for col_name, col_type in action_exec_columns:
-        try:
-            db.session.execute(
-                text(f'ALTER TABLE action_executions ADD COLUMN {col_name} {col_type}')
-            )
-            db.session.commit()
-            print(f"Added {col_name} column to action_executions table")
-        except Exception as e:
-            db.session.rollback()
-            error_str = str(e).lower()
-            if 'duplicate column name' in error_str or 'already exists' in error_str:
-                pass
-
-
-def _add_assistant_type_fields(db):
-    """Add new fields to assistant_types table"""
-    columns = [
-        ('description_ar', 'TEXT'),
-        ('description_en', 'TEXT'),
-        ('color', "VARCHAR(20) DEFAULT 'blue'"),
-        ('default_settings', 'TEXT'),
-    ]
-
-    for col_name, col_type in columns:
-        try:
-            db.session.execute(
-                text(f'ALTER TABLE assistant_types ADD COLUMN {col_name} {col_type}')
-            )
-            db.session.commit()
-            print(f"Added {col_name} column to assistant_types table")
-        except Exception as e:
-            db.session.rollback()
-            error_str = str(e).lower()
-            if 'duplicate column name' in error_str or 'already exists' in error_str:
-                pass
+    db.session.commit()
 
 
 def run_all_migrations():
@@ -194,9 +142,13 @@ def run_all_migrations():
     success = migrate_database(app, db)
 
     if success:
+        # Seed assistant types
+        with app.app_context():
+            seed_assistant_types(db)
+            seed_notify_templates(db)
+
         print("\nNext steps:")
-        print("   1. Run: python -m seeds.seed_assistant_types")
-        print("      (to add assistant types)")
+        print("   1. Create a user: python create_user.py create --phone 01234567890 --telegram_id YOUR_ID")
         print("   2. Start the app: python app.py")
 
     return success
