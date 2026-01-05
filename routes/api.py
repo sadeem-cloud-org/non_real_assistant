@@ -816,3 +816,93 @@ def update_user_telegram():
         'success': True,
         'user': user.to_dict()
     })
+
+
+# ===== External API (Protected by API Key) =====
+
+def require_api_key(f):
+    """Decorator to require API key authentication"""
+    from functools import wraps
+    from flask import current_app
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        api_key = current_app.config.get('API_SECRET_KEY')
+
+        if not api_key:
+            return jsonify({'error': 'API not configured'}), 503
+
+        # Get key from Authorization header
+        auth_header = request.headers.get('Authorization', '')
+        if auth_header.startswith('Bearer '):
+            provided_key = auth_header[7:]
+        else:
+            provided_key = request.headers.get('X-API-Key', '')
+
+        if not provided_key or provided_key != api_key:
+            return jsonify({'error': 'Invalid API key'}), 401
+
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+@api_bp.route('/external/users', methods=['POST'])
+@require_api_key
+def create_external_user():
+    """Create a new user via external API
+
+    Required: mobile
+    Optional: email, name, telegram_id
+    """
+    from models import User
+
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Request body required'}), 400
+
+    mobile = data.get('mobile', '').strip()
+
+    # Validate mobile
+    if not mobile:
+        return jsonify({'error': 'Mobile number is required'}), 400
+
+    if not mobile.isdigit() or len(mobile) < 10:
+        return jsonify({'error': 'Invalid mobile format (digits only, min 10)'}), 400
+
+    # Check if user already exists
+    existing = User.query.filter_by(mobile=mobile).first()
+    if existing:
+        return jsonify({'error': 'Mobile number already exists'}), 409
+
+    # Optional fields
+    email = data.get('email', '').strip() or None
+    name = data.get('name', '').strip() or None
+    telegram_id = data.get('telegram_id', '').strip() or None
+
+    # Check telegram_id uniqueness if provided
+    if telegram_id:
+        existing_telegram = User.query.filter_by(telegram_id=telegram_id).first()
+        if existing_telegram:
+            return jsonify({'error': 'Telegram ID already exists'}), 409
+
+    # Create user
+    new_user = User(
+        mobile=mobile,
+        email=email,
+        name=name,
+        telegram_id=telegram_id,
+        is_admin=False  # External users are never admin
+    )
+
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'user': new_user.to_dict()
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500

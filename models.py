@@ -17,6 +17,9 @@ class Language(db.Model):
     iso_code = db.Column(db.String(10), unique=True, nullable=False)  # ar, en
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # Relationships
+    translations = db.relationship('Translation', backref='language', lazy=True, cascade='all, delete-orphan')
+
     def __repr__(self):
         return f'<Language {self.iso_code}>'
 
@@ -25,6 +28,38 @@ class Language(db.Model):
             'id': self.id,
             'name': self.name,
             'iso_code': self.iso_code
+        }
+
+
+class Translation(db.Model):
+    """UI translations"""
+    __tablename__ = 'translations'
+
+    id = db.Column(db.Integer, primary_key=True)
+    language_id = db.Column(db.Integer, db.ForeignKey('languages.id'), nullable=False)
+    key = db.Column(db.String(500), nullable=False)  # Original text or unique key
+    value = db.Column(db.Text)  # Translated text
+    context = db.Column(db.String(200))  # File or context where it's used
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+    update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('language_id', 'key', name='unique_translation'),
+    )
+
+    def __repr__(self):
+        return f'<Translation {self.key[:30]}... ({self.language.iso_code if self.language else "?"})>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'language_id': self.language_id,
+            'language_code': self.language.iso_code if self.language else None,
+            'key': self.key,
+            'value': self.value,
+            'context': self.context,
+            'create_time': self.create_time.isoformat() if self.create_time else None,
+            'update_time': self.update_time.isoformat() if self.update_time else None
         }
 
 
@@ -82,6 +117,7 @@ class User(db.Model):
     timezone = db.Column(db.String(50), default='Africa/Cairo')
     language_id = db.Column(db.Integer, db.ForeignKey('languages.id'))
     browser_notify = db.Column(db.Boolean, default=True)
+    is_admin = db.Column(db.Boolean, default=False)
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
@@ -106,6 +142,7 @@ class User(db.Model):
             'language_id': self.language_id,
             'language': self.language.to_dict() if self.language else None,
             'browser_notify': self.browser_notify,
+            'is_admin': self.is_admin,
             'create_time': self.create_time.isoformat() if self.create_time else None
         }
 

@@ -119,6 +119,12 @@
                             <i class="ti ti-settings ms-2"></i>
                             الإعدادات
                         </a>
+                        {% if current_user and current_user.is_admin %}
+                        <a href="/translations" class="dropdown-item">
+                            <i class="ti ti-language ms-2"></i>
+                            إدارة الترجمات
+                        </a>
+                        {% endif %}
                         <div class="dropdown-divider"></div>
                         <a href="/logout" class="dropdown-item">
                             <i class="ti ti-logout ms-2"></i>
