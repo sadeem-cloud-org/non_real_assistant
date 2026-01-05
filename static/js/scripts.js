@@ -385,7 +385,9 @@ async function runScript(scriptId) {
 
     try {
         const response = await fetch(`/api/scripts/${scriptId}/run`, {
-            method: 'POST'
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({})
         });
 
         if (response.ok) {

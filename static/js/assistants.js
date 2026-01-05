@@ -341,9 +341,33 @@ async function saveAssistant() {
         run_every: runEvery || null
     };
 
-    // Calculate next_run_time if scheduling
+    // Calculate next_run_time if scheduling - set to NEXT scheduled time, not now
     if (runEvery) {
-        assistantData.next_run_time = new Date().toISOString();
+        const now = new Date();
+        let nextRun = new Date(now);
+
+        switch (runEvery) {
+            case 'minute':
+                nextRun.setMinutes(now.getMinutes() + 1);
+                break;
+            case 'hourly':
+                nextRun.setHours(now.getHours() + 1, 0, 0, 0);
+                break;
+            case 'daily':
+                nextRun.setDate(now.getDate() + 1);
+                nextRun.setHours(8, 0, 0, 0); // 8 AM next day
+                break;
+            case 'weekly':
+                nextRun.setDate(now.getDate() + 7);
+                break;
+            case 'monthly':
+                nextRun.setMonth(now.getMonth() + 1);
+                break;
+            default:
+                nextRun.setDate(now.getDate() + 1);
+        }
+
+        assistantData.next_run_time = nextRun.toISOString();
     }
 
     try {
