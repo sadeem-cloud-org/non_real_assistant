@@ -77,6 +77,7 @@ class TaskScheduler:
 
             # Check if task has an assistant with telegram_notify enabled
             should_notify = True
+            assistant = None
             if task.assistant_id:
                 assistant = Assistant.query.get(task.assistant_id)
                 if assistant and not assistant.telegram_notify:
@@ -85,35 +86,22 @@ class TaskScheduler:
             if not should_notify or not user.telegram_id:
                 continue
 
-            # Calculate time difference
-            time_diff = task.time - now
-            minutes_left = int(time_diff.total_seconds() / 60)
+            # Get user display name
+            user_name = user.name or user.mobile or 'المستخدم'
+            assistant_name = assistant.name if assistant else 'المساعد الشخصي'
 
-            if minutes_left <= 0:
-                time_text = "الآن"
-            elif minutes_left < 60:
-                time_text = f"بعد {minutes_left} دقيقة"
-            else:
-                hours = minutes_left // 60
-                time_text = f"بعد {hours} ساعة"
+            # Format task time
+            task_time = task.time.strftime('%Y-%m-%d %H:%M') if task.time else ''
 
-            # Prepare message
-            message = f"""
-⏰ <b>تذكير بمهمة</b>
+            # Prepare message with new format
+            message = f"""أهلاً {user_name}، أنا المساعد: {assistant_name}
 
-📝 <b>{task.name}</b>
+أود تنبيهك بالمهمة التي يجب إنجازها في: {task_time}
 
-"""
+📝 <b>{task.name}</b>"""
 
             if task.description:
-                message += f"📋 {task.description}\n\n"
-
-            if task.time:
-                time_text_formatted = task.time.strftime('%Y-%m-%d %H:%M')
-                message += f"📅 الموعد: {time_text_formatted}\n"
-
-            message += f"⏱ {time_text}\n\n"
-            message += "💪 حان وقت إنجاز هذه المهمة!"
+                message += f"\n📋 {task.description}"
 
             # Send notification
             result = self.telegram_sender.send_message(
@@ -208,6 +196,10 @@ class TaskScheduler:
         if not user or not user.telegram_id:
             return
 
+        # Get user display name
+        user_name = user.name or user.mobile or 'المستخدم'
+        assistant_name = assistant.name
+
         # Get notification template if set
         template_text = None
         if assistant.notify_template_id:
@@ -215,30 +207,27 @@ class TaskScheduler:
             if template:
                 template_text = template.text
 
-        if result.get('success'):
-            if template_text:
-                message = template_text.format(
-                    script_name=script.name,
-                    output=result.get('output', '')[:500]
-                )
-            else:
-                message = f"""
-✅ <b>تم تنفيذ السكريبت</b>
+        # Determine status
+        state = 'نجح ✅' if result.get('success') else 'فشل ❌'
+        output = result.get('output', '')[:500]
 
-📜 {script.name}
-
-النتيجة:
-<code>{result.get('output', '')[:500]}</code>
-"""
+        if template_text:
+            message = template_text.format(
+                user_name=user_name,
+                assistant_name=assistant_name,
+                script_name=script.name,
+                state=state,
+                output=output
+            )
         else:
-            message = f"""
-❌ <b>فشل تنفيذ السكريبت</b>
+            message = f"""أهلاً {user_name}، أنا المساعد: {assistant_name}
 
-📜 {script.name}
+تم تنفيذ السكريبت: {state}
 
-الخطأ:
-<code>{result.get('output', '')[:500]}</code>
-"""
+📜 <b>{script.name}</b>
+
+ناتج التشغيل:
+<code>{output}</code>"""
 
         self.telegram_sender.send_message(user.telegram_id, message.strip())
 
