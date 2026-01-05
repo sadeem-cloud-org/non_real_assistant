@@ -102,6 +102,64 @@ class SystemSetting(db.Model):
             'has_logo': self.logo is not None
         }
 
+    @staticmethod
+    def get(key, default=None):
+        """Get a key-value setting"""
+        setting = KeyValueSetting.query.filter_by(key=key).first()
+        if setting:
+            return setting.get_value()
+        return default
+
+    @staticmethod
+    def set(key, value):
+        """Set a key-value setting"""
+        setting = KeyValueSetting.query.filter_by(key=key).first()
+        if setting:
+            setting.set_value(value)
+        else:
+            setting = KeyValueSetting(key=key)
+            setting.set_value(value)
+            db.session.add(setting)
+        db.session.commit()
+        return setting
+
+
+class KeyValueSetting(db.Model):
+    """Key-value settings storage"""
+    __tablename__ = 'key_value_settings'
+
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(100), unique=True, nullable=False)
+    value = db.Column(db.Text)
+    value_type = db.Column(db.String(20), default='string')  # string, int, bool, json
+
+    def get_value(self):
+        """Get value with proper type conversion"""
+        if self.value is None:
+            return None
+        if self.value_type == 'int':
+            return int(self.value)
+        elif self.value_type == 'bool':
+            return self.value.lower() in ('true', '1', 'yes')
+        elif self.value_type == 'json':
+            return json.loads(self.value)
+        return self.value
+
+    def set_value(self, value):
+        """Set value with type detection"""
+        if isinstance(value, bool):
+            self.value_type = 'bool'
+            self.value = 'true' if value else 'false'
+        elif isinstance(value, int):
+            self.value_type = 'int'
+            self.value = str(value)
+        elif isinstance(value, (dict, list)):
+            self.value_type = 'json'
+            self.value = json.dumps(value)
+        else:
+            self.value_type = 'string'
+            self.value = str(value) if value is not None else None
+
 
 # ===== User & Auth =====
 
