@@ -1,0 +1,45 @@
+# Development docker-compose (without nginx)
+version: '3.8'
+
+services:
+  # Flask Web Application
+  web:
+    build: .
+    container_name: non_real_assistant_web
+    restart: unless-stopped
+    command: gunicorn --bind 0.0.0.0:5000 --workers 2 --reload app:app
+    environment:
+      - FLASK_ENV=development
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - API_SECRET_KEY=${API_SECRET_KEY}
+      - SYSTEM_URL=${SYSTEM_URL:-http://localhost:5000}
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    ports:
+      - "5000:5000"
+    networks:
+      - app_network
+
+  # Telegram Bot
+  bot:
+    build: .
+    container_name: non_real_assistant_bot
+    restart: unless-stopped
+    command: python telegram_bot.py
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - API_SECRET_KEY=${API_SECRET_KEY}
+      - SYSTEM_URL=${SYSTEM_URL:-http://localhost:5000}
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    networks:
+      - app_network
+    depends_on:
+      - web
+
+networks:
+  app_network:
+    driver: bridge
