@@ -127,10 +127,11 @@ function updateStats() {
     };
 
     allExecutions.forEach(execution => {
-        if (execution.status === 'success') stats.success++;
-        else if (execution.status === 'failed') stats.failed++;
-        else if (execution.status === 'timeout') stats.timeout++;
-        else if (execution.status === 'running') stats.running++;
+        // API returns 'state', not 'status'
+        if (execution.state === 'success') stats.success++;
+        else if (execution.state === 'failed') stats.failed++;
+        else if (execution.state === 'timeout') stats.timeout++;
+        else if (execution.state === 'running' || execution.state === 'pending') stats.running++;
     });
 
     document.getElementById('stat-total').textContent = stats.total;
@@ -146,7 +147,8 @@ function filterExecutions() {
     if (filter === 'all') {
         filteredExecutions = allExecutions;
     } else {
-        filteredExecutions = allExecutions.filter(e => e.status === filter);
+        // API returns 'state', not 'status'
+        filteredExecutions = allExecutions.filter(e => e.state === filter);
     }
 
     displayExecutions(filteredExecutions);
@@ -183,17 +185,20 @@ function displayExecutions(executions) {
 
 // Create execution card HTML
 function createExecutionCard(execution) {
-    console.log('Creating card for execution:', execution.id, execution.status);
+    // API returns 'state', not 'status'
+    console.log('Creating card for execution:', execution.id, execution.state);
 
     try {
         const statusConfig = {
             'success': {color: 'green', icon: 'circle-check', text: 'نجح'},
             'failed': {color: 'red', icon: 'circle-x', text: 'فشل'},
             'timeout': {color: 'yellow', icon: 'clock', text: 'انتهى الوقت'},
-            'running': {color: 'blue', icon: 'loader', text: 'قيد التشغيل'}
+            'running': {color: 'blue', icon: 'loader', text: 'قيد التشغيل'},
+            'pending': {color: 'blue', icon: 'loader', text: 'قيد التشغيل'}
         };
 
-        const status = statusConfig[execution.status] || statusConfig['failed'];
+        // API returns 'state', not 'status'
+        const status = statusConfig[execution.state] || statusConfig['failed'];
 
         return `
             <div class="col-12">
@@ -222,10 +227,10 @@ function createExecutionCard(execution) {
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div class="mt-3 text-muted small">
                             <i class="ti ti-clock icon"></i>
-                            بدأ ${formatDateTime(execution.started_at)}
+                            بدأ ${formatDateTime(execution.start_time)}
                         </div>
                     </div>
                 </div>
@@ -246,10 +251,12 @@ function viewExecutionDetails(executionId) {
         'success': {color: 'green', icon: 'circle-check', text: 'نجح'},
         'failed': {color: 'red', icon: 'circle-x', text: 'فشل'},
         'timeout': {color: 'yellow', icon: 'clock', text: 'انتهى الوقت'},
-        'running': {color: 'blue', icon: 'loader', text: 'قيد التشغيل'}
+        'running': {color: 'blue', icon: 'loader', text: 'قيد التشغيل'},
+        'pending': {color: 'blue', icon: 'loader', text: 'قيد التشغيل'}
     };
 
-    const status = statusConfig[execution.status] || statusConfig['failed'];
+    // API returns 'state', not 'status'
+    const status = statusConfig[execution.state] || statusConfig['failed'];
 
     const modalBody = document.getElementById('modal-body');
     const execTime = execution.execution_time ?
@@ -266,37 +273,33 @@ function viewExecutionDetails(executionId) {
                 ${escapeHtml(execution.script_name || 'Unknown Script')}
             </h4>
         </div>
-        
+
         <div class="row mb-3">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <strong>معرف التنفيذ:</strong><br>
                 #${execution.id}
             </div>
-            <div class="col-md-3">
-                <strong>اللغة:</strong><br>
-                ${execution.script_language ? execution.script_language.toUpperCase() : '-'}
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <strong>وقت التنفيذ:</strong><br>
                 ${execTime}
             </div>
-            <div class="col-md-3">
-                <strong>كود الخروج:</strong><br>
-                ${execution.return_code !== null ? execution.return_code : '-'}
+            <div class="col-md-4">
+                <strong>الحالة:</strong><br>
+                ${status.text}
             </div>
         </div>
-        
+
         <div class="row mb-3">
             <div class="col-md-6">
                 <strong>بداية التنفيذ:</strong><br>
-                ${execution.started_at ? new Date(execution.started_at + 'Z').toLocaleString('ar-EG') : '-'}
+                ${execution.start_time ? new Date(execution.start_time + 'Z').toLocaleString('ar-EG') : '-'}
             </div>
             <div class="col-md-6">
                 <strong>نهاية التنفيذ:</strong><br>
-                ${execution.completed_at ? new Date(execution.completed_at + 'Z').toLocaleString('ar-EG') : 'لم ينته بعد'}
+                ${execution.end_time ? new Date(execution.end_time + 'Z').toLocaleString('ar-EG') : 'لم ينته بعد'}
             </div>
         </div>
-        
+
         ${execution.output && execution.output.trim() ? `
             <div class="mb-3">
                 <h5 class="text-green">
@@ -308,7 +311,7 @@ ${escapeHtml(execution.output)}
                 </div>
             </div>
         ` : ''}
-        
+
         ${execution.error && execution.error.trim() ? `
             <div class="mb-3">
                 <h5 class="text-red">
@@ -320,7 +323,7 @@ ${escapeHtml(execution.error)}
                 </div>
             </div>
         ` : ''}
-        
+
         ${!execution.output && !execution.error ? `
             <div class="alert alert-info">
                 <i class="ti ti-info-circle"></i>
@@ -362,11 +365,20 @@ ${escapeHtml(execution.error)}
     // Close on backdrop click
     backdrop.addEventListener('click', closeModal);
 
-    // Close on close button
-    const closeBtn = modal.querySelector('[data-bs-dismiss="modal"]');
-    if (closeBtn) {
-        closeBtn.onclick = closeModal;
-    }
+    // Close on ALL close buttons (header X and footer button)
+    const closeBtns = modal.querySelectorAll('[data-bs-dismiss="modal"]');
+    closeBtns.forEach(btn => {
+        btn.onclick = closeModal;
+    });
+
+    // Also handle Escape key
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', escHandler);
+        }
+    };
+    document.addEventListener('keydown', escHandler);
 }
 
 // Utility functions
