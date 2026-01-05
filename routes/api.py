@@ -712,6 +712,62 @@ def remove_share_link(execution_id):
     return jsonify({'success': True})
 
 
+# ===== Browser Notifications =====
+
+@api_bp.route('/notifications/check')
+@require_auth
+def check_notifications():
+    """Check for pending browser notifications"""
+    from models import Task
+
+    user_id = session['user_id']
+    now = datetime.utcnow()
+
+    # Get tasks that are due within the next 5 minutes and not completed/cancelled
+    upcoming_tasks = Task.query.filter(
+        Task.create_user_id == user_id,
+        Task.time.isnot(None),
+        Task.time <= now + timedelta(minutes=5),
+        Task.time >= now - timedelta(minutes=1),
+        Task.complete_time.is_(None),
+        Task.cancel_time.is_(None)
+    ).all()
+
+    notifications = []
+    for task in upcoming_tasks:
+        notifications.append({
+            'id': task.id,
+            'title': task.name,
+            'description': task.description or '',
+            'time': task.time.isoformat() if task.time else None
+        })
+
+    return jsonify({'notifications': notifications})
+
+
+@api_bp.route('/notifications/permission', methods=['POST'])
+@require_auth
+def update_notification_permission():
+    """Update user's browser notification preference"""
+    from models import User
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    data = request.get_json()
+    permission = data.get('permission')
+
+    if permission == 'granted':
+        user.browser_notify = True
+    elif permission == 'denied':
+        user.browser_notify = False
+
+    db.session.commit()
+
+    return jsonify({'success': True})
+
+
 # ===== User Profile =====
 
 @api_bp.route('/user/profile')
