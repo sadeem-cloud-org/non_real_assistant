@@ -1,0 +1,12 @@
+# Arabic translations for Non Real Assistant (Default)
+# Language: ar
+#
+# This is the default language - Arabic text maps to itself
+
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ar\n"
+
+# No translations needed for Arabic as it's the source language
+# Add entries here only if you want to modify the original text

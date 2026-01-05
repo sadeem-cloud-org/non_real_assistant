@@ -264,3 +264,29 @@ def sync_translations(language_id):
         'success': True,
         **result
     })
+
+
+# ===== Load from Files =====
+
+@translations_bp.route('/api/translations/files')
+@require_admin
+def get_translation_files():
+    """Get available .po files from translations folder"""
+    from services.translation_service import TranslationService
+
+    service = TranslationService()
+    files = service.get_available_po_files()
+
+    return jsonify(files)
+
+
+@translations_bp.route('/api/translations/load-from-files', methods=['POST'])
+@require_admin
+def load_from_files():
+    """Load all translations from .po files in translations folder"""
+    from services.translation_service import TranslationService
+
+    service = TranslationService()
+    result = service.load_from_files()
+
+    return jsonify(result)

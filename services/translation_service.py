@@ -234,3 +234,100 @@ msgstr ""
         if trans and trans.value:
             return trans.value
         return key  # Return original if no translation
+
+    def load_from_files(self, translations_dir='translations'):
+        """Load translations from .po files in the translations folder"""
+        results = {
+            'languages_processed': 0,
+            'total_imported': 0,
+            'total_updated': 0,
+            'errors': [],
+            'details': []
+        }
+
+        if not os.path.exists(translations_dir):
+            results['errors'].append(f"Directory '{translations_dir}' not found")
+            return results
+
+        # Find all .po files
+        for filename in os.listdir(translations_dir):
+            if not filename.endswith('.po'):
+                continue
+
+            lang_code = filename[:-3]  # Remove .po extension
+            filepath = os.path.join(translations_dir, filename)
+
+            try:
+                # Read file content
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    po_content = f.read()
+
+                # Find or skip language
+                language = Language.query.filter_by(iso_code=lang_code).first()
+                if not language:
+                    results['details'].append({
+                        'file': filename,
+                        'status': 'skipped',
+                        'reason': f"Language '{lang_code}' not found in database. Add it first."
+                    })
+                    continue
+
+                # Import translations
+                import_result = self.import_from_po(language.id, po_content)
+
+                if import_result['success']:
+                    results['languages_processed'] += 1
+                    results['total_imported'] += import_result['imported']
+                    results['total_updated'] += import_result['updated']
+                    results['details'].append({
+                        'file': filename,
+                        'language': language.name,
+                        'status': 'success',
+                        'imported': import_result['imported'],
+                        'updated': import_result['updated']
+                    })
+                else:
+                    results['errors'].append(f"{filename}: {import_result['error']}")
+
+            except Exception as e:
+                results['errors'].append(f"{filename}: {str(e)}")
+
+        return results
+
+    def get_available_po_files(self, translations_dir='translations'):
+        """Get list of available .po files with their status"""
+        files = []
+
+        if not os.path.exists(translations_dir):
+            return files
+
+        for filename in os.listdir(translations_dir):
+            if not filename.endswith('.po'):
+                continue
+
+            lang_code = filename[:-3]
+            filepath = os.path.join(translations_dir, filename)
+
+            # Check if language exists in database
+            language = Language.query.filter_by(iso_code=lang_code).first()
+
+            # Count entries in file
+            entry_count = 0
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    entries = self._parse_po(content)
+                    entry_count = len([e for e in entries if e.get('msgid')])
+            except:
+                pass
+
+            files.append({
+                'filename': filename,
+                'language_code': lang_code,
+                'language_name': language.name if language else None,
+                'language_exists': language is not None,
+                'entry_count': entry_count
+            })
+
+        return files
+
