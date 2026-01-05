@@ -21,7 +21,7 @@
 {% block content %}
 <!-- Stats -->
 <div class="row row-cards mb-3">
-    <div class="col-sm-6 col-lg-3">
+    <div class="col-sm-6 col-lg-4">
         <div class="card card-sm">
             <div class="card-body">
                 <div class="row align-items-center">
@@ -39,54 +39,36 @@
         </div>
     </div>
 
-    <div class="col-sm-6 col-lg-3">
+    <div class="col-sm-6 col-lg-4">
         <div class="card card-sm">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-auto">
                         <span class="bg-cyan text-white avatar">
-                            <i class="ti ti-brand-python"></i>
+                            <i class="ti ti-robot"></i>
                         </span>
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-python">0</div>
-                        <div class="text-muted">Python</div>
+                        <div class="text-muted">مرتبط بمساعد</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-sm-6 col-lg-3">
+    <div class="col-sm-6 col-lg-4">
         <div class="card card-sm">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <span class="bg-yellow text-white avatar">
-                            <i class="ti ti-brand-javascript"></i>
+                        <span class="bg-secondary text-white avatar">
+                            <i class="ti ti-code-off"></i>
                         </span>
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-javascript">0</div>
-                        <div class="text-muted">JavaScript</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-6 col-lg-3">
-        <div class="card card-sm">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <span class="bg-green text-white avatar">
-                            <i class="ti ti-terminal"></i>
-                        </span>
-                    </div>
-                    <div class="col">
-                        <div class="font-weight-medium" id="stat-bash">0</div>
-                        <div class="text-muted">Bash</div>
+                        <div class="text-muted">بدون مساعد</div>
                     </div>
                 </div>
             </div>
@@ -122,43 +104,13 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="mb-3">
-                            <label class="form-label required">اللغة</label>
-                            <select class="form-select" id="script-language" onchange="updateCodeEditor()">
-                                <option value="python">Python</option>
-                                <option value="javascript">JavaScript</option>
-                                <option value="bash">Bash</option>
+                            <label class="form-label">المساعد</label>
+                            <select class="form-select" id="script-assistant">
+                                <option value="">بدون مساعد</option>
+                                <!-- Will be populated from API -->
                             </select>
+                            <small class="form-hint">اختر المساعد لربط السكريبت به وتفعيل الإشعارات التلقائية</small>
                         </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">الوصف</label>
-                    <textarea class="form-control" id="script-description" rows="2" placeholder="وصف قصير لوظيفة السكريبت..."></textarea>
-                </div>
-
-                <!-- Notification Settings -->
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <label class="form-label">إرسال نتائج التنفيذ</label>
-                    </div>
-                    <div class="col-lg-6">
-                        <label class="form-check">
-                            <input class="form-check-input" type="checkbox" id="send-output-telegram">
-                            <span class="form-check-label">
-                                <i class="ti ti-brand-telegram me-1"></i>
-                                إرسال للتليجرام
-                            </span>
-                        </label>
-                    </div>
-                    <div class="col-lg-6">
-                        <label class="form-check">
-                            <input class="form-check-input" type="checkbox" id="send-output-email">
-                            <span class="form-check-label">
-                                <i class="ti ti-mail me-1"></i>
-                                إرسال للبريد الإلكتروني
-                            </span>
-                        </label>
                     </div>
                 </div>
 

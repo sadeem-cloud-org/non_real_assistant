@@ -1,6 +1,5 @@
 // Tasks Page JavaScript
 
-let dueDatePicker, reminderPicker;
 let editingTaskId = null;
 let allTasks = [];
 
@@ -59,22 +58,53 @@ function initializeDateTimePickers() {
         }
     };
 
-    dueDatePicker = flatpickr("#task-due-date", dateTimeConfig);
-    reminderPicker = flatpickr("#task-reminder", dateTimeConfig);
+    flatpickr("#task-time", dateTimeConfig);
+    loadAssistants();
+}
+
+// Load assistants for dropdown
+async function loadAssistants() {
+    try {
+        const response = await fetch('/api/assistants');
+        const assistants = await response.json();
+
+        // Filter only task-type assistants
+        const taskAssistants = assistants.filter(a => a.assistant_type && a.assistant_type.related_action === 'task');
+
+        const taskAssistantSelect = document.getElementById('task-assistant');
+        const filterAssistantSelect = document.getElementById('filter-assistant');
+
+        [taskAssistantSelect, filterAssistantSelect].forEach(select => {
+            if (select) {
+                const firstOption = select.options[0];
+                select.innerHTML = '';
+                if (firstOption) select.appendChild(firstOption);
+
+                taskAssistants.forEach(a => {
+                    const option = document.createElement('option');
+                    option.value = a.id;
+                    option.textContent = a.name;
+                    select.appendChild(option);
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Error loading assistants:', error);
+    }
 }
 
 // Load all tasks
 async function loadTasks() {
     const container = document.getElementById('tasks-container');
-    const statusFilter = document.getElementById('filter-status').value;
-    const priorityFilter = document.getElementById('filter-priority').value;
+    const statusFilter = document.getElementById('filter-status');
+    const assistantFilter = document.getElementById('filter-assistant');
 
     try {
         let url = '/api/tasks';
         const params = new URLSearchParams();
 
-        if (statusFilter) params.append('status', statusFilter);
-        if (priorityFilter) params.append('priority', priorityFilter);
+        if (statusFilter && statusFilter.value) params.append('status', statusFilter.value);
+        if (assistantFilter && assistantFilter.value) params.append('assistant_id', assistantFilter.value);
 
         if (params.toString()) url += '?' + params.toString();
 
@@ -106,22 +136,33 @@ async function loadTasks() {
 // Update statistics
 function updateStats() {
     const stats = {
-        new: 0,
-        in_progress: 0,
+        total: 0,
+        pending: 0,
         completed: 0,
         cancelled: 0
     };
 
     allTasks.forEach(task => {
-        if (stats.hasOwnProperty(task.status)) {
-            stats[task.status]++;
+        stats.total++;
+        const status = task.status;
+        if (status === 'pending' || status === 'overdue') {
+            stats.pending++;
+        } else if (status === 'completed') {
+            stats.completed++;
+        } else if (status === 'cancelled') {
+            stats.cancelled++;
         }
     });
 
-    document.getElementById('stat-new').textContent = stats.new;
-    document.getElementById('stat-in-progress').textContent = stats.in_progress;
-    document.getElementById('stat-completed').textContent = stats.completed;
-    document.getElementById('stat-cancelled').textContent = stats.cancelled;
+    const totalEl = document.getElementById('stat-total');
+    const pendingEl = document.getElementById('stat-pending');
+    const completedEl = document.getElementById('stat-completed');
+    const cancelledEl = document.getElementById('stat-cancelled');
+
+    if (totalEl) totalEl.textContent = stats.total;
+    if (pendingEl) pendingEl.textContent = stats.pending;
+    if (completedEl) completedEl.textContent = stats.completed;
+    if (cancelledEl) cancelledEl.textContent = stats.cancelled;
 }
 
 // Display tasks
@@ -148,12 +189,8 @@ function displayTasks(tasks) {
 
 // Create task card HTML
 function createTaskCard(task) {
-    const priorityClass = task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'success';
-    const priorityIcon = task.priority === 'high' ? 'alert-circle' : task.priority === 'medium' ? 'alert-triangle' : 'circle-check';
-    const priorityText = task.priority === 'high' ? 'عالية' : task.priority === 'medium' ? 'متوسطة' : 'منخفضة';
-
-    const statusClass = task.status === 'new' ? 'blue' :
-                        task.status === 'in_progress' ? 'cyan' :
+    const statusClass = task.status === 'pending' ? 'cyan' :
+                        task.status === 'overdue' ? 'orange' :
                         task.status === 'completed' ? 'green' : 'red';
     const statusText = getStatusText(task.status);
 
@@ -163,43 +200,37 @@ function createTaskCard(task) {
                 <div class="card-status-top bg-${statusClass}"></div>
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
-                        <div class="me-auto">
-                            <span class="badge bg-${priorityClass}">
-                                <i class="ti ti-${priorityIcon}"></i>
-                                ${priorityText}
-                            </span>
-                        </div>
                         <div class="badge bg-${statusClass}-lt">${statusText}</div>
+                        ${task.assistant_name ? `
+                            <span class="badge bg-blue-lt ms-2">
+                                <i class="ti ti-robot"></i>
+                                ${escapeHtml(task.assistant_name)}
+                            </span>
+                        ` : ''}
                     </div>
-                    
-                    <h3 class="card-title mb-2">${escapeHtml(task.title)}</h3>
-                    
+
+                    <h3 class="card-title mb-2">${escapeHtml(task.name)}</h3>
+
                     ${task.description ? `
                         <p class="text-muted mb-3">${escapeHtml(task.description)}</p>
                     ` : ''}
-                    
+
                     <div class="text-muted small mb-3">
-                        ${task.due_date ? `
-                            <div class="mb-1">
-                                <i class="ti ti-calendar icon"></i>
-                                الاستحقاق: ${formatDateForDisplay(task.due_date)}
-                            </div>
-                        ` : ''}
-                        ${task.reminder_time ? `
+                        ${task.time ? `
                             <div class="mb-1">
                                 <i class="ti ti-bell icon"></i>
-                                التذكير: ${formatDateForDisplay(task.reminder_time)}
+                                موعد التنبيه: ${formatDateForDisplay(task.time)}
                             </div>
                         ` : ''}
-                        ${task.created_at ? `
+                        ${task.create_time ? `
                             <div>
                                 <i class="ti ti-clock icon"></i>
-                                ${formatDateTime(task.created_at)}
+                                ${formatDateTime(task.create_time)}
                             </div>
                         ` : ''}
                     </div>
                 </div>
-                
+
                 <div class="card-footer">
                     <div class="btn-list justify-content-center">
                         ${task.status !== 'completed' && task.status !== 'cancelled' ? `
@@ -210,8 +241,8 @@ function createTaskCard(task) {
                         <button class="btn btn-primary btn-sm" onclick="editTask(${task.id})" title="تعديل">
                             <i class="ti ti-edit"></i>
                         </button>
-                        ${task.status !== 'cancelled' ? `
-                            <button class="btn btn-danger btn-sm" onclick="cancelTask(${task.id})" title="إلغاء">
+                        ${task.status !== 'cancelled' && task.status !== 'completed' ? `
+                            <button class="btn btn-warning btn-sm" onclick="cancelTask(${task.id})" title="إلغاء">
                                 <i class="ti ti-x"></i>
                             </button>
                         ` : ''}
@@ -330,26 +361,24 @@ async function editTask(taskId) {
         }
 
         // Fill form
-        document.getElementById('task-title').value = task.title;
+        document.getElementById('task-name').value = task.name;
         document.getElementById('task-description').value = task.description || '';
-        document.getElementById('task-priority').value = task.priority;
 
-        if (task.due_date) {
-            const dueDate = parseUTCDate(task.due_date);
-            if (dueDate && !isNaN(dueDate.getTime())) {
-                dueDatePicker.setDate(dueDate, false);
-            }
-        } else {
-            dueDatePicker.clear();
+        // Set assistant
+        const assistantSelect = document.getElementById('task-assistant');
+        if (assistantSelect) {
+            assistantSelect.value = task.assistant_id || '';
         }
 
-        if (task.reminder_time) {
-            const reminderDate = parseUTCDate(task.reminder_time);
-            if (reminderDate && !isNaN(reminderDate.getTime())) {
-                reminderPicker.setDate(reminderDate, false);
+        // Set time
+        const timePicker = document.getElementById('task-time');
+        if (timePicker && timePicker._flatpickr && task.time) {
+            const taskTime = parseUTCDate(task.time);
+            if (taskTime && !isNaN(taskTime.getTime())) {
+                timePicker._flatpickr.setDate(taskTime, false);
             }
-        } else {
-            reminderPicker.clear();
+        } else if (timePicker && timePicker._flatpickr) {
+            timePicker._flatpickr.clear();
         }
 
         // Set edit mode
@@ -357,20 +386,10 @@ async function editTask(taskId) {
         document.getElementById('modal-title').textContent = 'تعديل المهمة';
         document.getElementById('btn-save-task').textContent = 'حفظ التعديلات';
 
-        // Show modal
-        const modalElement = document.getElementById('modal-task');
+        // Show modal by clicking trigger button
         const triggerBtn = document.querySelector('[data-bs-target="#modal-task"]');
         if (triggerBtn) {
             triggerBtn.click();
-        } else {
-            modalElement.classList.add('show');
-            modalElement.style.display = 'block';
-            document.body.classList.add('modal-open');
-
-            const backdrop = document.createElement('div');
-            backdrop.className = 'modal-backdrop fade show';
-            backdrop.id = 'edit-modal-backdrop';
-            document.body.appendChild(backdrop);
         }
 
     } catch (error) {
@@ -381,9 +400,9 @@ async function editTask(taskId) {
 
 // Save task
 async function saveTask() {
-    const title = document.getElementById('task-title').value.trim();
+    const name = document.getElementById('task-name').value.trim();
 
-    if (!title) {
+    if (!name) {
         showToast('يرجى إدخال عنوان المهمة', 'warning');
         return;
     }
@@ -394,15 +413,15 @@ async function saveTask() {
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>جاري الحفظ...';
 
-    const dueDateValue = dueDatePicker.selectedDates[0];
-    const reminderValue = reminderPicker.selectedDates[0];
+    const timePicker = document.getElementById('task-time');
+    const timeValue = timePicker && timePicker._flatpickr ? timePicker._flatpickr.selectedDates[0] : null;
+    const assistantId = document.getElementById('task-assistant').value;
 
     const taskData = {
-        title: title,
+        name: name,
         description: document.getElementById('task-description').value.trim(),
-        priority: document.getElementById('task-priority').value,
-        due_date: dueDateValue ? dueDateValue.toISOString() : null,
-        reminder_time: reminderValue ? reminderValue.toISOString() : null
+        assistant_id: assistantId ? parseInt(assistantId) : null,
+        time: timeValue ? timeValue.toISOString() : null
     };
 
     try {
@@ -451,11 +470,16 @@ async function saveTask() {
 
 // Close modal
 function closeTaskModal() {
-    document.getElementById('task-title').value = '';
+    document.getElementById('task-name').value = '';
     document.getElementById('task-description').value = '';
-    document.getElementById('task-priority').value = 'medium';
-    dueDatePicker.clear();
-    reminderPicker.clear();
+
+    const assistantSelect = document.getElementById('task-assistant');
+    if (assistantSelect) assistantSelect.value = '';
+
+    const timePicker = document.getElementById('task-time');
+    if (timePicker && timePicker._flatpickr) {
+        timePicker._flatpickr.clear();
+    }
 
     editingTaskId = null;
     document.getElementById('modal-title').textContent = 'إضافة مهمة جديدة';
@@ -463,19 +487,13 @@ function closeTaskModal() {
     const saveBtn = document.getElementById('btn-save-task');
     saveBtn.textContent = 'حفظ';
     saveBtn.disabled = false;
-
-    const backdrop = document.getElementById('edit-modal-backdrop');
-    if (backdrop) {
-        backdrop.remove();
-        document.body.classList.remove('modal-open');
-    }
 }
 
 // Utility functions
 function getStatusText(status) {
     const statusMap = {
-        'new': 'جديدة',
-        'in_progress': 'قيد التنفيذ',
+        'pending': 'قيد الانتظار',
+        'overdue': 'متأخرة',
         'completed': 'مكتملة',
         'cancelled': 'ملغاة'
     };
