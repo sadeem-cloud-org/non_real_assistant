@@ -72,6 +72,39 @@ def inject_user():
     return {'current_user': user}
 
 
+# Translation filter for templates
+@app.template_filter('trans')
+def translate_filter(text):
+    """Translate text using database translations"""
+    from models import Language, Translation
+
+    # Get current language
+    lang_code = get_locale()
+    language = Language.query.filter_by(iso_code=lang_code).first()
+
+    if not language:
+        return text
+
+    # Look up translation
+    trans = Translation.query.filter_by(
+        language_id=language.id,
+        key=text
+    ).first()
+
+    if trans and trans.value:
+        return trans.value
+    return text
+
+
+# Make translation function available in templates
+@app.context_processor
+def inject_translate():
+    """Inject translate function into all templates"""
+    def translate(text):
+        return translate_filter(text)
+    return {'t': translate, 'translate': translate}
+
+
 # Create tables
 with app.app_context():
     db.create_all()

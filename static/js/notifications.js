@@ -49,7 +49,7 @@ class NotificationManager {
         }
 
         try {
-            const registration = await navigator.serviceWorker.register('/static/sw.js');
+            const registration = await navigator.serviceWorker.register('/static/js/sw.js');
             console.log('✅ Service Worker registered:', registration);
             return registration;
         } catch (error) {
