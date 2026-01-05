@@ -576,19 +576,32 @@ def _send_script_notifications(script, execution):
     if not user:
         return
 
+    # Get user display name
+    user_name = user.name or user.mobile or 'المستخدم'
+    assistant_name = assistant.name
+
+    # Determine status
+    state = 'نجح ✅' if execution.state == 'success' else 'فشل ❌'
+    output = execution.output[:500] if execution.output else ''
+
     # Prepare message from template or default
     if assistant.notify_template:
         message = assistant.notify_template.render(
+            user_name=user_name,
+            assistant_name=assistant_name,
             script_name=script.name,
-            output=execution.output[:500] if execution.output else '',
-            state=execution.state
+            output=output,
+            state=state
         )
     else:
-        status_emoji = '✅' if execution.state == 'success' else '❌'
-        message = f"{status_emoji} تنفيذ السكريبت: {script.name}\n"
-        message += f"الحالة: {execution.state}\n"
-        if execution.output:
-            message += f"\nالناتج:\n{execution.output[:500]}"
+        message = f"""أهلاً {user_name}، أنا المساعد: {assistant_name}
+
+تم تنفيذ السكريبت: {state}
+
+📜 <b>{script.name}</b>
+
+ناتج التشغيل:
+<code>{output}</code>"""
 
     # Send Telegram notification
     if assistant.telegram_notify and user.telegram_id:

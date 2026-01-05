@@ -144,10 +144,56 @@ class NotificationManager {
 // Create global instance
 const notificationManager = new NotificationManager();
 
+// Update notification bell icon based on permission
+function updateNotificationBell(permission) {
+    const bell = document.getElementById('notification-bell');
+    if (!bell) return;
+
+    const icon = bell.querySelector('i');
+    if (!icon) return;
+
+    if (permission === 'granted') {
+        icon.className = 'ti ti-bell-ringing icon text-success';
+        bell.title = 'الإشعارات مفعلة';
+    } else if (permission === 'denied') {
+        icon.className = 'ti ti-bell-off icon text-danger';
+        bell.title = 'الإشعارات معطلة';
+    } else {
+        icon.className = 'ti ti-bell icon';
+        bell.title = 'تفعيل الإشعارات';
+    }
+}
+
+// Request notification permission (global function for onclick)
+async function requestNotificationPermission(event) {
+    if (event) event.preventDefault();
+
+    try {
+        const permission = await notificationManager.requestPermission();
+        updateNotificationBell(permission);
+
+        // Save to server if needed
+        try {
+            await fetch('/api/notifications/permission', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ permission })
+            });
+        } catch (e) {
+            // Ignore server errors
+        }
+    } catch (error) {
+        console.error('Error requesting notification permission:', error);
+    }
+}
+
 // Auto-initialize on page load
 document.addEventListener('DOMContentLoaded', async () => {
     const permission = await notificationManager.checkPermission();
     console.log('📢 Notification permission:', permission);
+
+    // Update bell icon
+    updateNotificationBell(permission);
 
     // Auto-register service worker if permission already granted
     if (permission === 'granted') {
