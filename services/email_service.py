@@ -24,7 +24,7 @@ class EmailService:
                 'smtp_password': SystemSetting.get('email_smtp_password', ''),
                 'smtp_use_tls': SystemSetting.get('email_smtp_use_tls', True),
                 'from_email': SystemSetting.get('email_from_address', ''),
-                'from_name': SystemSetting.Zget('email_from_name', 'Non Real Assistant'),
+                'from_name': SystemSetting.get('email_from_name', 'Non Real Assistant'),
             }
         return self._config
 

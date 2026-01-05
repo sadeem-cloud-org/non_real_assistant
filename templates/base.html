@@ -118,18 +118,18 @@
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                         <a href="/settings" class="dropdown-item">
                             <i class="ti ti-settings ms-2"></i>
-                            الإعدادات
+                            {{ t('الإعدادات') }}
                         </a>
                         {% if current_user and current_user.is_admin %}
                         <a href="/translations" class="dropdown-item">
                             <i class="ti ti-language ms-2"></i>
-                            إدارة الترجمات
+                            {{ t('إدارة الترجمات') }}
                         </a>
                         {% endif %}
                         <div class="dropdown-divider"></div>
                         <a href="/logout" class="dropdown-item">
                             <i class="ti ti-logout ms-2"></i>
-                            تسجيل الخروج
+                            {{ t('تسجيل الخروج') }}
                         </a>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
                                         <i class="ti ti-layout-dashboard icon"></i>
                                     </span>
-                                <span class="nav-link-title">لوحة التحكم</span>
+                                <span class="nav-link-title">{{ t('لوحة التحكم') }}</span>
                             </a>
                         </li>
                         <li class="nav-item {% if active_page == 'assistants' %}active{% endif %}">
@@ -156,7 +156,7 @@
                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
                                         <i class="ti ti-robot icon"></i>
                                     </span>
-                                <span class="nav-link-title">المساعدين</span>
+                                <span class="nav-link-title">{{ t('المساعدين') }}</span>
                             </a>
                         </li>
                         <li class="nav-item {% if active_page == 'tasks' %}active{% endif %}">
@@ -164,7 +164,7 @@
                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
                                         <i class="ti ti-checkbox icon"></i>
                                     </span>
-                                <span class="nav-link-title">المهام</span>
+                                <span class="nav-link-title">{{ t('المهام') }}</span>
                             </a>
                         </li>
                         <li class="nav-item {% if active_page == 'scripts' %}active{% endif %}">
@@ -172,7 +172,7 @@
                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
                                         <i class="ti ti-code icon"></i>
                                     </span>
-                                <span class="nav-link-title">السكريبتات</span>
+                                <span class="nav-link-title">{{ t('السكريبتات') }}</span>
                             </a>
                         </li>
                         <li class="nav-item {% if active_page == 'executions' %}active{% endif %}">
@@ -180,7 +180,7 @@
                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
                                         <i class="ti ti-list-details icon"></i>
                                     </span>
-                                <span class="nav-link-title">سجل التنفيذ</span>
+                                <span class="nav-link-title">{{ t('سجل التنفيذ') }}</span>
                             </a>
                         </li>
                     </ul>

@@ -195,3 +195,111 @@ def get_languages():
     """Get all languages"""
     languages = Language.query.all()
     return jsonify([l.to_dict() for l in languages])
+
+
+# ===== Email Settings API (Admin Only) =====
+
+def require_admin(f):
+    """Decorator to require admin access"""
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user_id' not in session:
+            return jsonify({'error': 'Unauthorized'}), 401
+        user = User.query.get(session['user_id'])
+        if not user or not user.is_admin:
+            return jsonify({'error': 'Admin access required'}), 403
+        return f(*args, **kwargs)
+    return decorated
+
+
+@settings_bp.route('/api/system/email-settings')
+@require_admin
+def get_email_settings():
+    """Get email/SMTP settings"""
+    return jsonify({
+        'smtp_host': SystemSetting.get('email_smtp_host', ''),
+        'smtp_port': SystemSetting.get('email_smtp_port', 587),
+        'smtp_use_tls': SystemSetting.get('email_smtp_use_tls', True),
+        'smtp_user': SystemSetting.get('email_smtp_user', ''),
+        # Don't return password for security
+        'from_email': SystemSetting.get('email_from_address', ''),
+        'from_name': SystemSetting.get('email_from_name', 'Non Real Assistant')
+    })
+
+
+@settings_bp.route('/api/system/email-settings', methods=['PUT'])
+@require_admin
+def update_email_settings():
+    """Update email/SMTP settings"""
+    data = request.get_json()
+
+    if 'smtp_host' in data:
+        SystemSetting.set('email_smtp_host', data['smtp_host'])
+    if 'smtp_port' in data:
+        SystemSetting.set('email_smtp_port', int(data['smtp_port']))
+    if 'smtp_use_tls' in data:
+        SystemSetting.set('email_smtp_use_tls', bool(data['smtp_use_tls']))
+    if 'smtp_user' in data:
+        SystemSetting.set('email_smtp_user', data['smtp_user'])
+    if 'smtp_password' in data and data['smtp_password']:
+        SystemSetting.set('email_smtp_password', data['smtp_password'])
+    if 'from_email' in data:
+        SystemSetting.set('email_from_address', data['from_email'])
+    if 'from_name' in data:
+        SystemSetting.set('email_from_name', data['from_name'])
+
+    return jsonify({'success': True})
+
+
+@settings_bp.route('/api/system/email-test', methods=['POST'])
+@require_admin
+def test_email_settings():
+    """Test email settings by sending a test email"""
+    import smtplib
+    from email.mime.text import MIMEText
+
+    data = request.get_json()
+    test_email = data.get('test_email')
+
+    if not test_email:
+        return jsonify({'success': False, 'error': 'Test email is required'}), 400
+
+    # Get settings from request (to test before saving)
+    smtp_host = data.get('smtp_host', '')
+    smtp_port = int(data.get('smtp_port', 587))
+    smtp_use_tls = data.get('smtp_use_tls', True)
+    smtp_user = data.get('smtp_user', '')
+    smtp_password = data.get('smtp_password', '') or SystemSetting.get('email_smtp_password', '')
+    from_email = data.get('from_email', '')
+    from_name = data.get('from_name', 'Non Real Assistant')
+
+    if not all([smtp_host, smtp_user, smtp_password, from_email]):
+        return jsonify({'success': False, 'error': 'Missing required settings'}), 400
+
+    try:
+        # Create test message
+        msg = MIMEText('هذه رسالة اختبار من Non Real Assistant\n\nThis is a test email from Non Real Assistant', 'plain', 'utf-8')
+        msg['Subject'] = '✅ Test Email - Non Real Assistant'
+        msg['From'] = f'{from_name} <{from_email}>'
+        msg['To'] = test_email
+
+        # Connect and send
+        if smtp_use_tls:
+            server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
+            server.starttls()
+        else:
+            server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=10)
+
+        server.login(smtp_user, smtp_password)
+        server.sendmail(from_email, test_email, msg.as_string())
+        server.quit()
+
+        return jsonify({'success': True})
+
+    except smtplib.SMTPAuthenticationError as e:
+        return jsonify({'success': False, 'error': f'Authentication failed: {str(e)}'})
+    except smtplib.SMTPException as e:
+        return jsonify({'success': False, 'error': f'SMTP error: {str(e)}'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'Error: {str(e)}'})
