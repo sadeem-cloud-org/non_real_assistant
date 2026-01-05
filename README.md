@@ -106,8 +106,17 @@ python -m migrations.migrate
 ### 8. إنشاء مستخدم
 
 ```bash
+# مستخدم عادي
 python create_user.py create --phone 01234567890 --telegram_id YOUR_TELEGRAM_ID
+
+# مستخدم مدير (Admin)
+python create_user.py create --phone 01234567890 --telegram_id YOUR_TELEGRAM_ID --is_admin
+
+# مع الاسم
+python create_user.py create --phone 01234567890 --telegram_id YOUR_TELEGRAM_ID --name "اسم المستخدم"
 ```
+
+**ملاحظة:** المستخدم المدير (Admin) يمكنه الوصول لصفحة إدارة الترجمات.
 
 ### 9. تشغيل التطبيق
 
@@ -239,6 +248,105 @@ non_real_assistant/
 ### اللغة
 - `GET /set-language/ar` - تبديل للعربية
 - `GET /set-language/en` - تبديل للإنجليزية
+
+### إدارة الترجمات (مدير فقط)
+- `GET /api/translations/languages` - قائمة اللغات
+- `POST /api/translations/languages` - إضافة لغة جديدة
+- `DELETE /api/translations/languages/:id` - حذف لغة
+- `GET /api/translations/:language_id` - ترجمات لغة معينة
+- `PUT /api/translations/:language_id` - تحديث ترجمة
+- `GET /api/translations/:language_id/export` - تصدير ملف .po
+- `POST /api/translations/:language_id/import` - استيراد ملف .po
+- `POST /api/translations/:language_id/sync` - مزامنة النصوص
+
+### API الخارجي (External API)
+
+#### إنشاء مستخدم جديد
+
+```http
+POST /api/external/users
+```
+
+**المصادقة:**
+يتطلب مفتاح API في الـ headers:
+- `Authorization: Bearer YOUR_API_KEY` أو
+- `X-API-Key: YOUR_API_KEY`
+
+**إعداد مفتاح API:**
+أضف في ملف `.env`:
+```env
+API_SECRET_KEY=your-secure-api-key-here
+```
+
+**الطلب:**
+```json
+{
+    "mobile": "01234567890",
+    "name": "اسم المستخدم",
+    "email": "user@example.com",
+    "telegram_id": "123456789",
+    "is_admin": false
+}
+```
+
+| الحقل | النوع | مطلوب | الوصف |
+|-------|------|-------|-------|
+| mobile | string | ✅ | رقم الهاتف (فريد) |
+| name | string | ❌ | اسم المستخدم |
+| email | string | ❌ | البريد الإلكتروني |
+| telegram_id | string | ❌ | معرف تيليجرام |
+| is_admin | boolean | ❌ | هل المستخدم مدير (افتراضي: false) |
+
+**الاستجابة الناجحة (201):**
+```json
+{
+    "success": true,
+    "user": {
+        "id": 1,
+        "mobile": "01234567890",
+        "name": "اسم المستخدم",
+        "email": "user@example.com",
+        "telegram_id": "123456789",
+        "is_admin": false
+    }
+}
+```
+
+**أخطاء محتملة:**
+
+| الكود | الوصف |
+|-------|-------|
+| 400 | رقم الهاتف مطلوب |
+| 401 | مفتاح API غير صالح |
+| 409 | رقم الهاتف مسجل مسبقاً |
+| 503 | API غير مُفعّل (API_SECRET_KEY غير موجود) |
+
+**مثال باستخدام curl:**
+```bash
+curl -X POST http://localhost:5000/api/external/users \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-api-key" \
+  -d '{"mobile": "01234567890", "name": "مستخدم جديد", "telegram_id": "123456789"}'
+```
+
+**مثال باستخدام Python:**
+```python
+import requests
+
+response = requests.post(
+    'http://localhost:5000/api/external/users',
+    headers={
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer your-api-key'
+    },
+    json={
+        'mobile': '01234567890',
+        'name': 'مستخدم جديد',
+        'telegram_id': '123456789'
+    }
+)
+print(response.json())
+```
 
 ## الأمان
 

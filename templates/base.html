@@ -76,9 +76,10 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                <a href="/dashboard">
-                    <i class="ti ti-robot fs-1"></i>
-                    Non Real Assistant
+                <a href="/dashboard" class="d-flex align-items-center text-decoration-none">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" height="40" class="me-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                    <i class="ti ti-robot fs-1" style="display: none;"></i>
+                    <span class="ms-2">Non Real Assistant</span>
                 </a>
             </h1>
             <div class="navbar-nav flex-row order-md-last">
