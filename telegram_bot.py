@@ -75,7 +75,7 @@ async def show_user_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ===== Create User Conversation =====
 
-async def create_user_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def create_account_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start user creation process"""
     user = update.effective_user
 
@@ -249,12 +249,12 @@ async def confirm_creation(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
         else:
             # No API key - create directly via database
-            await create_user_directly(update, user_data)
+            await create_account_directly(update, user_data)
 
     except requests.exceptions.RequestException as e:
         logger.error(f"API request failed: {e}")
         # Fallback to direct creation
-        await create_user_directly(update, user_data)
+        await create_account_directly(update, user_data)
     except Exception as e:
         logger.error(f"Error creating user: {e}")
         await update.message.reply_text(
@@ -265,7 +265,7 @@ async def confirm_creation(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
-async def create_user_directly(update: Update, user_data: dict):
+async def create_account_directly(update: Update, user_data: dict):
     """Create user directly in database (fallback)"""
     try:
         # Import here to avoid circular imports
@@ -344,8 +344,8 @@ def main():
     application = Application.builder().token(BOT_TOKEN).build()
 
     # Create user conversation handler
-    create_user_handler = ConversationHandler(
-        entry_points=[CommandHandler("create_user", create_user_start)],
+    create_account_handler = ConversationHandler(
+        entry_points=[CommandHandler("create_account", create_account_start)],
         states={
             MOBILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_mobile)],
             EMAIL: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_email)],
@@ -358,7 +358,7 @@ def main():
     # Add handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("user_id", show_user_id))
-    application.add_handler(create_user_handler)
+    application.add_handler(create_account_handler)
     application.add_handler(CommandHandler("cancel", cancel))
 
     # Start the bot
