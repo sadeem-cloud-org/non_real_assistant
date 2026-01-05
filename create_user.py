@@ -2,6 +2,7 @@
 """
 CLI script to create new users
 Usage: python create_user.py create --phone 01234567890 --telegram_id 123456789
+       python create_user.py create --phone 01234567890 --telegram_id 123456789 --is_admin
 """
 
 import argparse
@@ -9,7 +10,7 @@ from app import app
 from models import db, User
 
 
-def create_user(mobile: str, telegram_id: str, name: str = None):
+def create_user(mobile: str, telegram_id: str, name: str = None, is_admin: bool = False):
     """Create a new user"""
     with app.app_context():
         # Basic validation
@@ -54,7 +55,8 @@ def create_user(mobile: str, telegram_id: str, name: str = None):
         new_user = User(
             mobile=mobile,
             telegram_id=telegram_id,
-            name=name
+            name=name,
+            is_admin=is_admin
         )
 
         try:
@@ -64,6 +66,7 @@ def create_user(mobile: str, telegram_id: str, name: str = None):
             print(f"   Phone: {mobile}")
             print(f"   Telegram ID: {telegram_id}")
             print(f"   User ID: {new_user.id}")
+            print(f"   Admin: {'Yes' if is_admin else 'No'}")
             print(f"\nNext steps:")
             print(f"   1. Make sure you started a chat with the bot (use: python bot_info.py)")
             print(f"   2. Run the app: python app.py")
@@ -83,12 +86,13 @@ def list_users():
             print("No users found")
             return
 
-        print(f"\n{'ID':<5} {'Mobile':<15} {'Name':<20} {'Telegram ID':<15} {'Created At':<20}")
-        print("-" * 80)
+        print(f"\n{'ID':<5} {'Mobile':<15} {'Name':<20} {'Telegram ID':<15} {'Admin':<7} {'Created At':<20}")
+        print("-" * 90)
         for user in users:
             name = user.name or '-'
+            admin = 'Yes' if user.is_admin else 'No'
             created = user.create_time.strftime('%Y-%m-%d %H:%M:%S') if user.create_time else '-'
-            print(f"{user.id:<5} {user.mobile:<15} {name:<20} {user.telegram_id or '-':<15} {created:<20}")
+            print(f"{user.id:<5} {user.mobile:<15} {name:<20} {user.telegram_id or '-':<15} {admin:<7} {created:<20}")
 
 
 def delete_user(user_id: int = None, mobile: str = None):
@@ -130,6 +134,7 @@ def main():
     create_parser.add_argument('--phone', required=True, help='User phone number')
     create_parser.add_argument('--telegram_id', required=True, help='User Telegram ID')
     create_parser.add_argument('--name', help='User name (optional)')
+    create_parser.add_argument('--is_admin', action='store_true', help='Make user an admin')
 
     # List users command
     subparsers.add_parser('list', help='List all users')
@@ -143,7 +148,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == 'create':
-        create_user(args.phone, args.telegram_id, getattr(args, 'name', None))
+        create_user(args.phone, args.telegram_id, getattr(args, 'name', None), getattr(args, 'is_admin', False))
     elif args.command == 'list':
         list_users()
     elif args.command == 'delete':

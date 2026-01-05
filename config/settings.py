@@ -25,3 +25,6 @@ class Config:
 
     # Session
     PERMANENT_SESSION_LIFETIME = 86400  # 24 hours in seconds
+
+    # External API Key for user creation
+    API_SECRET_KEY = os.getenv('API_SECRET_KEY')

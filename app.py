@@ -60,6 +60,18 @@ db.init_app(app)
 # Register all blueprints
 register_blueprints(app)
 
+
+# Context processor to make user data available in all templates
+@app.context_processor
+def inject_user():
+    """Inject current user into all templates"""
+    from models import User
+    user = None
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+    return {'current_user': user}
+
+
 # Create tables
 with app.app_context():
     db.create_all()
