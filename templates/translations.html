@@ -6,6 +6,10 @@
 {% block page_subtitle %}إدارة اللغات والترجمات{% endblock %}
 
 {% block page_actions %}
+<button class="btn btn-outline-success me-2" onclick="loadFromFiles()">
+    <i class="ti ti-folder-open"></i>
+    تحميل من الملفات
+</button>
 <button class="btn btn-primary" onclick="showAddLanguageModal()">
     <i class="ti ti-plus"></i>
     إضافة لغة
@@ -497,6 +501,65 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+async function loadFromFiles() {
+    if (!confirm('سيتم تحميل الترجمات من ملفات .po في مجلد translations.\n\nهل تريد المتابعة؟')) {
+        return;
+    }
+
+    try {
+        // Show loading
+        const btn = event.target.closest('button');
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> جاري التحميل...';
+
+        const response = await fetch('/api/translations/load-from-files', {
+            method: 'POST'
+        });
+
+        const result = await response.json();
+
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+
+        // Build result message
+        let message = `تم تحميل الترجمات:\n\n`;
+        message += `📁 اللغات المعالجة: ${result.languages_processed}\n`;
+        message += `✅ ترجمات جديدة: ${result.total_imported}\n`;
+        message += `🔄 ترجمات محدثة: ${result.total_updated}\n`;
+
+        if (result.details && result.details.length > 0) {
+            message += `\n📋 التفاصيل:\n`;
+            result.details.forEach(d => {
+                if (d.status === 'success') {
+                    message += `• ${d.file}: ${d.imported} جديد، ${d.updated} محدث\n`;
+                } else if (d.status === 'skipped') {
+                    message += `• ${d.file}: تم التخطي - ${d.reason}\n`;
+                }
+            });
+        }
+
+        if (result.errors && result.errors.length > 0) {
+            message += `\n⚠️ أخطاء:\n`;
+            result.errors.forEach(e => {
+                message += `• ${e}\n`;
+            });
+        }
+
+        alert(message);
+
+        // Reload languages
+        await loadLanguages();
+        if (currentLanguageId) {
+            await loadTranslations(currentLanguageId);
+        }
+
+    } catch (error) {
+        console.error('Error loading from files:', error);
+        alert('حدث خطأ في تحميل الترجمات من الملفات');
+    }
 }
 </script>
 {% endblock %}

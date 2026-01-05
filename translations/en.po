@@ -1,0 +1,153 @@
+# English translations for Non Real Assistant
+# Language: en
+#
+# To add a new language, create a file named {language_code}.po
+# Then add the language in the admin panel and click "Load from files"
+
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en\n"
+
+# Navigation
+msgid "لوحة التحكم"
+msgstr "Dashboard"
+
+msgid "المساعدين"
+msgstr "Assistants"
+
+msgid "المهام"
+msgstr "Tasks"
+
+msgid "السكريبتات"
+msgstr "Scripts"
+
+msgid "سجل التنفيذ"
+msgstr "Execution Log"
+
+# User Menu
+msgid "الإعدادات"
+msgstr "Settings"
+
+msgid "إدارة الترجمات"
+msgstr "Translation Management"
+
+msgid "تسجيل الخروج"
+msgstr "Logout"
+
+# Settings Page
+msgid "إدارة حسابك وتفضيلاتك"
+msgstr "Manage your account and preferences"
+
+msgid "الملف الشخصي"
+msgstr "Profile"
+
+msgid "الاسم"
+msgstr "Name"
+
+msgid "البريد الإلكتروني"
+msgstr "Email"
+
+msgid "رقم الهاتف"
+msgstr "Phone Number"
+
+msgid "معرف التليجرام"
+msgstr "Telegram ID"
+
+msgid "التفضيلات"
+msgstr "Preferences"
+
+msgid "اللغة"
+msgstr "Language"
+
+msgid "المنطقة الزمنية"
+msgstr "Timezone"
+
+msgid "الإشعارات"
+msgstr "Notifications"
+
+msgid "إشعارات المتصفح"
+msgstr "Browser Notifications"
+
+msgid "معلومات الحساب"
+msgstr "Account Info"
+
+msgid "تاريخ التسجيل"
+msgstr "Registration Date"
+
+msgid "حفظ التغييرات"
+msgstr "Save Changes"
+
+msgid "حفظ التفضيلات"
+msgstr "Save Preferences"
+
+# Email Settings
+msgid "إعدادات البريد الصادر"
+msgstr "Outgoing Email Settings"
+
+msgid "خادم SMTP"
+msgstr "SMTP Server"
+
+msgid "المنفذ"
+msgstr "Port"
+
+msgid "التشفير"
+msgstr "Encryption"
+
+msgid "اسم المستخدم / البريد"
+msgstr "Username / Email"
+
+msgid "كلمة المرور"
+msgstr "Password"
+
+msgid "لـ Gmail استخدم App Password"
+msgstr "For Gmail use App Password"
+
+msgid "البريد المرسل منه"
+msgstr "From Email"
+
+msgid "اسم المرسل"
+msgstr "Sender Name"
+
+msgid "بريد الاختبار"
+msgstr "Test Email"
+
+msgid "اختبار"
+msgstr "Test"
+
+msgid "حفظ إعدادات البريد"
+msgstr "Save Email Settings"
+
+# Common
+msgid "إضافة"
+msgstr "Add"
+
+msgid "تعديل"
+msgstr "Edit"
+
+msgid "حذف"
+msgstr "Delete"
+
+msgid "حفظ"
+msgstr "Save"
+
+msgid "إلغاء"
+msgstr "Cancel"
+
+msgid "تأكيد"
+msgstr "Confirm"
+
+msgid "بحث"
+msgstr "Search"
+
+msgid "تحميل"
+msgstr "Loading"
+
+msgid "نجح"
+msgstr "Success"
+
+msgid "فشل"
+msgstr "Failed"
+
+msgid "خطأ"
+msgstr "Error"
