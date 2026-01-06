@@ -33,6 +33,11 @@ services:
       mariadb:
         condition: service_started
         required: false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/static/images/logo.png"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Telegram Bot (runs automatically)
   bot:
@@ -58,8 +63,8 @@ services:
     container_name: nra_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "8880:80"
+      - "4430:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
