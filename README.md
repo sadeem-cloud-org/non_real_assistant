@@ -7,8 +7,9 @@
 ### الأساسية
 - تسجيل دخول آمن عن طريق OTP عبر Telegram
 - واجهة عربية/إنجليزية مع دعم RTL/LTR
-- قاعدة بيانات SQLite
+- دعم قواعد بيانات متعددة (SQLite, PostgreSQL, MariaDB)
 - جلسات آمنة
+- دعم Docker مع nginx reverse proxy
 
 ### إدارة المساعدين
 - أنواع مساعدين متعددة (مدير مهام، تذكيرات، أتمتة، مراقبة سيرفرات، جمع بيانات)
@@ -32,6 +33,13 @@
 ### دعم متعدد اللغات
 - واجهة عربية وإنجليزية
 - تبديل اللغة من الواجهة
+- ملفات ترجمة .po قابلة للتخصيص
+- تحميل الترجمات من ملفات أو قاعدة البيانات
+
+### بوت التليجرام
+- `/user_id` - معرفة Telegram ID الخاص بك
+- `/create_user` - إنشاء حساب جديد مباشرة من البوت
+- يعمل تلقائياً مع Docker
 
 ### دعم متعدد المستخدمين
 - كل مستخدم له بياناته الخاصة
@@ -41,10 +49,107 @@
 
 ## المتطلبات
 
-- Python 3.8+
+- Python 3.8+ (للتشغيل المحلي)
+- Docker و Docker Compose (للتشغيل بـ Docker)
 - Telegram Bot Token
 
-## التثبيت
+---
+
+## التشغيل باستخدام Docker (موصى به)
+
+### 1. إعداد ملف البيئة
+
+```bash
+cp .env.example .env
+```
+
+عدّل ملف `.env` وأضف:
+
+```env
+SECRET_KEY=your-random-secret-key-here
+TELEGRAM_BOT_TOKEN=your-telegram-bot-token-here
+API_SECRET_KEY=your-api-key-for-bot
+SYSTEM_URL=http://localhost
+```
+
+### 2. اختيار قاعدة البيانات
+
+#### SQLite (افتراضي - بدون إعدادات إضافية)
+```bash
+docker-compose up -d
+```
+
+#### PostgreSQL
+```bash
+# أضف في .env:
+DATABASE_URL=postgresql://nra_user:nra_password@postgres:5432/non_real_assistant
+POSTGRES_PASSWORD=change-this-password
+
+# ثم شغّل:
+docker-compose --profile postgres up -d
+```
+
+#### MariaDB
+```bash
+# أضف في .env:
+DATABASE_URL=mysql+pymysql://nra_user:nra_password@mariadb:3306/non_real_assistant
+MYSQL_PASSWORD=change-this-password
+MYSQL_ROOT_PASSWORD=change-this-root-password
+
+# ثم شغّل:
+docker-compose --profile mariadb up -d
+```
+
+### 3. أوامر Makefile المفيدة
+
+```bash
+# تطوير (بدون nginx)
+make dev
+
+# إنتاج مع SQLite
+make prod
+
+# إنتاج مع PostgreSQL
+make prod-pg
+
+# إنتاج مع MariaDB
+make prod-mysql
+
+# عرض السجلات
+make logs
+
+# إيقاف الخدمات
+make down
+
+# الدخول لقاعدة البيانات
+make psql      # PostgreSQL
+make mysql     # MariaDB
+```
+
+### 4. الخدمات التي تعمل
+
+| الخدمة | الوصف | المنفذ |
+|--------|-------|--------|
+| web | تطبيق Flask | 5000 (داخلي) |
+| bot | بوت التليجرام | - |
+| nginx | Reverse Proxy | 80, 443 |
+| postgres | قاعدة بيانات (اختياري) | 5432 |
+| mariadb | قاعدة بيانات (اختياري) | 3306 |
+
+### 5. إنشاء أول مستخدم
+
+**الطريقة الأولى: عبر بوت التليجرام**
+1. افتح البوت وأرسل `/create_user`
+2. اتبع التعليمات لإدخال رقم الهاتف والبيانات
+
+**الطريقة الثانية: عبر سطر الأوامر**
+```bash
+docker-compose exec web python create_user.py create --phone 01234567890 --telegram_id YOUR_ID --is_admin
+```
+
+---
+
+## التثبيت المحلي (بدون Docker)
 
 ### 1. تثبيت المكتبات
 
@@ -88,6 +193,12 @@ python bot_info.py
 
 ### 6. معرفة Telegram ID الخاص بك
 
+**الطريقة الأولى (باستخدام البوت الخاص بالتطبيق):**
+1. افتح البوت الخاص بك
+2. أرسل `/user_id`
+3. سيعطيك الـ ID الخاص بك
+
+**الطريقة الثانية:**
 1. أرسل رسالة لـ [@userinfobot](https://t.me/userinfobot)
 2. سيعطيك الـ ID الخاص بك
 
@@ -133,6 +244,7 @@ non_real_assistant/
 ├── app.py                      # نقطة الدخول الرئيسية
 ├── models.py                   # نماذج قاعدة البيانات
 ├── scheduler.py                # جدولة المهام والسكريبتات
+├── telegram_bot.py             # بوت التليجرام (مستقل)
 │
 ├── config/
 │   ├── __init__.py
@@ -147,6 +259,7 @@ non_real_assistant/
 │   ├── scripts.py              # إدارة السكريبتات
 │   ├── executions.py           # سجل التنفيذ
 │   ├── settings.py             # إعدادات المستخدم والنظام
+│   ├── translations.py         # إدارة الترجمات
 │   ├── share.py                # روابط المشاركة العامة
 │   └── api.py                  # API Endpoints
 │
@@ -155,11 +268,19 @@ non_real_assistant/
 │   ├── auth.py                 # خدمات المصادقة
 │   ├── telegram_bot.py         # إرسال رسائل Telegram
 │   ├── email_service.py        # إرسال البريد الإلكتروني
+│   ├── translation_service.py  # خدمة الترجمة
 │   └── script_executor.py      # تنفيذ السكريبتات
 │
 ├── migrations/
 │   ├── __init__.py
 │   └── migrate.py              # تحديث قاعدة البيانات
+│
+├── translations/               # ملفات الترجمة
+│   ├── ar.po                   # الترجمة العربية
+│   └── en.po                   # الترجمة الإنجليزية
+│
+├── nginx/                      # إعدادات nginx
+│   └── nginx.conf
 │
 ├── static/
 │   ├── css/
@@ -171,24 +292,42 @@ non_real_assistant/
 │       ├── scripts.js
 │       └── executions.js
 │
-└── templates/
-    ├── base.html               # القالب الأساسي
-    ├── login.html
-    ├── dashboard.html
-    ├── tasks.html
-    ├── assistants.html
-    ├── scripts.html
-    ├── executions.html
-    ├── settings.html           # إعدادات المستخدم
-    ├── system_settings.html    # إعدادات النظام
-    ├── share_execution.html    # صفحة المشاركة العامة
-    └── share_not_found.html
+├── templates/
+│   ├── base.html               # القالب الأساسي
+│   ├── login.html
+│   ├── dashboard.html
+│   ├── tasks.html
+│   ├── assistants.html
+│   ├── scripts.html
+│   ├── executions.html
+│   ├── settings.html           # إعدادات المستخدم
+│   ├── system_settings.html    # إعدادات النظام
+│   ├── translations.html       # إدارة الترجمات
+│   ├── share_execution.html    # صفحة المشاركة العامة
+│   └── share_not_found.html
+│
+├── Dockerfile                  # ملف Docker
+├── docker-compose.yml          # إنتاج مع nginx
+├── docker-compose.dev.yml      # تطوير بدون nginx
+├── Makefile                    # أوامر مختصرة
+├── .env.example                # مثال متغيرات البيئة
+└── .dockerignore
 ```
 
 ## قاعدة البيانات
 
+### قواعد البيانات المدعومة
+
+| قاعدة البيانات | الاستخدام | ملاحظات |
+|----------------|-----------|---------|
+| SQLite | افتراضي، تطوير | بدون إعدادات إضافية |
+| PostgreSQL | إنتاج | أداء أفضل، مناسب للاستخدام الكثيف |
+| MariaDB | إنتاج | بديل مفتوح المصدر لـ MySQL |
+
 ### الجداول:
 - **languages** - اللغات المدعومة (ar, en)
+- **translations** - الترجمات (key, value, language_id)
+- **key_value_settings** - إعدادات النظام (key-value)
 - **system_settings** - إعدادات النظام (telegram_bot_token, otp_expiration, etc.)
 - **users** - المستخدمين (mobile, name, telegram_id, email, timezone, language_id)
 - **user_login_history** - سجل تسجيل الدخول
@@ -258,6 +397,13 @@ non_real_assistant/
 - `GET /api/translations/:language_id/export` - تصدير ملف .po
 - `POST /api/translations/:language_id/import` - استيراد ملف .po
 - `POST /api/translations/:language_id/sync` - مزامنة النصوص
+- `GET /api/translations/files` - قائمة ملفات .po المتاحة
+- `POST /api/translations/load-from-files` - تحميل الترجمات من الملفات
+
+### إعدادات البريد الإلكتروني (مدير فقط)
+- `GET /api/system/email-settings` - الحصول على إعدادات SMTP
+- `PUT /api/system/email-settings` - تحديث إعدادات SMTP
+- `POST /api/system/email-test` - اختبار إعدادات SMTP
 
 ### API الخارجي (External API)
 
@@ -348,6 +494,42 @@ response = requests.post(
 print(response.json())
 ```
 
+## بوت التليجرام
+
+البوت يعمل كخدمة مستقلة ويوفر:
+
+### الأوامر المتاحة
+
+| الأمر | الوصف |
+|-------|-------|
+| `/start` | بدء المحادثة مع البوت |
+| `/user_id` | عرض Telegram ID الخاص بك |
+| `/create_user` | إنشاء حساب جديد (محادثة تفاعلية) |
+| `/cancel` | إلغاء العملية الحالية |
+
+### إنشاء حساب عبر البوت
+
+1. أرسل `/create_user` للبوت
+2. أدخل رقم الهاتف
+3. أدخل البريد الإلكتروني (اختياري - أرسل "تخطي")
+4. أدخل الاسم (اختياري - أرسل "تخطي")
+5. تأكيد البيانات
+
+**ملاحظة:** يتطلب وجود `API_SECRET_KEY` في ملف `.env` لعمل أمر `/create_user`.
+
+## متغيرات البيئة
+
+| المتغير | مطلوب | الوصف |
+|---------|-------|-------|
+| `SECRET_KEY` | ✅ | مفتاح Flask السري |
+| `TELEGRAM_BOT_TOKEN` | ✅ | توكن بوت التليجرام |
+| `API_SECRET_KEY` | ❌ | مفتاح API الخارجي |
+| `SYSTEM_URL` | ❌ | رابط النظام (للبوت) |
+| `DATABASE_URL` | ❌ | رابط قاعدة البيانات |
+| `FLASK_ENV` | ❌ | بيئة Flask (development/production) |
+| `POSTGRES_*` | ❌ | إعدادات PostgreSQL |
+| `MYSQL_*` | ❌ | إعدادات MariaDB |
+
 ## الأمان
 
 - جميع OTP صالحة لمدة 5 دقائق فقط (قابلة للتخصيص)
@@ -356,6 +538,8 @@ print(response.json())
 - لا يتم تخزين كلمات المرور
 - روابط المشاركة عشوائية وآمنة
 - سجل تسجيل الدخول (IP, Browser)
+- Rate limiting عبر nginx (API: 10r/s, Login: 5r/m)
+- Security headers (X-Frame-Options, X-Content-Type-Options, X-XSS-Protection)
 
 ## حل المشاكل الشائعة
 

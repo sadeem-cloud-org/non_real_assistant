@@ -1,10 +1,16 @@
+# Production docker-compose with nginx
+# Database options: SQLite (default), PostgreSQL, or MariaDB
+# To use PostgreSQL: docker-compose --profile postgres up -d
+# To use MariaDB: docker-compose --profile mariadb up -d
+# Default (SQLite): docker-compose up -d
+
 version: '3.8'
 
 services:
   # Flask Web Application
   web:
     build: .
-    container_name: non_real_assistant_web
+    container_name: nra_web
     restart: unless-stopped
     environment:
       - FLASK_ENV=production
@@ -12,6 +18,7 @@ services:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - API_SECRET_KEY=${API_SECRET_KEY}
       - SYSTEM_URL=${SYSTEM_URL:-http://localhost}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///data/database.db}
     volumes:
       - ./data:/app/data
       - ./translations:/app/translations
@@ -19,22 +26,25 @@ services:
       - "5000"
     networks:
       - app_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/favicon.ico"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    depends_on:
+      postgres:
+        condition: service_started
+        required: false
+      mariadb:
+        condition: service_started
+        required: false
 
   # Telegram Bot (runs automatically)
   bot:
     build: .
-    container_name: non_real_assistant_bot
+    container_name: nra_bot
     restart: unless-stopped
     command: python telegram_bot.py
     environment:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - API_SECRET_KEY=${API_SECRET_KEY}
       - SYSTEM_URL=${SYSTEM_URL:-http://localhost}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///data/database.db}
     volumes:
       - ./data:/app/data
     networks:
@@ -45,7 +55,7 @@ services:
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
-    container_name: non_real_assistant_nginx
+    container_name: nra_nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -59,9 +69,53 @@ services:
     depends_on:
       - web
 
+  # PostgreSQL Database (optional)
+  postgres:
+    image: postgres:15-alpine
+    container_name: nra_postgres
+    restart: unless-stopped
+    profiles:
+      - postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-non_real_assistant}
+      - POSTGRES_USER=${POSTGRES_USER:-nra_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-nra_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nra_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MariaDB Database (optional)
+  mariadb:
+    image: mariadb:10.11
+    container_name: nra_mariadb
+    restart: unless-stopped
+    profiles:
+      - mariadb
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-non_real_assistant}
+      - MYSQL_USER=${MYSQL_USER:-nra_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-nra_password}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_password}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
   app_network:
     driver: bridge
 
 volumes:
-  data:
+  postgres_data:
+  mariadb_data:
