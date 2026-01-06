@@ -186,9 +186,19 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
+                            <label class="form-label">نوع الجدولة</label>
+                            <select class="form-select" id="assistant-schedule-type" onchange="toggleScheduleOptions()">
+                                <option value="">بدون جدولة</option>
+                                <option value="recurring">تكرار (كل فترة)</option>
+                                <option value="once">تشغيل مرة واحدة (وقت محدد)</option>
+                            </select>
+                        </div>
+
+                        <!-- Recurring Schedule -->
+                        <div class="mb-3" id="recurring-schedule" style="display: none;">
                             <label class="form-label">تشغيل تلقائي كل</label>
                             <select class="form-select" id="assistant-run-every">
-                                <option value="">بدون جدولة</option>
+                                <option value="">اختر الفترة</option>
                                 <option value="minute">دقيقة</option>
                                 <option value="hourly">ساعة</option>
                                 <option value="daily">يوم</option>
@@ -196,6 +206,13 @@
                                 <option value="monthly">شهر</option>
                             </select>
                             <small class="form-hint">سيتم تنفيذ السكريبتات المرتبطة بهذا المساعد تلقائياً</small>
+                        </div>
+
+                        <!-- One-time Schedule -->
+                        <div class="mb-3" id="once-schedule" style="display: none;">
+                            <label class="form-label">تشغيل في تاريخ ووقت محدد</label>
+                            <input type="text" class="form-control" id="assistant-run-at" placeholder="اختر التاريخ والوقت">
+                            <small class="form-hint">سيتم تنفيذ السكريبتات مرة واحدة في الوقت المحدد</small>
                         </div>
                     </div>
                 </div>

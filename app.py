@@ -116,9 +116,29 @@ def favicon():
     return '', 204
 
 
-if __name__ == '__main__':
-    # Start background scheduler for reminders (only when running as main)
-    from scheduler import start_scheduler
-    scheduler = start_scheduler(app)
+# Start scheduler for production (gunicorn) - only in first worker
+import os
+_scheduler_started = False
 
+def start_scheduler_once():
+    """Start scheduler only once (for first worker/thread)"""
+    global _scheduler_started
+    if not _scheduler_started:
+        _scheduler_started = True
+        from scheduler import start_scheduler
+        start_scheduler(app)
+        print("✅ Background scheduler started")
+
+# Start scheduler on first request (works with gunicorn)
+@app.before_request
+def before_first_request():
+    """Start scheduler on first request"""
+    global _scheduler_started
+    if not _scheduler_started:
+        start_scheduler_once()
+
+
+if __name__ == '__main__':
+    # For development mode
+    start_scheduler_once()
     app.run(debug=True, host='0.0.0.0', port=5000)

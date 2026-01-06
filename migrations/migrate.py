@@ -213,6 +213,30 @@ def seed_notify_templates(db):
     db.session.commit()
 
 
+def load_translations_from_files(db):
+    """Load translations from .po files automatically"""
+    import os
+
+    translations_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'translations')
+
+    if not os.path.exists(translations_dir):
+        print("No translations directory found")
+        return
+
+    from services.translation_service import TranslationService
+    service = TranslationService()
+
+    try:
+        result = service.load_from_files(translations_dir)
+        if result.get('success'):
+            total_imported = sum(r.get('imported', 0) + r.get('updated', 0) for r in result.get('results', []))
+            print(f"Loaded {total_imported} translations from files")
+        else:
+            print(f"Warning: Could not load translations: {result.get('error')}")
+    except Exception as e:
+        print(f"Warning: Could not load translations: {e}")
+
+
 def run_all_migrations():
     """
     Entry point for running migrations from command line.
@@ -229,10 +253,12 @@ def run_all_migrations():
     success = migrate_database(app, db)
 
     if success:
-        # Seed assistant types
+        # Seed assistant types and templates
         with app.app_context():
             seed_assistant_types(db)
             seed_notify_templates(db)
+            # Load translations from .po files
+            load_translations_from_files(db)
 
         print("\nNext steps:")
         print("   1. Create a user: python create_user.py create --phone 01234567890 --telegram_id YOUR_ID")
