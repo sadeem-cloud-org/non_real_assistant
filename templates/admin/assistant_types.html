@@ -47,7 +47,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">{{ t('إضافة نوع مساعد جديد') }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" onclick="hideModal('addTypeModal')" aria-label="Close"></button>
             </div>
             <form id="addTypeForm">
                 <div class="modal-body">
@@ -67,7 +67,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideModal('addTypeModal')">{{ t('إلغاء') }}</button>
                     <button type="submit" class="btn btn-primary">{{ t('إضافة') }}</button>
                 </div>
             </form>
@@ -81,7 +81,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">{{ t('تعديل نوع المساعد') }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" onclick="hideModal('editTypeModal')" aria-label="Close"></button>
             </div>
             <form id="editTypeForm">
                 <input type="hidden" name="id">
@@ -99,7 +99,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideModal('editTypeModal')">{{ t('إلغاء') }}</button>
                     <button type="submit" class="btn btn-primary">{{ t('حفظ') }}</button>
                 </div>
             </form>

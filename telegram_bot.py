@@ -2,6 +2,7 @@
 Telegram Bot for Non Real Assistant
 - /user_id - Show user their Telegram ID
 - /create_user - Create a new user account
+- /today_tasks - Show today's scheduled tasks
 """
 
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -50,6 +51,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 <b>الأوامر المتاحة:</b>
 /user_id - عرض معرف التليجرام الخاص بك
 /create_user - إنشاء حساب جديد في النظام
+/today_tasks - عرض مهام اليوم
 /cancel - إلغاء العملية الحالية
     """
 
@@ -71,6 +73,103 @@ async def show_user_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
 
     await update.message.reply_text(message, parse_mode='HTML')
+
+
+async def today_tasks(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show today's scheduled tasks for the user"""
+    telegram_user = update.effective_user
+    telegram_id = str(telegram_user.id)
+
+    try:
+        # Import here to avoid circular imports
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+        from app import app
+        from models import db, User, Task
+        from datetime import datetime, timedelta
+        import pytz
+
+        with app.app_context():
+            # Find user by telegram_id
+            user = User.query.filter_by(telegram_id=telegram_id).first()
+
+            if not user:
+                await update.message.reply_text(
+                    """
+❌ <b>لم يتم العثور على حسابك!</b>
+
+يبدو أن معرف التليجرام الخاص بك غير مرتبط بأي حساب.
+
+استخدم /create_user لإنشاء حساب جديد.
+                    """,
+                    parse_mode='HTML'
+                )
+                return
+
+            # Get user timezone
+            user_tz = pytz.timezone(user.timezone or 'Africa/Cairo')
+            now_local = datetime.now(user_tz)
+            today_start = now_local.replace(hour=0, minute=0, second=0, microsecond=0)
+            today_end = today_start + timedelta(days=1)
+
+            # Convert to UTC for database query
+            today_start_utc = today_start.astimezone(pytz.UTC).replace(tzinfo=None)
+            today_end_utc = today_end.astimezone(pytz.UTC).replace(tzinfo=None)
+
+            # Get today's tasks
+            tasks = Task.query.filter(
+                Task.create_user_id == user.id,
+                Task.complete_time.is_(None),
+                Task.cancel_time.is_(None),
+                Task.time.isnot(None),
+                Task.time >= today_start_utc,
+                Task.time < today_end_utc
+            ).order_by(Task.time).all()
+
+            if not tasks:
+                await update.message.reply_text(
+                    f"""
+🎉 <b>لا توجد مهام مجدولة لليوم!</b>
+
+📅 التاريخ: {now_local.strftime('%Y-%m-%d')}
+
+استمتع بيومك! 🌟
+                    """,
+                    parse_mode='HTML'
+                )
+                return
+
+            # Build tasks message
+            message = f"""
+📋 <b>مهامك لليوم</b>
+📅 {now_local.strftime('%Y-%m-%d')}
+
+عندك <b>{len(tasks)}</b> مهام مجدولة:
+
+"""
+            for i, task in enumerate(tasks, 1):
+                # Convert task time to user timezone
+                task_time_utc = pytz.UTC.localize(task.time)
+                task_time_local = task_time_utc.astimezone(user_tz)
+                time_str = task_time_local.strftime('%H:%M')
+
+                status = "⏰" if task_time_local > now_local else "⚠️"
+
+                message += f"{i}. {status} <b>{task.name}</b> ({time_str})\n"
+                if task.description:
+                    message += f"   📝 {task.description[:50]}{'...' if len(task.description) > 50 else ''}\n"
+
+            message += "\n💪 يوم موفق!"
+
+            await update.message.reply_text(message, parse_mode='HTML')
+
+    except Exception as e:
+        logger.error(f"Error fetching today's tasks: {e}")
+        await update.message.reply_text(
+            f"❌ حدث خطأ أثناء جلب المهام: {str(e)}",
+            parse_mode='HTML'
+        )
 
 
 # ===== Create User Conversation =====
@@ -358,6 +457,7 @@ def main():
     # Add handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("user_id", show_user_id))
+    application.add_handler(CommandHandler("today_tasks", today_tasks))
     application.add_handler(create_account_handler)
     application.add_handler(CommandHandler("cancel", cancel))
 
