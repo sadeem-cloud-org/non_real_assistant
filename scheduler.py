@@ -168,8 +168,15 @@ class TaskScheduler:
                     db.session.add(log)
                     print(f"❌ Failed to execute script #{script.id}: {e}")
 
-            # Update next run time
-            assistant.next_run_time = self._calculate_next_run(assistant.run_every)
+            # Update next run time or clear for one-time schedules
+            if assistant.run_every == 'once':
+                # One-time schedule - clear the schedule after execution
+                assistant.run_every = None
+                assistant.next_run_time = None
+            else:
+                # Recurring schedule - calculate next run time
+                assistant.next_run_time = self._calculate_next_run(assistant.run_every)
+
             db.session.commit()
 
     def _calculate_next_run(self, run_every):

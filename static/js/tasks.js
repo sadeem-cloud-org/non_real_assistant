@@ -44,6 +44,7 @@ function initializeDateTimePickers() {
         dateFormat: "d/m/Y H:i",
         altInput: true,
         altFormat: "d/m/Y H:i",
+        allowInput: true,  // Allow manual input
         minuteIncrement: 1,
         locale: {
             firstDayOfWeek: 6,

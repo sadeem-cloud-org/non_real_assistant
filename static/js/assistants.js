@@ -5,9 +5,13 @@ let allAssistants = [];
 let allAssistantTypes = [];
 let allNotifyTemplates = [];
 
+// Flatpickr instance for run-at
+let runAtPicker = null;
+
 // Load on page ready
 document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
+    initializeDateTimePicker();
     loadAssistantTypes();
     loadNotifyTemplates();
     loadAssistants();
@@ -20,6 +24,55 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Initialize Flatpickr for run-at time
+function initializeDateTimePicker() {
+    const dateTimeConfig = {
+        enableTime: true,
+        time_24hr: true,
+        dateFormat: "Y-m-d H:i",
+        altInput: true,
+        altFormat: "d/m/Y H:i",
+        allowInput: true,
+        minDate: "today",
+        locale: {
+            firstDayOfWeek: 6,
+            weekdays: {
+                shorthand: ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'],
+                longhand: ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
+            },
+            months: {
+                shorthand: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+                longhand: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+            }
+        }
+    };
+
+    runAtPicker = flatpickr("#assistant-run-at", dateTimeConfig);
+}
+
+// Toggle schedule options based on type
+function toggleScheduleOptions() {
+    const scheduleType = document.getElementById('assistant-schedule-type').value;
+    const recurringDiv = document.getElementById('recurring-schedule');
+    const onceDiv = document.getElementById('once-schedule');
+
+    if (scheduleType === 'recurring') {
+        recurringDiv.style.display = 'block';
+        onceDiv.style.display = 'none';
+        document.getElementById('assistant-run-every').value = '';
+        if (runAtPicker) runAtPicker.clear();
+    } else if (scheduleType === 'once') {
+        recurringDiv.style.display = 'none';
+        onceDiv.style.display = 'block';
+        document.getElementById('assistant-run-every').value = '';
+    } else {
+        recurringDiv.style.display = 'none';
+        onceDiv.style.display = 'none';
+        document.getElementById('assistant-run-every').value = '';
+        if (runAtPicker) runAtPicker.clear();
+    }
+}
 
 // Initialize theme
 function initializeTheme() {
@@ -222,7 +275,8 @@ function createAssistantCard(assistant) {
         'hourly': 'كل ساعة',
         'daily': 'يومياً',
         'weekly': 'أسبوعياً',
-        'monthly': 'شهرياً'
+        'monthly': 'شهرياً',
+        'once': 'مرة واحدة'
     };
 
     const typeName = assistant.assistant_type ? (typeNames[assistant.assistant_type.name] || assistant.assistant_type.name) : 'مخصص';
@@ -329,7 +383,9 @@ async function saveAssistant() {
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>جاري الحفظ...';
 
+    const scheduleType = document.getElementById('assistant-schedule-type').value;
     const runEvery = document.getElementById('assistant-run-every').value;
+    const runAtValue = document.getElementById('assistant-run-at').value;
     const notifyTemplateId = document.getElementById('assistant-notify-template').value;
 
     const assistantData = {
@@ -338,11 +394,12 @@ async function saveAssistant() {
         telegram_notify: document.getElementById('assistant-telegram-notify').checked,
         email_notify: document.getElementById('assistant-email-notify').checked,
         notify_template_id: notifyTemplateId ? parseInt(notifyTemplateId) : null,
-        run_every: runEvery || null
+        run_every: (scheduleType === 'recurring' && runEvery) ? runEvery : null
     };
 
-    // Calculate next_run_time if scheduling - set to NEXT scheduled time, not now
-    if (runEvery) {
+    // Handle scheduling
+    if (scheduleType === 'recurring' && runEvery) {
+        // Calculate next_run_time for recurring schedule
         const now = new Date();
         let nextRun = new Date(now);
 
@@ -368,6 +425,10 @@ async function saveAssistant() {
         }
 
         assistantData.next_run_time = nextRun.toISOString();
+    } else if (scheduleType === 'once' && runAtValue) {
+        // Set specific run time for one-time schedule
+        assistantData.run_every = 'once';  // Special value for one-time run
+        assistantData.next_run_time = new Date(runAtValue).toISOString();
     }
 
     try {
@@ -430,7 +491,23 @@ async function editAssistant(assistantId) {
         document.getElementById('assistant-telegram-notify').checked = assistant.telegram_notify;
         document.getElementById('assistant-email-notify').checked = assistant.email_notify;
         document.getElementById('assistant-notify-template').value = assistant.notify_template_id || '';
-        document.getElementById('assistant-run-every').value = assistant.run_every || '';
+
+        // Handle schedule type
+        const scheduleTypeSelect = document.getElementById('assistant-schedule-type');
+        if (assistant.run_every === 'once') {
+            scheduleTypeSelect.value = 'once';
+            toggleScheduleOptions();
+            if (assistant.next_run_time && runAtPicker) {
+                runAtPicker.setDate(new Date(assistant.next_run_time));
+            }
+        } else if (assistant.run_every) {
+            scheduleTypeSelect.value = 'recurring';
+            toggleScheduleOptions();
+            document.getElementById('assistant-run-every').value = assistant.run_every;
+        } else {
+            scheduleTypeSelect.value = '';
+            toggleScheduleOptions();
+        }
 
         // Set edit mode
         editingAssistantId = assistantId;
@@ -493,7 +570,13 @@ function closeAssistantModal() {
     document.getElementById('assistant-telegram-notify').checked = true;
     document.getElementById('assistant-email-notify').checked = false;
     document.getElementById('assistant-notify-template').value = '';
+    document.getElementById('assistant-schedule-type').value = '';
     document.getElementById('assistant-run-every').value = '';
+    if (runAtPicker) runAtPicker.clear();
+
+    // Reset schedule options display
+    document.getElementById('recurring-schedule').style.display = 'none';
+    document.getElementById('once-schedule').style.display = 'none';
 
     editingAssistantId = null;
     document.getElementById('modal-title').textContent = 'إضافة مساعد جديد';

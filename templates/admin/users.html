@@ -234,7 +234,8 @@ function editUser(id) {
     form.elements['email'].value = user.email || '';
     form.elements['is_admin'].checked = user.is_admin;
 
-    new bootstrap.Modal(document.getElementById('editUserModal')).show();
+    const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+    modal.show();
 }
 
 function deleteUser(id) {
