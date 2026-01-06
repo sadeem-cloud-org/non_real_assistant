@@ -4,10 +4,26 @@ Background Scheduler for automatic task reminders and script execution
 
 import threading
 import time
+import pytz
 from datetime import datetime, timedelta
 from models import db, Task, User, Assistant, Script, ScriptExecuteLog, NotifyTemplate
 from services.telegram_bot import TelegramOTPSender
 from services.script_executor import ScriptExecutor
+
+
+def convert_to_user_timezone(utc_time, user_timezone='Africa/Cairo'):
+    """Convert UTC datetime to user's timezone"""
+    if not utc_time:
+        return None
+    try:
+        # If the datetime is naive (no timezone), assume it's UTC
+        if utc_time.tzinfo is None:
+            utc_time = pytz.UTC.localize(utc_time)
+        # Convert to user's timezone
+        user_tz = pytz.timezone(user_timezone)
+        return utc_time.astimezone(user_tz)
+    except Exception:
+        return utc_time
 
 
 class TaskScheduler:
@@ -90,8 +106,9 @@ class TaskScheduler:
             user_name = user.name or user.mobile or 'المستخدم'
             assistant_name = assistant.name if assistant else 'المساعد الشخصي'
 
-            # Format task time
-            task_time = task.time.strftime('%Y-%m-%d %H:%M') if task.time else ''
+            # Format task time in user's timezone
+            local_time = convert_to_user_timezone(task.time, user.timezone or 'Africa/Cairo')
+            task_time = local_time.strftime('%Y-%m-%d %H:%M') if local_time else ''
 
             # Prepare message with new format
             message = f"""أهلاً {user_name}، أنا المساعد: {assistant_name}
@@ -263,7 +280,9 @@ class TaskScheduler:
                 message = f"🌅 <b>صباح الخير!</b>\n\nعندك {len(pending_tasks)} مهام اليوم:\n\n"
 
                 for i, task in enumerate(pending_tasks, 1):
-                    time_text = task.time.strftime('%H:%M') if task.time else ''
+                    # Convert to user's timezone
+                    local_time = convert_to_user_timezone(task.time, user.timezone or 'Africa/Cairo')
+                    time_text = local_time.strftime('%H:%M') if local_time else ''
 
                     message += f"{i}. 📝 {task.name}"
                     if time_text:
