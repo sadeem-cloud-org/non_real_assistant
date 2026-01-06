@@ -15,6 +15,7 @@ from .api import api_bp
 from .settings import settings_bp
 from .share import share_bp
 from .translations import translations_bp
+from .admin import admin_bp
 
 
 def register_blueprints(app):
@@ -28,6 +29,7 @@ def register_blueprints(app):
     app.register_blueprint(settings_bp)
     app.register_blueprint(share_bp)
     app.register_blueprint(translations_bp)
+    app.register_blueprint(admin_bp)
     app.register_blueprint(api_bp, url_prefix='/api')
 
 
@@ -42,5 +44,6 @@ __all__ = [
     'settings_bp',
     'share_bp',
     'translations_bp',
+    'admin_bp',
     'api_bp'
 ]

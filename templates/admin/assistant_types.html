@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('أنواع المساعدين') }}{% endblock %}
+
+{% block page_title %}{{ t('أنواع المساعدين') }}{% endblock %}
+{% block page_subtitle %}{{ t('إدارة أنواع المساعدين المتاحة في النظام') }}{% endblock %}
+
+{% block page_actions %}
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTypeModal">
+    <i class="ti ti-plus me-2"></i>
+    {{ t('إضافة نوع جديد') }}
+</button>
+<a href="/admin" class="btn btn-outline-secondary ms-2">
+    <i class="ti ti-arrow-right me-2"></i>
+    {{ t('العودة') }}
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-vcenter">
+                <thead>
+                    <tr>
+                        <th>{{ t('الاسم') }}</th>
+                        <th>{{ t('الإجراء المرتبط') }}</th>
+                        <th>{{ t('تاريخ الإنشاء') }}</th>
+                        <th class="w-1">{{ t('الإجراءات') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="types-table">
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">{{ t('جاري التحميل...') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Add Type Modal -->
+<div class="modal modal-blur fade" id="addTypeModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ t('إضافة نوع مساعد جديد') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addTypeForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label required">{{ t('اسم النوع') }}</label>
+                        <input type="text" class="form-control" name="name" required
+                               placeholder="{{ t('مثال: task_notify أو script_runner') }}">
+                        <small class="form-hint">{{ t('اسم فريد للنوع (يفضل بالإنجليزية)') }}</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ t('الإجراء المرتبط') }}</label>
+                        <select class="form-select" name="related_action">
+                            <option value="task">{{ t('مهام') }} (task)</option>
+                            <option value="script">{{ t('سكريبتات') }} (script)</option>
+                        </select>
+                        <small class="form-hint">{{ t('نوع العمل المرتبط بهذا المساعد') }}</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ t('إضافة') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Type Modal -->
+<div class="modal modal-blur fade" id="editTypeModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ t('تعديل نوع المساعد') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editTypeForm">
+                <input type="hidden" name="id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label required">{{ t('اسم النوع') }}</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ t('الإجراء المرتبط') }}</label>
+                        <select class="form-select" name="related_action">
+                            <option value="task">{{ t('مهام') }} (task)</option>
+                            <option value="script">{{ t('سكريبتات') }} (script)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ t('حفظ') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+const translations = {
+    task: '{{ t("مهام") }}',
+    script: '{{ t("سكريبتات") }}',
+    loading: '{{ t("جاري التحميل...") }}',
+    noTypes: '{{ t("لا توجد أنواع مساعدين") }}',
+    confirmDelete: '{{ t("هل أنت متأكد من حذف هذا النوع؟") }}',
+    deleteError: '{{ t("لا يمكن الحذف: هناك مساعدين يستخدمون هذا النوع") }}'
+};
+
+let types = [];
+
+function loadTypes() {
+    fetch('/admin/api/assistant-types')
+        .then(r => r.json())
+        .then(data => {
+            types = data;
+            renderTypes();
+        });
+}
+
+function renderTypes() {
+    const tbody = document.getElementById('types-table');
+
+    if (types.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">${translations.noTypes}</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = types.map(type => `
+        <tr>
+            <td>
+                <strong>${type.name}</strong>
+            </td>
+            <td>
+                <span class="badge bg-${type.related_action === 'task' ? 'blue' : 'green'}">
+                    ${type.related_action === 'task' ? translations.task : translations.script}
+                </span>
+            </td>
+            <td>
+                ${type.create_time ? new Date(type.create_time).toLocaleDateString('ar-EG') : '-'}
+            </td>
+            <td>
+                <div class="btn-list flex-nowrap">
+                    <button class="btn btn-sm btn-outline-primary" onclick="editType(${type.id})">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteType(${type.id})">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function editType(id) {
+    const type = types.find(t => t.id === id);
+    if (!type) return;
+
+    const form = document.getElementById('editTypeForm');
+    form.elements['id'].value = type.id;
+    form.elements['name'].value = type.name;
+    form.elements['related_action'].value = type.related_action;
+
+    new bootstrap.Modal(document.getElementById('editTypeModal')).show();
+}
+
+function deleteType(id) {
+    if (!confirm(translations.confirmDelete)) return;
+
+    fetch(`/admin/api/assistant-types/${id}`, {
+        method: 'DELETE'
+    })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                loadTypes();
+            } else {
+                alert(data.error || translations.deleteError);
+            }
+        });
+}
+
+// Add form submission
+document.getElementById('addTypeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+
+    fetch('/admin/api/assistant-types', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('addTypeModal')).hide();
+                this.reset();
+                loadTypes();
+            } else {
+                alert(result.error);
+            }
+        });
+});
+
+// Edit form submission
+document.getElementById('editTypeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    const id = data.id;
+    delete data.id;
+
+    fetch(`/admin/api/assistant-types/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('editTypeModal')).hide();
+                loadTypes();
+            } else {
+                alert(result.error);
+            }
+        });
+});
+
+// Initial load
+document.addEventListener('DOMContentLoaded', loadTypes);
+</script>
+{% endblock %}
