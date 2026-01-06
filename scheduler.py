@@ -91,13 +91,21 @@ class TaskScheduler:
             if not user:
                 continue
 
-            # Check if task has an assistant with telegram_notify enabled
-            should_notify = True
+            # Check if task has an assistant
+            should_notify = False
             assistant = None
+
             if task.assistant_id:
                 assistant = Assistant.query.get(task.assistant_id)
-                if assistant and not assistant.telegram_notify:
-                    should_notify = False
+                if assistant:
+                    # Check if assistant type is for tasks (task_notify type)
+                    if assistant.assistant_type and assistant.assistant_type.related_action == 'task':
+                        # Only notify if telegram_notify is enabled
+                        if assistant.telegram_notify:
+                            should_notify = True
+            else:
+                # Task without assistant - still send notification if user has telegram
+                should_notify = True
 
             if not should_notify or not user.telegram_id:
                 continue

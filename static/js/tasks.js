@@ -140,30 +140,30 @@ function updateStats() {
         total: 0,
         pending: 0,
         completed: 0,
-        cancelled: 0
+        late: 0
     };
 
     allTasks.forEach(task => {
         stats.total++;
         const status = task.status;
-        if (status === 'pending' || status === 'overdue') {
+        if (status === 'pending') {
             stats.pending++;
+        } else if (status === 'overdue' || status === 'late') {
+            stats.late++;
         } else if (status === 'completed') {
             stats.completed++;
-        } else if (status === 'cancelled') {
-            stats.cancelled++;
         }
     });
 
     const totalEl = document.getElementById('stat-total');
     const pendingEl = document.getElementById('stat-pending');
     const completedEl = document.getElementById('stat-completed');
-    const cancelledEl = document.getElementById('stat-cancelled');
+    const lateEl = document.getElementById('stat-late');
 
     if (totalEl) totalEl.textContent = stats.total;
     if (pendingEl) pendingEl.textContent = stats.pending;
     if (completedEl) completedEl.textContent = stats.completed;
-    if (cancelledEl) cancelledEl.textContent = stats.cancelled;
+    if (lateEl) lateEl.textContent = stats.late;
 }
 
 // Display tasks

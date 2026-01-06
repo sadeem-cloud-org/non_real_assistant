@@ -234,8 +234,29 @@ function editUser(id) {
     form.elements['email'].value = user.email || '';
     form.elements['is_admin'].checked = user.is_admin;
 
-    const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
-    modal.show();
+    // Show modal using Tabler's approach
+    const modalEl = document.getElementById('editUserModal');
+    modalEl.classList.add('show');
+    modalEl.style.display = 'block';
+    document.body.classList.add('modal-open');
+
+    // Add backdrop
+    let backdrop = document.querySelector('.modal-backdrop');
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+    }
+}
+
+function hideModal(modalId) {
+    const modalEl = document.getElementById(modalId);
+    modalEl.classList.remove('show');
+    modalEl.style.display = 'none';
+    document.body.classList.remove('modal-open');
+
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) backdrop.remove();
 }
 
 function deleteUser(id) {
@@ -280,7 +301,7 @@ document.getElementById('addUserForm').addEventListener('submit', function(e) {
         .then(r => r.json())
         .then(result => {
             if (result.success) {
-                bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                hideModal('addUserModal');
                 this.reset();
                 loadUsers();
             } else {
@@ -311,7 +332,7 @@ document.getElementById('editUserForm').addEventListener('submit', function(e) {
         .then(r => r.json())
         .then(result => {
             if (result.success) {
-                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                hideModal('editUserModal');
                 loadUsers();
             } else {
                 alert(result.error);

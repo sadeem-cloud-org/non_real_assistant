@@ -35,8 +35,8 @@
                 <select class="form-select" id="filter-status" onchange="loadTasks()">
                     <option value="">الكل</option>
                     <option value="pending" selected>قيد الانتظار</option>
+                    <option value="late">متأخرة</option>
                     <option value="completed">مكتملة</option>
-                    <option value="cancelled">ملغاة</option>
                 </select>
             </div>
 
@@ -125,12 +125,12 @@
                 <div class="row align-items-center">
                     <div class="col-auto">
                         <span class="bg-red text-white avatar">
-                            <i class="ti ti-x"></i>
+                            <i class="ti ti-clock-exclamation"></i>
                         </span>
                     </div>
                     <div class="col">
-                        <div class="font-weight-medium" id="stat-cancelled">0</div>
-                        <div class="text-muted">ملغاة</div>
+                        <div class="font-weight-medium" id="stat-late">0</div>
+                        <div class="text-muted">متأخرة</div>
                     </div>
                 </div>
             </div>
