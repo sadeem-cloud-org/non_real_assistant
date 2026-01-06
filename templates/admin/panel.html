@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('لوحة تحكم المدير') }}{% endblock %}
+
+{% block page_title %}{{ t('لوحة تحكم المدير') }}{% endblock %}
+{% block page_subtitle %}{{ t('إدارة النظام والمستخدمين') }}{% endblock %}
+
+{% block content %}
+<div class="row row-deck row-cards">
+    <!-- Users Management Card -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">{{ t('المستخدمين') }}</div>
+                </div>
+                <div class="h1 mb-3" id="users-count">-</div>
+                <a href="/admin/users" class="btn btn-primary w-100">
+                    <i class="ti ti-users me-2"></i>
+                    {{ t('إدارة المستخدمين') }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assistant Types Card -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">{{ t('أنواع المساعدين') }}</div>
+                </div>
+                <div class="h1 mb-3" id="assistant-types-count">-</div>
+                <a href="/admin/assistant-types" class="btn btn-primary w-100">
+                    <i class="ti ti-robot me-2"></i>
+                    {{ t('إدارة الأنواع') }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Translations Card -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">{{ t('الترجمات') }}</div>
+                </div>
+                <div class="h1 mb-3" id="languages-count">-</div>
+                <a href="/translations" class="btn btn-primary w-100">
+                    <i class="ti ti-language me-2"></i>
+                    {{ t('إدارة الترجمات') }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Settings Card -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">{{ t('البريد الإلكتروني') }}</div>
+                </div>
+                <div class="h1 mb-3"><i class="ti ti-mail"></i></div>
+                <a href="/admin/email-settings" class="btn btn-primary w-100">
+                    <i class="ti ti-settings me-2"></i>
+                    {{ t('إعدادات البريد') }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">{{ t('إحصائيات النظام') }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-blue me-2"><i class="ti ti-users"></i></span>
+                            <span>{{ t('إجمالي المستخدمين') }}: <strong id="stat-users">-</strong></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-green me-2"><i class="ti ti-user-check"></i></span>
+                            <span>{{ t('المدراء') }}: <strong id="stat-admins">-</strong></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-purple me-2"><i class="ti ti-robot"></i></span>
+                            <span>{{ t('أنواع المساعدين') }}: <strong id="stat-types">-</strong></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-orange me-2"><i class="ti ti-language"></i></span>
+                            <span>{{ t('اللغات') }}: <strong id="stat-languages">-</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load stats
+    Promise.all([
+        fetch('/admin/api/users').then(r => r.json()),
+        fetch('/admin/api/assistant-types').then(r => r.json()),
+        fetch('/api/languages').then(r => r.json())
+    ]).then(([users, types, languages]) => {
+        // Users
+        document.getElementById('users-count').textContent = users.length;
+        document.getElementById('stat-users').textContent = users.length;
+        document.getElementById('stat-admins').textContent = users.filter(u => u.is_admin).length;
+
+        // Assistant Types
+        document.getElementById('assistant-types-count').textContent = types.length;
+        document.getElementById('stat-types').textContent = types.length;
+
+        // Languages
+        document.getElementById('languages-count').textContent = languages.length;
+        document.getElementById('stat-languages').textContent = languages.length;
+    });
+});
+</script>
+{% endblock %}

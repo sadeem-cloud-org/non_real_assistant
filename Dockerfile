@@ -25,12 +25,18 @@ COPY . .
 # Create data directory for SQLite
 RUN mkdir -p /app/data
 
+# Make entrypoint executable
+RUN chmod +x /app/entrypoint.sh
+
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
 # Expose port
 EXPOSE 5000
+
+# Use entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Default command (can be overridden in docker-compose)
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--threads", "4", "app:app"]

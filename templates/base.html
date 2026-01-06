@@ -121,9 +121,10 @@
                             {{ t('الإعدادات') }}
                         </a>
                         {% if current_user and current_user.is_admin %}
-                        <a href="/translations" class="dropdown-item">
-                            <i class="ti ti-language ms-2"></i>
-                            {{ t('إدارة الترجمات') }}
+                        <div class="dropdown-divider"></div>
+                        <a href="/admin" class="dropdown-item">
+                            <i class="ti ti-shield ms-2"></i>
+                            {{ t('لوحة تحكم المدير') }}
                         </a>
                         {% endif %}
                         <div class="dropdown-divider"></div>

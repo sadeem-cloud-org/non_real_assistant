@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('إدارة المستخدمين') }}{% endblock %}
+
+{% block page_title %}{{ t('إدارة المستخدمين') }}{% endblock %}
+{% block page_subtitle %}{{ t('إنشاء وتعديل وحذف المستخدمين') }}{% endblock %}
+
+{% block page_actions %}
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+    <i class="ti ti-user-plus me-2"></i>
+    {{ t('إضافة مستخدم') }}
+</button>
+<a href="/admin" class="btn btn-outline-secondary ms-2">
+    <i class="ti ti-arrow-right me-2"></i>
+    {{ t('العودة') }}
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-vcenter">
+                <thead>
+                    <tr>
+                        <th>{{ t('رقم الهاتف') }}</th>
+                        <th>{{ t('الاسم') }}</th>
+                        <th>{{ t('Telegram ID') }}</th>
+                        <th>{{ t('البريد') }}</th>
+                        <th>{{ t('الصلاحية') }}</th>
+                        <th>{{ t('تاريخ التسجيل') }}</th>
+                        <th class="w-1">{{ t('الإجراءات') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table">
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">{{ t('جاري التحميل...') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Add User Modal -->
+<div class="modal modal-blur fade" id="addUserModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ t('إضافة مستخدم جديد') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addUserForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label required">{{ t('رقم الهاتف') }}</label>
+                                <input type="text" class="form-control" name="mobile" required
+                                       placeholder="01234567890" dir="ltr">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ t('الاسم') }}</label>
+                                <input type="text" class="form-control" name="name"
+                                       placeholder="{{ t('اسم المستخدم') }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Telegram ID</label>
+                                <input type="text" class="form-control" name="telegram_id"
+                                       placeholder="123456789" dir="ltr">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ t('البريد الإلكتروني') }}</label>
+                                <input type="email" class="form-control" name="email"
+                                       placeholder="user@example.com" dir="ltr">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_admin">
+                            <span class="form-check-label">{{ t('مدير النظام') }}</span>
+                        </label>
+                        <small class="form-hint">{{ t('المدير يمكنه الوصول للوحة تحكم الإدارة') }}</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ t('إضافة') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal modal-blur fade" id="editUserModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ t('تعديل المستخدم') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editUserForm">
+                <input type="hidden" name="id">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label required">{{ t('رقم الهاتف') }}</label>
+                                <input type="text" class="form-control" name="mobile" required dir="ltr">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ t('الاسم') }}</label>
+                                <input type="text" class="form-control" name="name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Telegram ID</label>
+                                <input type="text" class="form-control" name="telegram_id" dir="ltr">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ t('البريد الإلكتروني') }}</label>
+                                <input type="email" class="form-control" name="email" dir="ltr">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_admin">
+                            <span class="form-check-label">{{ t('مدير النظام') }}</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ t('حفظ') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+const translations = {
+    admin: '{{ t("مدير") }}',
+    user: '{{ t("مستخدم") }}',
+    loading: '{{ t("جاري التحميل...") }}',
+    noUsers: '{{ t("لا يوجد مستخدمين") }}',
+    confirmDelete: '{{ t("هل أنت متأكد من حذف هذا المستخدم؟") }}',
+    cannotDeleteSelf: '{{ t("لا يمكنك حذف حسابك الخاص") }}'
+};
+
+let users = [];
+const currentUserId = {{ session.get('user_id', 0) }};
+
+function loadUsers() {
+    fetch('/admin/api/users')
+        .then(r => r.json())
+        .then(data => {
+            users = data;
+            renderUsers();
+        });
+}
+
+function renderUsers() {
+    const tbody = document.getElementById('users-table');
+
+    if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">${translations.noUsers}</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = users.map(user => `
+        <tr>
+            <td>
+                <strong dir="ltr">${user.mobile}</strong>
+            </td>
+            <td>${user.name || '-'}</td>
+            <td dir="ltr">${user.telegram_id || '-'}</td>
+            <td dir="ltr">${user.email || '-'}</td>
+            <td>
+                <span class="badge bg-${user.is_admin ? 'red' : 'blue'}">
+                    ${user.is_admin ? translations.admin : translations.user}
+                </span>
+            </td>
+            <td>
+                ${user.create_time ? new Date(user.create_time).toLocaleDateString('ar-EG') : '-'}
+            </td>
+            <td>
+                <div class="btn-list flex-nowrap">
+                    <button class="btn btn-sm btn-outline-primary" onclick="editUser(${user.id})">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    ${user.id !== currentUserId ? `
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${user.id})">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                    ` : ''}
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function editUser(id) {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+
+    const form = document.getElementById('editUserForm');
+    form.elements['id'].value = user.id;
+    form.elements['mobile'].value = user.mobile;
+    form.elements['name'].value = user.name || '';
+    form.elements['telegram_id'].value = user.telegram_id || '';
+    form.elements['email'].value = user.email || '';
+    form.elements['is_admin'].checked = user.is_admin;
+
+    new bootstrap.Modal(document.getElementById('editUserModal')).show();
+}
+
+function deleteUser(id) {
+    if (id === currentUserId) {
+        alert(translations.cannotDeleteSelf);
+        return;
+    }
+
+    if (!confirm(translations.confirmDelete)) return;
+
+    fetch(`/admin/api/users/${id}`, {
+        method: 'DELETE'
+    })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                loadUsers();
+            } else {
+                alert(data.error);
+            }
+        });
+}
+
+// Add form submission
+document.getElementById('addUserForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = {
+        mobile: formData.get('mobile'),
+        name: formData.get('name'),
+        telegram_id: formData.get('telegram_id'),
+        email: formData.get('email'),
+        is_admin: formData.get('is_admin') === 'on'
+    };
+
+    fetch('/admin/api/users', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                this.reset();
+                loadUsers();
+            } else {
+                alert(result.error);
+            }
+        });
+});
+
+// Edit form submission
+document.getElementById('editUserForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const id = formData.get('id');
+    const data = {
+        mobile: formData.get('mobile'),
+        name: formData.get('name'),
+        telegram_id: formData.get('telegram_id'),
+        email: formData.get('email'),
+        is_admin: formData.get('is_admin') === 'on'
+    };
+
+    fetch(`/admin/api/users/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                loadUsers();
+            } else {
+                alert(result.error);
+            }
+        });
+});
+
+// Initial load
+document.addEventListener('DOMContentLoaded', loadUsers);
+</script>
+{% endblock %}
