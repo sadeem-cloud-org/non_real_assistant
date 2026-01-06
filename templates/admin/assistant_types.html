@@ -174,7 +174,28 @@ function editType(id) {
     form.elements['name'].value = type.name;
     form.elements['related_action'].value = type.related_action;
 
-    new bootstrap.Modal(document.getElementById('editTypeModal')).show();
+    // Show modal
+    const modalEl = document.getElementById('editTypeModal');
+    modalEl.classList.add('show');
+    modalEl.style.display = 'block';
+    document.body.classList.add('modal-open');
+
+    let backdrop = document.querySelector('.modal-backdrop');
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+    }
+}
+
+function hideModal(modalId) {
+    const modalEl = document.getElementById(modalId);
+    modalEl.classList.remove('show');
+    modalEl.style.display = 'none';
+    document.body.classList.remove('modal-open');
+
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) backdrop.remove();
 }
 
 function deleteType(id) {
@@ -208,7 +229,7 @@ document.getElementById('addTypeForm').addEventListener('submit', function(e) {
         .then(r => r.json())
         .then(result => {
             if (result.success) {
-                bootstrap.Modal.getInstance(document.getElementById('addTypeModal')).hide();
+                hideModal('addTypeModal');
                 this.reset();
                 loadTypes();
             } else {
@@ -234,7 +255,7 @@ document.getElementById('editTypeForm').addEventListener('submit', function(e) {
         .then(r => r.json())
         .then(result => {
             if (result.success) {
-                bootstrap.Modal.getInstance(document.getElementById('editTypeModal')).hide();
+                hideModal('editTypeModal');
                 loadTypes();
             } else {
                 alert(result.error);

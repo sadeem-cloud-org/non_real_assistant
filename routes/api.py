@@ -235,6 +235,9 @@ def get_tasks():
 
     # Filter by status if provided
     if status:
+        # 'late' is an alias for 'overdue'
+        if status == 'late':
+            status = 'overdue'
         tasks = [t for t in tasks if t.get_status() == status]
 
     return jsonify([t.to_dict() for t in tasks])
