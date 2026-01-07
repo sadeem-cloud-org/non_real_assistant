@@ -36,7 +36,7 @@ def get_locale():
         from models import User
         user = User.query.get(session['user_id'])
         if user and user.language:
-            return user.language
+            return user.language.iso_code  # Return iso_code, not the Language object
 
     # Fall back to browser preference, default to English
     return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'en'
@@ -59,6 +59,18 @@ db.init_app(app)
 
 # Register all blueprints
 register_blueprints(app)
+
+
+# Validate session before each request
+@app.before_request
+def validate_session():
+    """Clear session if user no longer exists in database"""
+    if 'user_id' in session:
+        from models import User
+        user = User.query.get(session['user_id'])
+        if not user:
+            # User doesn't exist anymore, clear session
+            session.clear()
 
 
 # Context processor to make user data available in all templates
