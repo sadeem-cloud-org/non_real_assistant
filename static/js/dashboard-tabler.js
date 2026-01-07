@@ -3,6 +3,8 @@
 // Initialize Flatpickr for datetime inputs
 let dueDatePicker, reminderPicker;
 let editingTaskId = null;
+// Translation object - will be populated from HTML template
+const t = window.translations || {};
 
 // Load dashboard data on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -112,7 +114,7 @@ async function loadRecentExecutions() {
         if (executions.length === 0) {
             container.innerHTML = `
                 <div class="empty">
-                    <p class="empty-title">لا توجد عمليات حديثة</p>
+                    <p class="empty-title">${t.no_recent_operations || 'لا توجد عمليات حديثة'}</p>
                 </div>
             `;
             return;
@@ -168,7 +170,7 @@ async function loadPendingTasks() {
                     <div class="empty-icon">
                         <i class="ti ti-mood-smile icon"></i>
                     </div>
-                    <p class="empty-title">رائع! لا توجد مهام معلقة</p>
+                    <p class="empty-title">${t.no_pending_tasks || 'رائع! لا توجد مهام معلقة'}</p>
                 </div>
             `;
             return;

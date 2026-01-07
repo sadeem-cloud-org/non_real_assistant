@@ -2,9 +2,11 @@
 
 let editingTaskId = null;
 let allTasks = [];
+// Translation object - will be populated from HTML template
+const t = window.translations || {};
 
 // Load on page ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeDateTimePickers();
     initializeTheme();
     loadTasks();
@@ -127,7 +129,7 @@ async function loadTasks() {
                     <div class="empty-icon">
                         <i class="ti ti-alert-circle icon text-red"></i>
                     </div>
-                    <p class="empty-title">حدث خطأ في تحميل المهام</p>
+                    <p class="empty-title">${t.no_recent_operations || 'حدث خطأ في تحميل المهام'}</p>
                 </div>
             </div>
         `;
@@ -177,8 +179,8 @@ function displayTasks(tasks) {
                     <div class="empty-icon">
                         <i class="ti ti-mood-smile icon"></i>
                     </div>
-                    <p class="empty-title">لا توجد مهام</p>
-                    <p class="empty-subtitle text-muted">ابدأ بإضافة مهمة جديدة</p>
+                    <p class="empty-title">${t.no_recent_operations || 'لا توجد مهام'}</p>
+                    <p class="empty-subtitle text-muted">${t.no_recent_operations || 'ابدأ بإضافة مهمة جديدة'}</p>
                 </div>
             </div>
         `;
@@ -191,8 +193,8 @@ function displayTasks(tasks) {
 // Create task card HTML
 function createTaskCard(task) {
     const statusClass = task.status === 'pending' ? 'cyan' :
-                        task.status === 'overdue' ? 'orange' :
-                        task.status === 'completed' ? 'green' : 'red';
+        task.status === 'overdue' ? 'orange' :
+            task.status === 'completed' ? 'green' : 'red';
     const statusText = getStatusText(task.status);
 
     return `
