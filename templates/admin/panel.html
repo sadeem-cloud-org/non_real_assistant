@@ -79,11 +79,11 @@
 </div>
 
 <!-- Quick Links List -->
-<div class="row mb-4">
+<div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">{{ t('روابط سريعة') }}</h3>
+                <h3 class="card-title">{{ t('إدارة النظام') }}</h3>
             </div>
             <div class="list-group list-group-flush">
                 <a href="/admin/users" class="list-group-item list-group-item-action d-flex align-items-center">
@@ -99,6 +99,14 @@
                     <div>
                         <div class="font-weight-medium">{{ t('أنواع المساعدين') }}</div>
                         <div class="text-muted small">{{ t('إدارة أنواع المساعدين المتاحة') }}</div>
+                    </div>
+                    <i class="ti ti-chevron-left ms-auto"></i>
+                </a>
+                <a href="/admin/notify-templates" class="list-group-item list-group-item-action d-flex align-items-center">
+                    <span class="badge bg-teal me-3"><i class="ti ti-template"></i></span>
+                    <div>
+                        <div class="font-weight-medium">{{ t('قوالب الإشعارات') }}</div>
+                        <div class="text-muted small">{{ t('إدارة قوالب رسائل الإشعارات') }}</div>
                     </div>
                     <i class="ti ti-chevron-left ms-auto"></i>
                 </a>
@@ -122,99 +130,11 @@
         </div>
     </div>
 </div>
-
-<!-- Notification Templates -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="ti ti-template me-2"></i>
-                    {{ t('قوالب الإشعارات') }}
-                </h3>
-                <div class="card-actions">
-                    <button class="btn btn-primary btn-sm" onclick="showAddTemplateModal()">
-                        <i class="ti ti-plus icon"></i>
-                        {{ t('إضافة قالب') }}
-                    </button>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-vcenter card-table">
-                    <thead>
-                        <tr>
-                            <th>{{ t('اسم القالب') }}</th>
-                            <th>{{ t('محتوى القالب') }}</th>
-                            <th class="w-1"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="templates-tbody">
-                        <tr>
-                            <td colspan="3" class="text-center py-4">
-                                <div class="spinner-border spinner-border-sm text-muted"></div>
-                                {{ t('جاري التحميل...') }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="card-footer">
-                <div class="text-muted small">
-                    <i class="ti ti-info-circle me-1"></i>
-                    {{ t('المتغيرات المتاحة') }}: <code>{user_name}</code>, <code>{assistant_name}</code>, <code>{task_name}</code>, <code>{script_name}</code>, <code>{output}</code>, <code>{state}</code>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block modals %}
-<!-- Template Modal -->
-<div class="modal fade" id="modal-template" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="template-modal-title">{{ t('إضافة قالب جديد') }}</h5>
-                <button type="button" class="btn-close" onclick="hideModal('modal-template')"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="template-id">
-                <div class="mb-3">
-                    <label class="form-label required">{{ t('اسم القالب') }}</label>
-                    <input type="text" class="form-control" id="template-name" placeholder="{{ t('مثال: تذكير المهام') }}">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label required">{{ t('محتوى القالب') }}</label>
-                    <textarea class="form-control" id="template-text" rows="6" placeholder="{{ t('أهلاً {user_name}، هذا تذكير من المساعد {assistant_name}...') }}"></textarea>
-                    <small class="form-hint">
-                        {{ t('يمكنك استخدام المتغيرات التالية') }}:
-                        <code>{user_name}</code> {{ t('اسم المستخدم') }}،
-                        <code>{assistant_name}</code> {{ t('اسم المساعد') }}،
-                        <code>{task_name}</code> {{ t('اسم المهمة') }}،
-                        <code>{script_name}</code> {{ t('اسم السكريبت') }}،
-                        <code>{output}</code> {{ t('ناتج التنفيذ') }}،
-                        <code>{state}</code> {{ t('حالة التنفيذ') }}
-                    </small>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn" onclick="hideModal('modal-template')">{{ t('إلغاء') }}</button>
-                <button type="button" class="btn btn-primary" onclick="saveTemplate()">{{ t('حفظ') }}</button>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block page_js %}
 <script>
-let allTemplates = [];
-
-document.addEventListener('DOMContentLoaded', function() {
-    loadStats();
-    loadTemplates();
-});
+document.addEventListener('DOMContentLoaded', loadStats);
 
 function loadStats() {
     Promise.all([
@@ -228,211 +148,5 @@ function loadStats() {
         document.getElementById('stat-languages').textContent = languages.length;
     });
 }
-
-async function loadTemplates() {
-    const tbody = document.getElementById('templates-tbody');
-
-    try {
-        const response = await fetch('/api/notify-templates');
-        allTemplates = await response.json();
-
-        if (allTemplates.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="3" class="text-center py-4 text-muted">
-                        <i class="ti ti-template icon mb-2" style="font-size: 2rem;"></i>
-                        <div>{{ t('لا توجد قوالب بعد') }}</div>
-                        <button class="btn btn-primary btn-sm mt-2" onclick="showAddTemplateModal()">
-                            <i class="ti ti-plus icon"></i>
-                            {{ t('إضافة قالب جديد') }}
-                        </button>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        tbody.innerHTML = allTemplates.map(template => `
-            <tr>
-                <td>
-                    <div class="font-weight-medium">${escapeHtml(template.name)}</div>
-                </td>
-                <td>
-                    <div class="text-muted text-truncate" style="max-width: 400px;">
-                        ${escapeHtml(template.text.substring(0, 100))}${template.text.length > 100 ? '...' : ''}
-                    </div>
-                </td>
-                <td>
-                    <div class="btn-list flex-nowrap">
-                        <button class="btn btn-sm btn-ghost-primary" onclick="editTemplate(${template.id})" title="{{ t('تعديل') }}">
-                            <i class="ti ti-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-ghost-danger" onclick="deleteTemplate(${template.id})" title="{{ t('حذف') }}">
-                            <i class="ti ti-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-
-    } catch (error) {
-        console.error('Error loading templates:', error);
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="3" class="text-center py-4 text-danger">
-                    {{ t('حدث خطأ في تحميل القوالب') }}
-                </td>
-            </tr>
-        `;
-    }
-}
-
-function showAddTemplateModal() {
-    document.getElementById('template-id').value = '';
-    document.getElementById('template-name').value = '';
-    document.getElementById('template-text').value = '';
-    document.getElementById('template-modal-title').textContent = '{{ t("إضافة قالب جديد") }}';
-    showModal('modal-template');
-}
-
-function editTemplate(templateId) {
-    const template = allTemplates.find(t => t.id === templateId);
-    if (!template) return;
-
-    document.getElementById('template-id').value = template.id;
-    document.getElementById('template-name').value = template.name;
-    document.getElementById('template-text').value = template.text;
-    document.getElementById('template-modal-title').textContent = '{{ t("تعديل القالب") }}';
-    showModal('modal-template');
-}
-
-async function saveTemplate() {
-    const templateId = document.getElementById('template-id').value;
-    const name = document.getElementById('template-name').value.trim();
-    const text = document.getElementById('template-text').value.trim();
-
-    if (!name || !text) {
-        showToast('{{ t("يرجى إدخال اسم ومحتوى القالب") }}', 'warning');
-        return;
-    }
-
-    try {
-        let response;
-        if (templateId) {
-            response = await fetch(`/api/notify-templates/${templateId}`, {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, text })
-            });
-        } else {
-            response = await fetch('/api/notify-templates', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, text })
-            });
-        }
-
-        if (response.ok) {
-            hideModal('modal-template');
-            showToast(templateId ? '{{ t("تم تحديث القالب بنجاح") }}' : '{{ t("تم إضافة القالب بنجاح") }}', 'success');
-            loadTemplates();
-        } else {
-            const error = await response.json();
-            showToast('{{ t("خطأ") }}: ' + (error.error || '{{ t("فشل الحفظ") }}'), 'danger');
-        }
-    } catch (error) {
-        console.error('Error saving template:', error);
-        showToast('{{ t("حدث خطأ في الاتصال") }}', 'danger');
-    }
-}
-
-async function deleteTemplate(templateId) {
-    if (!confirm('{{ t("هل أنت متأكد من حذف هذا القالب؟") }}')) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/notify-templates/${templateId}`, {
-            method: 'DELETE'
-        });
-
-        if (response.ok) {
-            showToast('{{ t("تم حذف القالب بنجاح") }}', 'success');
-            loadTemplates();
-        } else {
-            showToast('{{ t("حدث خطأ في حذف القالب") }}', 'danger');
-        }
-    } catch (error) {
-        console.error('Error deleting template:', error);
-        showToast('{{ t("حدث خطأ في الاتصال") }}', 'danger');
-    }
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
-
-function showModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.classList.add('show');
-    modal.style.display = 'block';
-    document.body.classList.add('modal-open');
-
-    let backdrop = document.querySelector('.modal-backdrop');
-    if (!backdrop) {
-        backdrop = document.createElement('div');
-        backdrop.className = 'modal-backdrop fade show';
-        document.body.appendChild(backdrop);
-    }
-}
-
-function hideModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.classList.remove('show');
-    modal.style.display = 'none';
-    document.body.classList.remove('modal-open');
-
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) backdrop.remove();
-}
-
-function showToast(message, type = 'success') {
-    const bgColors = {
-        'success': 'bg-green',
-        'danger': 'bg-red',
-        'warning': 'bg-yellow',
-        'info': 'bg-blue'
-    };
-
-    let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        container.className = 'toast-container position-fixed bottom-0 start-0 p-3';
-        container.style.zIndex = '9999';
-        document.body.appendChild(container);
-    }
-
-    const toast = document.createElement('div');
-    toast.className = `toast show align-items-center text-white ${bgColors[type] || 'bg-green'} border-0`;
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">${message}</div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
-        </div>
-    `;
-    container.appendChild(toast);
-
-    setTimeout(() => toast.remove(), 3000);
-}
-
-// Close modal on backdrop click
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal')) {
-        hideModal(e.target.id);
-    }
-});
 </script>
 {% endblock %}

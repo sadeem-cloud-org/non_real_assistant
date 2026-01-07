@@ -359,7 +359,7 @@ async function deleteTask(taskId) {
 // Edit task
 async function editTask(taskId) {
     try {
-        const task = allTasks.find(t => t.id === taskId);
+        const task = allTasks.find(item => item.id === taskId);
 
         if (!task) {
             showToast('المهمة غير موجودة', 'danger');

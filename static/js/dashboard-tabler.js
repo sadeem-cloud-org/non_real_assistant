@@ -159,7 +159,7 @@ async function loadPendingTasks() {
         }
 
         // Filter for active tasks (new + in_progress)
-        const tasks = allTasks.filter(t => t.status === 'new' || t.status === 'in_progress');
+        const tasks = allTasks.filter(task => task.status === 'new' || task.status === 'in_progress');
         const limitedTasks = tasks.slice(0, 5);
 
         if (limitedTasks.length === 0) {
@@ -263,7 +263,7 @@ async function editTask(taskId) {
         }
 
         const allTasks = await response.json();
-        const task = allTasks.find(t => t.id === taskId);
+        const task = allTasks.find(item => item.id === taskId);
 
         if (!task) {
             showToast('المهمة غير موجودة', 'danger');

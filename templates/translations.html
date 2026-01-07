@@ -294,16 +294,16 @@ async function loadTranslations(languageId) {
                         </tr>
                     </thead>
                     <tbody>
-                        ${translations.map(t => `
+                        ${translations.map(trans => `
                             <tr>
-                                <td dir="auto" class="text-truncate" style="max-width: 300px;" title="${escapeHtml(t.key)}">
-                                    ${escapeHtml(t.key.substring(0, 50))}${t.key.length > 50 ? '...' : ''}
+                                <td dir="auto" class="text-truncate" style="max-width: 300px;" title="${escapeHtml(trans.key)}">
+                                    ${escapeHtml(trans.key.substring(0, 50))}${trans.key.length > 50 ? '...' : ''}
                                 </td>
-                                <td dir="auto" class="${t.value ? '' : 'text-muted'}">
-                                    ${t.value ? escapeHtml(t.value.substring(0, 50)) + (t.value.length > 50 ? '...' : '') : '<em>غير مترجم</em>'}
+                                <td dir="auto" class="${trans.value ? '' : 'text-muted'}">
+                                    ${trans.value ? escapeHtml(trans.value.substring(0, 50)) + (trans.value.length > 50 ? '...' : '') : '<em>غير مترجم</em>'}
                                 </td>
                                 <td>
-                                    <button class="btn btn-ghost-primary btn-sm" onclick="editTranslation(${t.id})">
+                                    <button class="btn btn-ghost-primary btn-sm" onclick="editTranslation(${trans.id})">
                                         <i class="ti ti-edit"></i>
                                     </button>
                                 </td>
@@ -324,7 +324,7 @@ async function loadTranslations(languageId) {
 }
 
 function editTranslation(translationId) {
-    const trans = translations.find(t => t.id === translationId);
+    const trans = translations.find(item => item.id === translationId);
     if (!trans) return;
 
     document.getElementById('edit-original').textContent = trans.key;
