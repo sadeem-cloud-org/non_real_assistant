@@ -14,11 +14,11 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 # Configure Babel
-app.config['BABEL_DEFAULT_LOCALE'] = 'ar'
+app.config['BABEL_DEFAULT_LOCALE'] = 'en'  # Default to English
 app.config['BABEL_DEFAULT_TIMEZONE'] = 'Africa/Cairo'
 app.config['LANGUAGES'] = {
-    'ar': 'العربية',
-    'en': 'English'
+    'en': 'English',
+    'ar': 'العربية'
 }
 
 # Initialize Babel
@@ -38,8 +38,8 @@ def get_locale():
         if user and user.language:
             return user.language
 
-    # Fall back to browser preference
-    return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'ar'
+    # Fall back to browser preference, default to English
+    return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or 'en'
 
 
 def get_timezone():
@@ -105,9 +105,25 @@ def inject_translate():
     return {'t': translate, 'translate': translate}
 
 
-# Create tables
+# Create tables and initialize default data
 with app.app_context():
     db.create_all()
+
+    # Create default languages if they don't exist
+    from models import Language
+    default_languages = [
+        {'iso_code': 'en', 'name': 'English'},
+        {'iso_code': 'ar', 'name': 'العربية'}
+    ]
+
+    for lang_data in default_languages:
+        existing = Language.query.filter_by(iso_code=lang_data['iso_code']).first()
+        if not existing:
+            new_lang = Language(**lang_data)
+            db.session.add(new_lang)
+            print(f"✅ Created default language: {lang_data['name']}")
+
+    db.session.commit()
 
 
 @app.route('/favicon.ico')

@@ -12,3 +12,12 @@ def executions():
         return redirect(url_for('auth.login'))
 
     return render_template('executions.html', active_page='executions')
+
+
+@executions_bp.route('/notifications')
+def notifications():
+    """Notifications log page"""
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+
+    return render_template('notifications.html', active_page='notifications')

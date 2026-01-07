@@ -101,13 +101,13 @@ async function loadRecentExecutions() {
         container.innerHTML = executions.map(exec => `
             <div class="execution-item">
                 <div class="execution-header">
-                    <span class="execution-title">Action #${exec.action_id}</span>
-                    <span class="execution-status status-${exec.status}">
-                        ${getStatusText(exec.status)}
+                    <span class="execution-title">${exec.script_name || 'سكريبت محذوف'}</span>
+                    <span class="execution-status status-${exec.state}">
+                        ${getStatusText(exec.state)}
                     </span>
                 </div>
                 <div class="execution-time">
-                    ${formatDateTime(exec.created_at)}
+                    ${formatDateTime(exec.create_time)}
                     ${exec.execution_time ? ` - ${exec.execution_time.toFixed(2)}s` : ''}
                 </div>
             </div>

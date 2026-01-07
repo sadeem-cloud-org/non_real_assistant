@@ -419,6 +419,7 @@ class Script(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
+    language = db.Column(db.String(20), default='python')  # python, javascript, bash
     code = db.Column(db.Text, nullable=False)
     create_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
@@ -436,6 +437,7 @@ class Script(db.Model):
         return {
             'id': self.id,
             'name': self.name,
+            'language': self.language or 'python',
             'code': self.code,
             'create_user_id': self.create_user_id,
             'create_time': self.create_time.isoformat() if self.create_time else None,
@@ -497,3 +499,43 @@ class ScriptExecuteLog(db.Model):
             result['input'] = self.input
             result['output'] = self.output
         return result
+
+
+# ===== Notification Log =====
+
+class NotificationLog(db.Model):
+    """Log of sent notifications"""
+    __tablename__ = 'notification_logs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'))
+    assistant_id = db.Column(db.Integer, db.ForeignKey('assistants.id'))
+    channel = db.Column(db.String(20), default='telegram')  # telegram, email, browser
+    message = db.Column(db.Text)
+    status = db.Column(db.String(20), default='sent')  # sent, failed, pending
+    error_message = db.Column(db.Text)
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    user = db.relationship('User', backref=db.backref('notifications', lazy=True))
+    task = db.relationship('Task', backref=db.backref('notifications', lazy=True))
+    assistant = db.relationship('Assistant', backref=db.backref('notifications', lazy=True))
+
+    def __repr__(self):
+        return f'<NotificationLog {self.id} - {self.status}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'task_id': self.task_id,
+            'task_name': self.task.name if self.task else None,
+            'assistant_id': self.assistant_id,
+            'assistant_name': self.assistant.name if self.assistant else None,
+            'channel': self.channel,
+            'message': self.message,
+            'status': self.status,
+            'error_message': self.error_message,
+            'create_time': self.create_time.isoformat() if self.create_time else None
+        }

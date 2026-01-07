@@ -6,7 +6,7 @@ import threading
 import time
 import pytz
 from datetime import datetime, timedelta
-from models import db, Task, User, Assistant, Script, ScriptExecuteLog, NotifyTemplate
+from models import db, Task, User, Assistant, Script, ScriptExecuteLog, NotifyTemplate, NotificationLog
 from services.telegram_bot import TelegramOTPSender
 from services.script_executor import ScriptExecutor
 
@@ -134,6 +134,18 @@ class TaskScheduler:
                 message.strip()
             )
 
+            # Log the notification
+            notification_log = NotificationLog(
+                user_id=user.id,
+                task_id=task.id,
+                assistant_id=task.assistant_id,
+                channel='telegram',
+                message=message.strip(),
+                status='sent' if result['success'] else 'failed',
+                error_message=result.get('error') if not result['success'] else None
+            )
+            db.session.add(notification_log)
+
             if result['success']:
                 # Mark notification as sent
                 task.notify_sent = True
@@ -141,6 +153,7 @@ class TaskScheduler:
 
                 print(f"✅ Sent reminder for task #{task.id} to user #{user.id}")
             else:
+                db.session.commit()
                 print(f"❌ Failed to send reminder for task #{task.id}: {result.get('error')}")
 
     def _check_scheduled_assistants(self):
@@ -261,7 +274,19 @@ class TaskScheduler:
 ناتج التشغيل:
 <code>{output}</code>"""
 
-        self.telegram_sender.send_message(user.telegram_id, message.strip())
+        result = self.telegram_sender.send_message(user.telegram_id, message.strip())
+
+        # Log the notification
+        notification_log = NotificationLog(
+            user_id=user.id,
+            assistant_id=assistant.id,
+            channel='telegram',
+            message=message.strip(),
+            status='sent' if result['success'] else 'failed',
+            error_message=result.get('error') if not result['success'] else None
+        )
+        db.session.add(notification_log)
+        db.session.commit()
 
     def send_daily_summary(self, user_id):
         """Send daily task summary to user"""
