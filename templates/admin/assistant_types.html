@@ -166,7 +166,7 @@ function renderTypes() {
 }
 
 function editType(id) {
-    const type = types.find(t => t.id === id);
+    const type = types.find(item => item.id === id);
     if (!type) return;
 
     const form = document.getElementById('editTypeForm');

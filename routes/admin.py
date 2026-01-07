@@ -266,6 +266,15 @@ def delete_user(user_id):
     return jsonify({'success': True})
 
 
+# ===== Notification Templates =====
+
+@admin_bp.route('/notify-templates')
+@require_admin
+def notify_templates_page():
+    """Notification templates management page"""
+    return render_template('admin/notify_templates.html', active_page='admin')
+
+
 # ===== Email Settings =====
 
 @admin_bp.route('/email-settings')

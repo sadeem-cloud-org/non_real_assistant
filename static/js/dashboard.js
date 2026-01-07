@@ -226,7 +226,7 @@ async function editTask(taskId) {
     try {
         const response = await fetch(`/api/tasks?status=pending`);
         const tasks = await response.json();
-        const task = tasks.find(t => t.id === taskId);
+        const task = tasks.find(item => item.id === taskId);
 
         if (!task) {
             alert(t.task_not_found || 'المهمة غير موجودة');
