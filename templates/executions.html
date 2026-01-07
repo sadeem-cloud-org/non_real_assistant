@@ -1,19 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}سجل التنفيذ - Non Real Assistant{% endblock %}
+{% block title %}{{ t('سجل التنفيذ') }} - Non Real Assistant{% endblock %}
 
-{% block page_title %}سجل تنفيذ السكريبتات{% endblock %}
-{% block page_subtitle %}عرض نتائج تشغيل جميع السكريبتات{% endblock %}
+{% block page_title %}{{ t('سجل تنفيذ السكريبتات') }}{% endblock %}
+{% block page_subtitle %}{{ t('عرض نتائج تشغيل جميع السكريبتات') }}{% endblock %}
 
 {% block page_css %}
 <style>
     .execution-card {
         transition: transform 0.2s, box-shadow 0.2s;
     }
+
     .execution-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
+
     .output-box {
         background: #1e1e1e;
         color: #d4d4d4;
@@ -28,6 +30,7 @@
         white-space: pre-wrap;
         word-wrap: break-word;
     }
+
     .error-box {
         background: #2d1f1f;
         color: #f48771;
@@ -37,11 +40,11 @@
 
 {% block page_actions %}
 <select class="form-select" id="status-filter" onchange="filterExecutions()">
-    <option value="all">جميع الحالات</option>
-    <option value="success">نجح</option>
-    <option value="failed">فشل</option>
-    <option value="timeout">انتهى الوقت</option>
-    <option value="running">قيد التشغيل</option>
+    <option value="all">{{ t('جميع الحالات') }}</option>
+    <option value="success">{{ t('نجح') }}</option>
+    <option value="failed">{{ t('فشل') }}</option>
+    <option value="timeout">{{ t('انتهى الوقت') }}</option>
+    <option value="running">{{ t('قيد التشغيل') }}</option>
 </select>
 {% endblock %}
 
@@ -59,7 +62,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-total">0</div>
-                        <div class="text-muted">إجمالي التنفيذات</div>
+                        <div class="text-muted">{{ t('إجمالي التنفيذات') }}</div>
                     </div>
                 </div>
             </div>
@@ -77,7 +80,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-success">0</div>
-                        <div class="text-muted">نجح</div>
+                        <div class="text-muted">{{ t('نجح') }}</div>
                     </div>
                 </div>
             </div>
@@ -95,7 +98,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-failed">0</div>
-                        <div class="text-muted">فشل</div>
+                        <div class="text-muted">{{ t('فشل') }}</div>
                     </div>
                 </div>
             </div>
@@ -113,7 +116,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-timeout">0</div>
-                        <div class="text-muted">انتهى الوقت</div>
+                        <div class="text-muted">{{ t('انتهى الوقت') }}</div>
                     </div>
                 </div>
             </div>
@@ -125,7 +128,7 @@
 <div class="row row-cards" id="executions-container">
     <div class="col-12 text-center py-5">
         <div class="spinner-border text-muted" role="status"></div>
-        <div class="mt-2">جاري التحميل...</div>
+        <div class="mt-2">{{ t('جاري التحميل...') }}</div>
     </div>
 </div>
 {% endblock %}
@@ -136,14 +139,14 @@
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal-title">تفاصيل التنفيذ</h5>
+                <h5 class="modal-title" id="modal-title">{{ t('تفاصيل التنفيذ') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="modal-body">
                 <!-- Content loaded dynamically -->
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" class="btn" data-bs-dismiss="modal">{{ t('إغلاق') }}</button>
             </div>
         </div>
     </div>
@@ -151,5 +154,44 @@
 {% endblock %}
 
 {% block page_js %}
+<script>
+    window.translations = {
+        'notifications_enabled': "{{ t('تم تفعيل الإشعارات بنجاح ✓') }}",
+        'error_enabling_notifications': "{{ t('حدث خطأ في تفعيل الإشعارات') }}",
+        'notifications_enabled_title': "{{ t('الإشعارات مفعّلة') }}",
+        'notifications_disabled': "{{ t('الإشعارات مغلقة') }}",
+        'click_to_enable_notifications': "{{ t('اضغط لتفعيل الإشعارات') }}",
+        'error_loading_log': "{{ t('حدث خطأ في تحميل السجل') }}",
+        'no_execution_log': "{{ t('لا يوجد سجل تنفيذ') }}",
+        'run_script_to_view': "{{ t('قم بتشغيل سكريبت لعرض النتائج هنا') }}",
+        'go_to_scripts': "{{ t('الذهاب للسكريبتات') }}",
+        'success_status': "{{ t('نجح') }}",
+        'failed_status': "{{ t('فشل') }}",
+        'timeout_status': "{{ t('انتهى الوقت') }}",
+        'running_status': "{{ t('قيد التشغيل') }}",
+        'unknown_script': "{{ t('Unknown Script') }}",
+        'view_details': "{{ t('عرض التفاصيل') }}",
+        'started': "{{ t('بدأ') }}",
+        'error_creating_card': "{{ t('Error creating card for execution') }}",
+        'execution_id': "{{ t('معرف التنفيذ:') }}",
+        'execution_time': "{{ t('وقت التنفيذ:') }}",
+        'status': "{{ t('الحالة') }}",
+        'start_time': "{{ t('بداية التنفيذ:') }}",
+        'end_time': "{{ t('نهاية التنفيذ:') }}",
+        'not_finished_yet': "{{ t('لم ينته بعد') }}",
+        'output_stdout': "{{ t('Output (stdout):') }}",
+        'error_stderr': "{{ t('Error (stderr):') }}",
+        'no_output_or_errors': "{{ t('لا يوجد مخرجات أو أخطاء') }}",
+        'now': "{{ t('الآن') }}",
+        'since': "{{ t('منذ') }}",
+        'second': "{{ t('ثانية') }}",
+        'minute': "{{ t('دقيقة') }}",
+        'minutes_two': "{{ t('دقيقتين') }}",
+        'hour': "{{ t('ساعة') }}",
+        'hours_two': "{{ t('ساعتين') }}",
+        'day': "{{ t('يوم') }}",
+        'days_two': "{{ t('يومين') }}"
+    };
+</script>
 <script src="{{ url_for('static', filename='js/executions.js') }}"></script>
 {% endblock %}

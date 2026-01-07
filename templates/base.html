@@ -50,15 +50,18 @@
         .flatpickr-time {
             direction: ltr;
         }
+
         /* LTR overrides for English */
         [dir="ltr"] .navbar-brand {
             margin-left: 0;
             margin-right: auto;
         }
+
         [dir="ltr"] .nav-link {
             padding-left: 0;
             padding-right: 1rem;
         }
+
         [dir="ltr"] .dropdown-item i {
             margin-left: 0.5rem;
             margin-right: 0;
@@ -77,7 +80,9 @@
             </button>
             <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
                 <a href="/dashboard" class="d-flex align-items-center text-decoration-none">
-                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="height: 36px; width: auto; max-width: 36px; object-fit: contain;" class="me-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo"
+                         style="height: 36px; width: auto; max-width: 36px; object-fit: contain;" class="me-2"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
                     <i class="ti ti-robot fs-1" style="display: none;"></i>
                     <span class="ms-2">Non Real Assistant</span>
                 </a>
@@ -230,7 +235,7 @@
                     <div class="col-12 col-lg-auto mt-3 mt-lg-0">
                         <ul class="list-inline list-inline-dots mb-0">
                             <li class="list-inline-item">
-                                بواسطة Non Real Assistant
+                                {{ t('بواسطة') }} Non Real Assistant
                             </li>
                         </ul>
                     </div>
@@ -241,6 +246,33 @@
 </div>
 
 {% block modals %}{% endblock %}
+<script>
+    // Translations for notifications.js
+    window.translations = window.translations || {};
+    Object.assign(window.translations, {
+        'notifications_not_supported': "{{ t('Notifications not supported') }}",
+        'notification_permission_granted': "{{ t('Notification permission granted') }}",
+        'notification_permission_denied': "{{ t('Notification permission denied') }}",
+        'notification_permission_dismissed': "{{ t('Notification permission dismissed') }}",
+        'service_worker_not_supported': "{{ t('Service Worker not supported') }}",
+        'service_worker_registered': "{{ t('Service Worker registered') }}",
+        'service_worker_not_available': "{{ t('Service Worker not available (this is OK)') }}",
+        'cannot_show_notification': "{{ t('Cannot show notification - permission not granted') }}",
+        'notification_shown_via_sw': "{{ t('Notification shown via Service Worker') }}",
+        'sw_notification_failed': "{{ t('Service Worker notification failed') }}",
+        'notification_shown': "{{ t('Notification shown') }}",
+        'notification_failed': "{{ t('Notification failed') }}",
+        'task_reminder': "{{ t('⏰ تذكير بمهمة') }}",
+        'closed': "{{ t('Closed') }}",
+        'notifications_with_tag': "{{ t('notifications with tag:') }}",
+        'failed_to_close_notifications': "{{ t('Failed to close notifications') }}",
+        'notifications_enabled': "{{ t('الإشعارات مفعلة') }}",
+        'notifications_disabled': "{{ t('الإشعارات معطلة') }}",
+        'enable_notifications': "{{ t('تفعيل الإشعارات') }}",
+        'error_requesting_permission': "{{ t('Error requesting notification permission') }}",
+        'notification_permission': "{{ t('Notification permission') }}"
+    });
+</script>
 <!-- Theme Management -->
 <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 <!-- Tabler Core -->

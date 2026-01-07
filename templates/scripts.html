@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}السكريبتات - Non Real Assistant{% endblock %}
+{% block title %}{{ t('السكريبتات') }} - Non Real Assistant{% endblock %}
 
-{% block page_title %}السكريبتات{% endblock %}
-{% block page_subtitle %}إدارة السكريبتات البرمجية للمساعدين{% endblock %}
+{% block page_title %}{{ t('السكريبتات') }}{% endblock %}
+{% block page_subtitle %}{{ t('إدارة السكريبتات البرمجية للمساعدين') }}{% endblock %}
 
 {% block extra_css %}
 <!-- CodeMirror for code editor -->
@@ -14,7 +14,7 @@
 {% block page_actions %}
 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-script">
     <i class="ti ti-plus icon"></i>
-    إضافة سكريبت
+    {{ t('إضافة سكريبت') }}
 </button>
 {% endblock %}
 
@@ -32,7 +32,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-total">0</div>
-                        <div class="text-muted">إجمالي السكريبتات</div>
+                        <div class="text-muted">{{ t('إجمالي السكريبتات') }}</div>
                     </div>
                 </div>
             </div>
@@ -50,7 +50,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-python">0</div>
-                        <div class="text-muted">مرتبط بمساعد</div>
+                        <div class="text-muted">{{ t('مرتبط بمساعد') }}</div>
                     </div>
                 </div>
             </div>
@@ -68,7 +68,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-javascript">0</div>
-                        <div class="text-muted">بدون مساعد</div>
+                        <div class="text-muted">{{ t('بدون مساعد') }}</div>
                     </div>
                 </div>
             </div>
@@ -80,7 +80,7 @@
 <div class="row row-cards" id="scripts-container">
     <div class="col-12 text-center py-5">
         <div class="spinner-border text-muted" role="status"></div>
-        <div class="mt-2">جاري التحميل...</div>
+        <div class="mt-2">{{ t('جاري التحميل...') }}</div>
     </div>
 </div>
 {% endblock %}
@@ -91,20 +91,21 @@
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal-title">إضافة سكريبت جديد</h5>
+                <h5 class="modal-title" id="modal-title">{{ t('إضافة سكريبت جديد') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row mb-3">
                     <div class="col-lg-4">
                         <div class="mb-3">
-                            <label class="form-label required">اسم السكريبت</label>
-                            <input type="text" class="form-control" id="script-name" placeholder="مثال: check_server_status">
+                            <label class="form-label required">{{ t('اسم السكريبت') }}</label>
+                            <input type="text" class="form-control" id="script-name"
+                                   placeholder="{{ t('مثال:') }} check_server_status">
                         </div>
                     </div>
                     <div class="col-lg-4">
                         <div class="mb-3">
-                            <label class="form-label required">لغة البرمجة</label>
+                            <label class="form-label required">{{ t('لغة البرمجة') }}</label>
                             <select class="form-select" id="script-language" onchange="updateCodeEditor()">
                                 <option value="python">Python</option>
                                 <option value="javascript">JavaScript</option>
@@ -114,22 +115,23 @@
                     </div>
                     <div class="col-lg-4">
                         <div class="mb-3">
-                            <label class="form-label">المساعد</label>
+                            <label class="form-label">{{ t('المساعد') }}</label>
                             <select class="form-select" id="script-assistant">
-                                <option value="">بدون مساعد</option>
+                                <option value="">{{ t('بدون مساعد') }}</option>
                                 <!-- Will be populated from API -->
                             </select>
-                            <small class="form-hint">اختر المساعد لربط السكريبت</small>
+                            <small class="form-hint">{{ t('اختر المساعد لربط السكريبت') }}</small>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                        <label class="form-label required mb-0">الكود</label>
-                        <button type="button" class="btn btn-sm btn-ghost-secondary" onclick="fixCodeMirrorDirection()" title="إصلاح اتجاه الكود">
+                        <label class="form-label required mb-0">{{ t('الكود') }}</label>
+                        <button type="button" class="btn btn-sm btn-ghost-secondary" onclick="fixCodeMirrorDirection()"
+                                title="{{ t('إصلاح اتجاه الكود') }}">
                             <i class="ti ti-refresh"></i>
-                            إصلاح التنسيق
+                            {{ t('إصلاح التنسيق') }}
                         </button>
                     </div>
                     <textarea id="script-code" style="display:none;"></textarea>
@@ -139,8 +141,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">إلغاء</button>
-                <button type="button" class="btn btn-primary" id="btn-save-script" onclick="saveScript()">حفظ</button>
+                <button type="button" class="btn me-auto" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-primary" id="btn-save-script" onclick="saveScript()">{{ t('حفظ')
+                    }}
+                </button>
             </div>
         </div>
     </div>
@@ -157,11 +161,11 @@
 <!-- Fix CodeMirror RTL Issue -->
 <script>
     // Override CodeMirror to always use LTR
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Wait for modal to open
         const modal = document.getElementById('modal-script');
         if (modal) {
-            modal.addEventListener('shown.bs.modal', function() {
+            modal.addEventListener('shown.bs.modal', function () {
                 fixCodeMirrorDirection();
             });
         }
@@ -199,5 +203,58 @@
 {% endblock %}
 
 {% block page_js %}
+<script>
+    window.translations = {
+        'notifications_enabled': "{{ t('تم تفعيل الإشعارات بنجاح ✓') }}",
+        'error_enabling_notifications': "{{ t('حدث خطأ في تفعيل الإشعارات') }}",
+        'notifications_enabled_title': "{{ t('الإشعارات مفعّلة') }}",
+        'notifications_disabled': "{{ t('الإشعارات مغلقة') }}",
+        'click_to_enable_notifications': "{{ t('اضغط لتفعيل الإشعارات') }}",
+        'write_code_here': "{{ t('# اكتب الكود هنا') }}",
+        'error_loading_scripts': "{{ t('حدث خطأ في تحميل السكريبتات') }}",
+        'no_scripts': "{{ t('لا يوجد سكريبتات') }}",
+        'start_creating_script': "{{ t('ابدأ بإنشاء سكريبت جديد') }}",
+        'add_script': "{{ t('إضافة سكريبت') }}",
+        'no_code': "{{ t('لا يوجد كود') }}",
+        'created': "{{ t('تم الإنشاء') }}",
+        'run': "{{ t('تشغيل') }}",
+        'edit': "{{ t('تعديل') }}",
+        'delete': "{{ t('حذف') }}",
+        'please_enter_script_name': "{{ t('يرجى إدخال اسم السكريبت') }}",
+        'please_write_code': "{{ t('يرجى كتابة الكود') }}",
+        'saving': "{{ t('جاري الحفظ...') }}",
+        'script_updated': "{{ t('تم تحديث السكريبت بنجاح ✓') }}",
+        'script_added': "{{ t('تم إضافة السكريبت بنجاح ✓') }}",
+        'error': "{{ t('حدث خطأ:') }}",
+        'failed_to_save_script': "{{ t('فشل في حفظ السكريبت') }}",
+        'connection_error': "{{ t('حدث خطأ في الاتصال') }}",
+        'script_not_found': "{{ t('السكريبت غير موجود') }}",
+        'edit_script': "{{ t('تعديل السكريبت') }}",
+        'save_changes': "{{ t('حفظ التعديلات') }}",
+        'error_loading_script': "{{ t('حدث خطأ في تحميل السكريبت') }}",
+        'confirm_run_script': "{{ t('هل تريد تشغيل السكريبت') }}",
+        'running_script': "{{ t('جاري تشغيل السكريبت...') }}",
+        'script_ran_successfully': "{{ t('تم تشغيل السكريبت بنجاح ✓') }}",
+        'script_execution_failed': "{{ t('فشل تشغيل السكريبت:') }}",
+        'unknown_error': "{{ t('خطأ غير معروف') }}",
+        'error_running_script': "{{ t('حدث خطأ في تشغيل السكريبت') }}",
+        'no_assistant': "{{ t('بدون مساعد') }}",
+        'confirm_delete_script': "{{ t('هل أنت متأكد من حذف السكريبت') }}",
+        'permanently_no_undo': "{{ t('نهائياً؟ لا يمكن التراجع!') }}",
+        'script_deleted': "{{ t('تم حذف السكريبت ✓') }}",
+        'error_deleting_script': "{{ t('حدث خطأ في حذف السكريبت') }}",
+        'add_new_script': "{{ t('إضافة سكريبت جديد') }}",
+        'save': "{{ t('حفظ') }}",
+        'now': "{{ t('الآن') }}",
+        'since': "{{ t('منذ') }}",
+        'second': "{{ t('ثانية') }}",
+        'minute': "{{ t('دقيقة') }}",
+        'minutes_two': "{{ t('دقيقتين') }}",
+        'hour': "{{ t('ساعة') }}",
+        'hours_two': "{{ t('ساعتين') }}",
+        'day': "{{ t('يوم') }}",
+        'days_two': "{{ t('يومين') }}"
+    };
+</script>
 <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 {% endblock %}

@@ -1,5 +1,8 @@
 // Dashboard JavaScript with Tabler UI
 
+// Translation object - will be populated from HTML template
+const t = window.translations || {};
+
 // Initialize Flatpickr for datetime inputs
 let dueDatePicker, reminderPicker;
 
@@ -92,7 +95,7 @@ async function loadRecentExecutions() {
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">📭</div>
-                    <p>لا توجد عمليات حديثة</p>
+                    <p>${t.no_recent_operations || 'لا توجد عمليات حديثة'}</p>
                 </div>
             `;
             return;
@@ -101,7 +104,7 @@ async function loadRecentExecutions() {
         container.innerHTML = executions.map(exec => `
             <div class="execution-item">
                 <div class="execution-header">
-                    <span class="execution-title">${exec.script_name || 'سكريبت محذوف'}</span>
+                    <span class="execution-title">${exec.script_name || t.deleted_script || 'سكريبت محذوف'}</span>
                     <span class="execution-status status-${exec.state}">
                         ${getStatusText(exec.state)}
                     </span>
@@ -118,7 +121,7 @@ async function loadRecentExecutions() {
         container.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">⚠️</div>
-                <p>حدث خطأ في تحميل البيانات</p>
+                <p>${t.error_loading_data || 'حدث خطأ في تحميل البيانات'}</p>
             </div>
         `;
     }
@@ -142,7 +145,7 @@ async function loadPendingTasks() {
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">🎉</div>
-                    <p>رائع! لا توجد مهام معلقة</p>
+                    <p>${t.no_pending_tasks || 'رائع! لا توجد مهام معلقة'}</p>
                 </div>
             `;
             return;
@@ -165,16 +168,16 @@ async function loadPendingTasks() {
                     </div>
                 ` : ''}
                 <div class="task-actions">
-                    <button class="task-btn btn-complete" onclick="completeTask(${task.id})" title="إكمال">
+                    <button class="task-btn btn-complete" onclick="completeTask(${task.id})" title="${t.complete || 'إكمال'}">
                         <i class="ti ti-check"></i>
                     </button>
-                    <button class="task-btn btn-edit" onclick="editTask(${task.id})" title="تعديل">
+                    <button class="task-btn btn-edit" onclick="editTask(${task.id})" title="${t.edit || 'تعديل'}">
                         <i class="ti ti-edit"></i>
                     </button>
-                    <button class="task-btn btn-hold" onclick="holdTask(${task.id})" title="تعليق">
+                    <button class="task-btn btn-hold" onclick="holdTask(${task.id})" title="${t.hold || 'تعليق'}">
                         <i class="ti ti-player-pause"></i>
                     </button>
-                    <button class="task-btn btn-delete" onclick="deleteTask(${task.id})" title="حذف">
+                    <button class="task-btn btn-delete" onclick="deleteTask(${task.id})" title="${t.delete || 'حذف'}">
                         <i class="ti ti-trash"></i>
                     </button>
                 </div>
@@ -186,7 +189,7 @@ async function loadPendingTasks() {
         container.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">⚠️</div>
-                <p>حدث خطأ في تحميل البيانات</p>
+                <p>${t.error_loading_data || 'حدث خطأ في تحميل البيانات'}</p>
             </div>
         `;
     }
@@ -194,7 +197,7 @@ async function loadPendingTasks() {
 
 // Complete task
 async function completeTask(taskId) {
-    if (!confirm('هل تريد تعليم هذه المهمة كمكتملة؟')) {
+    if (!confirm(t.confirm_complete_task || 'هل تريد تعليم هذه المهمة كمكتملة؟')) {
         return;
     }
 
@@ -208,11 +211,11 @@ async function completeTask(taskId) {
             loadDashboardStats();
             loadPendingTasks();
         } else {
-            alert('حدث خطأ في تحديث المهمة');
+            alert(t.error_updating_task || 'حدث خطأ في تحديث المهمة');
         }
     } catch (error) {
         console.error('Error completing task:', error);
-        alert('حدث خطأ في الاتصال');
+        alert(t.connection_error || 'حدث خطأ في الاتصال');
     }
 }
 
@@ -226,7 +229,7 @@ async function editTask(taskId) {
         const task = tasks.find(t => t.id === taskId);
 
         if (!task) {
-            alert('المهمة غير موجودة');
+            alert(t.task_not_found || 'المهمة غير موجودة');
             return;
         }
 
@@ -245,21 +248,21 @@ async function editTask(taskId) {
 
         // Change modal title and button
         editingTaskId = taskId;
-        document.querySelector('#addTaskModal .modal-header h2').textContent = 'تعديل المهمة';
-        document.querySelector('#addTaskModal .btn-primary').textContent = 'حفظ التعديلات';
+        document.querySelector('#addTaskModal .modal-header h2').textContent = t.edit_task || 'تعديل المهمة';
+        document.querySelector('#addTaskModal .btn-primary').textContent = t.save_changes || 'حفظ التعديلات';
 
         // Show modal
         showAddTaskModal();
 
     } catch (error) {
         console.error('Error loading task:', error);
-        alert('حدث خطأ في تحميل المهمة');
+        alert(t.error_loading_task || 'حدث خطأ في تحميل المهمة');
     }
 }
 
 // Hold task (change status to in_progress or on_hold)
 async function holdTask(taskId) {
-    if (!confirm('هل تريد تعليق هذه المهمة مؤقتاً؟')) {
+    if (!confirm(t.confirm_hold_task || 'هل تريد تعليق هذه المهمة مؤقتاً؟')) {
         return;
     }
 
@@ -278,17 +281,17 @@ async function holdTask(taskId) {
             loadDashboardStats();
             loadPendingTasks();
         } else {
-            alert('حدث خطأ في تعليق المهمة');
+            alert(t.error_holding_task || 'حدث خطأ في تعليق المهمة');
         }
     } catch (error) {
         console.error('Error holding task:', error);
-        alert('حدث خطأ في الاتصال');
+        alert(t.connection_error || 'حدث خطأ في الاتصال');
     }
 }
 
 // Delete task
 async function deleteTask(taskId) {
-    if (!confirm('هل أنت متأكد من حذف هذه المهمة؟ لا يمكن التراجع عن هذا الإجراء!')) {
+    if (!confirm(t.confirm_delete_task || 'هل أنت متأكد من حذف هذه المهمة؟ لا يمكن التراجع عن هذا الإجراء!')) {
         return;
     }
 
@@ -301,11 +304,11 @@ async function deleteTask(taskId) {
             loadDashboardStats();
             loadPendingTasks();
         } else {
-            alert('حدث خطأ في حذف المهمة');
+            alert(t.error_deleting_task || 'حدث خطأ في حذف المهمة');
         }
     } catch (error) {
         console.error('Error deleting task:', error);
-        alert('حدث خطأ في الاتصال');
+        alert(t.connection_error || 'حدث خطأ في الاتصال');
     }
 }
 
@@ -326,8 +329,8 @@ function closeAddTaskModal() {
 
     // Reset edit mode
     editingTaskId = null;
-    document.querySelector('#addTaskModal .modal-header h2').textContent = 'إضافة مهمة جديدة';
-    document.querySelector('#addTaskModal .btn-primary').textContent = 'حفظ';
+    document.querySelector('#addTaskModal .modal-header h2').textContent = t.add_new_task || 'إضافة مهمة جديدة';
+    document.querySelector('#addTaskModal .btn-primary').textContent = t.save || 'حفظ';
 }
 
 // Save task
@@ -335,7 +338,7 @@ async function saveTask() {
     const title = document.getElementById('task-title').value.trim();
 
     if (!title) {
-        alert('يرجى إدخال عنوان المهمة');
+        alert(t.please_enter_task_title || 'يرجى إدخال عنوان المهمة');
         return;
     }
 
@@ -380,17 +383,17 @@ async function saveTask() {
             loadPendingTasks();
         } else {
             const error = await response.json();
-            alert('حدث خطأ: ' + (error.message || 'فشل في حفظ المهمة'));
+            alert((t.error + ': ' || 'حدث خطأ: ') + (error.message || t.failed_to_save_task || 'فشل في حفظ المهمة'));
         }
     } catch (error) {
         console.error('Error saving task:', error);
-        alert('حدث خطأ في الاتصال');
+        alert(t.connection_error || 'حدث خطأ في الاتصال');
     }
 }
 
 // Logout
 function logout() {
-    if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+    if (confirm(t.confirm_logout || 'هل أنت متأكد من تسجيل الخروج؟')) {
         window.location.href = '/logout';
     }
 }
@@ -398,19 +401,19 @@ function logout() {
 // Utility functions
 function getStatusText(status) {
     const statusMap = {
-        'success': '✓ نجح',
-        'failed': '✗ فشل',
-        'running': '⏳ قيد التنفيذ',
-        'pending': '⏸ معلق'
+        'success': t.success_status || '✓ نجح',
+        'failed': t.failed_status || '✗ فشل',
+        'running': t.running_status || '⏳ قيد التنفيذ',
+        'pending': t.pending_status || '⏸ معلق'
     };
     return statusMap[status] || status;
 }
 
 function getPriorityText(priority) {
     const priorityMap = {
-        'high': '🔴 عالية',
-        'medium': '🟡 متوسطة',
-        'low': '🟢 منخفضة'
+        'high': t.high_priority || '🔴 عالية',
+        'medium': t.medium_priority || '🟡 متوسطة',
+        'low': t.low_priority || '🟢 منخفضة'
     };
     return priorityMap[priority] || priority;
 }
@@ -425,19 +428,19 @@ function formatDateTime(dateString) {
     // Less than 1 hour
     if (diff < 3600000) {
         const minutes = Math.floor(diff / 60000);
-        return `منذ ${minutes} دقيقة`;
+        return `${t.since || 'منذ'} ${minutes} ${t.minute || 'دقيقة'}`;
     }
 
     // Less than 24 hours
     if (diff < 86400000) {
         const hours = Math.floor(diff / 3600000);
-        return `منذ ${hours} ساعة`;
+        return `${t.since || 'منذ'} ${hours} ${t.hour || 'ساعة'}`;
     }
 
     // Less than 7 days
     if (diff < 604800000) {
         const days = Math.floor(diff / 86400000);
-        return `منذ ${days} يوم`;
+        return `${t.since || 'منذ'} ${days} ${t.day || 'يوم'}`;
     }
 
     // Format as date
