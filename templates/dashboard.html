@@ -19,6 +19,25 @@
 {% endblock %}
 
 {% block content %}
+<!-- Empty Assistants Alert (hidden by default) -->
+<div class="alert alert-info alert-dismissible mb-3" id="no-assistants-alert" style="display: none;">
+    <div class="d-flex">
+        <div>
+            <i class="ti ti-robot icon alert-icon"></i>
+        </div>
+        <div class="ms-3">
+            <h4 class="alert-title">لا يوجد لديك مساعدين بعد!</h4>
+            <div class="text-muted">ابدأ بإنشاء مساعد شخصي لتتمكن من تنظيم مهامك وتلقي الإشعارات التلقائية.</div>
+            <div class="mt-2">
+                <a href="/assistants" class="btn btn-primary btn-sm">
+                    <i class="ti ti-plus icon"></i>
+                    إنشاء مساعد جديد
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Stats Row -->
 <div class="row row-deck row-cards">
     <div class="col-sm-6 col-lg-3">

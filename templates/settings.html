@@ -191,8 +191,24 @@
 {% block page_js %}
 <script>
 let userData = {};
+let languagesMap = {};
 
-document.addEventListener('DOMContentLoaded', loadUserProfile);
+document.addEventListener('DOMContentLoaded', function() {
+    loadLanguages();
+    loadUserProfile();
+});
+
+async function loadLanguages() {
+    try {
+        const response = await fetch('/api/languages');
+        const languages = await response.json();
+        languages.forEach(lang => {
+            languagesMap[lang.iso_code] = lang.id;
+        });
+    } catch (error) {
+        console.error('Error loading languages:', error);
+    }
+}
 
 function loadUserProfile() {
     fetch('/api/user/profile')
@@ -208,7 +224,7 @@ function loadUserProfile() {
             if (data.language && data.language.iso_code) {
                 document.getElementById('user-language').value = data.language.iso_code;
             } else {
-                document.getElementById('user-language').value = 'ar';
+                document.getElementById('user-language').value = 'en';
             }
 
             document.getElementById('user-timezone').value = data.timezone || 'Africa/Cairo';
@@ -216,7 +232,7 @@ function loadUserProfile() {
 
             document.getElementById('account-id').textContent = '#' + data.id;
             document.getElementById('account-created').textContent = data.create_time ? new Date(data.create_time).toLocaleDateString('ar') : '-';
-            document.getElementById('account-last-login').textContent = '-'; // TODO: get from login history
+            document.getElementById('account-last-login').textContent = '-';
         });
 }
 
@@ -234,20 +250,24 @@ function saveProfile() {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            alert('تم حفظ الملف الشخصي بنجاح');
+            showToast('تم حفظ الملف الشخصي بنجاح', 'success');
         } else {
-            alert('خطأ: ' + (data.error || 'فشل الحفظ'));
+            showToast('خطأ: ' + (data.error || 'فشل الحفظ'), 'danger');
         }
     });
 }
 
 function savePreferences() {
-    // Get language id from iso_code
     const languageCode = document.getElementById('user-language').value;
-    const languageIdMap = {'ar': 1, 'en': 2}; // Matching seed data
+    const languageId = languagesMap[languageCode];
+
+    if (!languageId) {
+        showToast('خطأ في تحديد اللغة', 'danger');
+        return;
+    }
 
     const data = {
-        language_id: languageIdMap[languageCode] || 1,
+        language_id: languageId,
         timezone: document.getElementById('user-timezone').value,
         browser_notify: document.getElementById('notify-browser').checked
     };
@@ -260,32 +280,57 @@ function savePreferences() {
     .then(r => r.json())
     .then(response => {
         if (response.success) {
-            alert('تم حفظ التفضيلات بنجاح');
+            showToast('تم حفظ التفضيلات بنجاح', 'success');
             // Check if language changed
-            const oldLang = userData.language ? userData.language.iso_code : 'ar';
+            const oldLang = userData.language ? userData.language.iso_code : 'en';
             if (languageCode !== oldLang) {
-                location.reload(); // Reload to apply language change
+                setTimeout(() => location.reload(), 500);
             }
         } else {
-            alert('خطأ: ' + (response.error || 'فشل الحفظ'));
+            showToast('خطأ: ' + (response.error || 'فشل الحفظ'), 'danger');
         }
     });
 }
 
 function showChangePhone() {
     document.getElementById('new-phone').value = '';
-    new bootstrap.Modal(document.getElementById('modal-change-phone')).show();
+    showModal('modal-change-phone');
 }
 
 function showChangeTelegram() {
     document.getElementById('new-telegram').value = '';
-    new bootstrap.Modal(document.getElementById('modal-change-telegram')).show();
+    showModal('modal-change-telegram');
+}
+
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('show');
+    modal.style.display = 'block';
+    document.body.classList.add('modal-open');
+
+    // Add backdrop
+    let backdrop = document.querySelector('.modal-backdrop');
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+    }
+}
+
+function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) backdrop.remove();
 }
 
 function changePhone() {
     const phone = document.getElementById('new-phone').value.trim();
     if (!phone) {
-        alert('يرجى إدخال رقم الهاتف');
+        showToast('يرجى إدخال رقم الهاتف', 'warning');
         return;
     }
 
@@ -297,11 +342,11 @@ function changePhone() {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('modal-change-phone')).hide();
+            hideModal('modal-change-phone');
             loadUserProfile();
-            alert('تم تغيير رقم الهاتف بنجاح');
+            showToast('تم تغيير رقم الهاتف بنجاح', 'success');
         } else {
-            alert('خطأ: ' + (data.error || 'فشل التغيير'));
+            showToast('خطأ: ' + (data.error || 'فشل التغيير'), 'danger');
         }
     });
 }
@@ -309,7 +354,7 @@ function changePhone() {
 function changeTelegram() {
     const telegram_id = document.getElementById('new-telegram').value.trim();
     if (!telegram_id) {
-        alert('يرجى إدخال معرف التليجرام');
+        showToast('يرجى إدخال معرف التليجرام', 'warning');
         return;
     }
 
@@ -321,14 +366,51 @@ function changeTelegram() {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('modal-change-telegram')).hide();
+            hideModal('modal-change-telegram');
             loadUserProfile();
-            alert('تم تغيير معرف التليجرام بنجاح');
+            showToast('تم تغيير معرف التليجرام بنجاح', 'success');
         } else {
-            alert('خطأ: ' + (data.error || 'فشل التغيير'));
+            showToast('خطأ: ' + (data.error || 'فشل التغيير'), 'danger');
         }
     });
 }
 
+function showToast(message, type = 'success') {
+    const bgColors = {
+        'success': 'bg-green',
+        'danger': 'bg-red',
+        'warning': 'bg-yellow',
+        'info': 'bg-blue'
+    };
+
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container position-fixed bottom-0 start-0 p-3';
+        container.style.zIndex = '9999';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast show align-items-center text-white ${bgColors[type] || 'bg-green'} border-0`;
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
+        </div>
+    `;
+    container.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Close modal on backdrop click or close button
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal') || e.target.classList.contains('btn-close') || e.target.hasAttribute('data-bs-dismiss')) {
+        const modal = e.target.closest('.modal') || document.querySelector('.modal.show');
+        if (modal) hideModal(modal.id);
+    }
+});
 </script>
 {% endblock %}
