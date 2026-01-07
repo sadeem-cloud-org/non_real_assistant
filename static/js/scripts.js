@@ -206,24 +206,32 @@ function displayScripts(scripts) {
 // Create script card HTML
 function createScriptCard(script) {
     const codePreview = script.code ? script.code.substring(0, 200) : 'لا يوجد كود';
+    const language = script.language || 'python';
+    const langIcons = {
+        'python': {icon: 'ti-brand-python', color: 'blue', name: 'Python'},
+        'javascript': {icon: 'ti-brand-javascript', color: 'yellow', name: 'JavaScript'},
+        'bash': {icon: 'ti-terminal', color: 'green', name: 'Bash'}
+    };
+    const langConfig = langIcons[language] || langIcons['python'];
 
     return `
         <div class="col-md-6 col-lg-4">
             <div class="card script-card">
-                <div class="card-status-top bg-cyan"></div>
+                <div class="card-status-top bg-${langConfig.color}"></div>
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
-                        <span class="avatar bg-cyan-lt text-cyan me-3">
-                            <i class="ti ti-code"></i>
+                        <span class="avatar bg-${langConfig.color}-lt text-${langConfig.color} me-3">
+                            <i class="ti ${langConfig.icon}"></i>
                         </span>
                         <div class="flex-fill">
                             <h3 class="card-title mb-0">${escapeHtml(script.name)}</h3>
-                            ${script.assistant_name ? `
-                                <div class="text-muted small">
-                                    <i class="ti ti-robot"></i>
+                            <div class="text-muted small">
+                                <span class="badge bg-${langConfig.color}-lt text-${langConfig.color}">${langConfig.name}</span>
+                                ${script.assistant_name ? `
+                                    <i class="ti ti-robot ms-2"></i>
                                     ${escapeHtml(script.assistant_name)}
-                                </div>
-                            ` : ''}
+                                ` : ''}
+                            </div>
                         </div>
                     </div>
 
@@ -281,8 +289,12 @@ async function saveScript() {
     const assistantSelect = document.getElementById('script-assistant');
     const assistantId = assistantSelect ? assistantSelect.value : null;
 
+    const languageSelect = document.getElementById('script-language');
+    const language = languageSelect ? languageSelect.value : 'python';
+
     const scriptData = {
         name: name,
+        language: language,
         code: code,
         assistant_id: assistantId ? parseInt(assistantId) : null
     };
@@ -344,13 +356,20 @@ async function editScript(scriptId) {
         // Fill form
         document.getElementById('script-name').value = script.name;
 
+        // Set language
+        const languageSelect = document.getElementById('script-language');
+        if (languageSelect) {
+            languageSelect.value = script.language || 'python';
+            updateCodeEditor();  // Update editor mode
+        }
+
         // Set assistant
         const assistantSelect = document.getElementById('script-assistant');
         if (assistantSelect) {
             assistantSelect.value = script.assistant_id || '';
         }
 
-        // Set code editor
+        // Set code editor (after language is set)
         if (codeEditor) {
             codeEditor.setValue(script.code || '');
         }
@@ -458,10 +477,15 @@ async function deleteScript(scriptId) {
 function closeScriptModal() {
     document.getElementById('script-name').value = '';
 
+    // Reset language to Python
+    const languageSelect = document.getElementById('script-language');
+    if (languageSelect) languageSelect.value = 'python';
+
     const assistantSelect = document.getElementById('script-assistant');
     if (assistantSelect) assistantSelect.value = '';
 
     if (codeEditor) {
+        codeEditor.setOption('mode', 'python');
         codeEditor.setValue('# اكتب الكود هنا\nprint("Hello World")');
     }
 

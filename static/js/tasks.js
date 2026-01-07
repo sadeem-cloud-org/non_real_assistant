@@ -208,6 +208,11 @@ function createTaskCard(task) {
                                 ${escapeHtml(task.assistant_name)}
                             </span>
                         ` : ''}
+                        ${task.notify_sent ? `
+                            <span class="badge bg-green-lt ms-2" title="تم إرسال الإشعار">
+                                <i class="ti ti-bell-check"></i>
+                            </span>
+                        ` : ''}
                     </div>
 
                     <h3 class="card-title mb-2">${escapeHtml(task.name)}</h3>

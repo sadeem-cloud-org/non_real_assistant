@@ -96,20 +96,30 @@
             </div>
             <div class="modal-body">
                 <div class="row mb-3">
-                    <div class="col-lg-6">
+                    <div class="col-lg-4">
                         <div class="mb-3">
                             <label class="form-label required">اسم السكريبت</label>
                             <input type="text" class="form-control" id="script-name" placeholder="مثال: check_server_status">
                         </div>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label required">لغة البرمجة</label>
+                            <select class="form-select" id="script-language" onchange="updateCodeEditor()">
+                                <option value="python">Python</option>
+                                <option value="javascript">JavaScript</option>
+                                <option value="bash">Bash</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
                         <div class="mb-3">
                             <label class="form-label">المساعد</label>
                             <select class="form-select" id="script-assistant">
                                 <option value="">بدون مساعد</option>
                                 <!-- Will be populated from API -->
                             </select>
-                            <small class="form-hint">اختر المساعد لربط السكريبت به وتفعيل الإشعارات التلقائية</small>
+                            <small class="form-hint">اختر المساعد لربط السكريبت</small>
                         </div>
                     </div>
                 </div>

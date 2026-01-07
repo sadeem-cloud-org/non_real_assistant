@@ -1,16 +1,53 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html dir="rtl" lang="ar" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول - Non Real Assistant</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .lang-selector {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 10;
+        }
+        .lang-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        .lang-btn:hover {
+            background: white;
+            transform: translateY(-1px);
+        }
+        .lang-btn img {
+            width: 20px;
+            height: 14px;
+            border-radius: 2px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="login-box">
+            <!-- Language Selector -->
+            <div class="lang-selector">
+                <button class="lang-btn" onclick="toggleLanguage()" id="lang-toggle">
+                    <span id="lang-flag">🇬🇧</span>
+                    <span id="lang-name">English</span>
+                </button>
+            </div>
             <div class="logo">
-                <h1>🤖</h1>
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Non Real Assistant" class="logo-img">
                 <h2>Non Real Assistant</h2>
                 <p>المساعد الشخصي الذكي</p>
             </div>
@@ -83,5 +120,99 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Language translations
+        const translations = {
+            ar: {
+                title: 'تسجيل الدخول - Non Real Assistant',
+                subtitle: 'المساعد الشخصي الذكي',
+                loginTitle: 'تسجيل الدخول',
+                phonePrompt: 'أدخل رقم هاتفك لتلقي رمز التحقق',
+                phoneLabel: 'رقم الهاتف',
+                sendOtp: 'إرسال رمز التحقق',
+                verifyTitle: 'التحقق من الهوية',
+                otpPrompt: 'أدخل الرمز المرسل إلى تيليجرام',
+                otpLabel: 'رمز التحقق',
+                verify: 'تحقق',
+                change: 'تغيير',
+                noCode: 'لم يصلك الرمز؟',
+                resend: 'إعادة الإرسال',
+                footer: 'Non Real Assistant © 2024',
+                toggleLang: 'English',
+                toggleFlag: '🇬🇧'
+            },
+            en: {
+                title: 'Login - Non Real Assistant',
+                subtitle: 'Your Smart Personal Assistant',
+                loginTitle: 'Login',
+                phonePrompt: 'Enter your phone number to receive verification code',
+                phoneLabel: 'Phone Number',
+                sendOtp: 'Send Verification Code',
+                verifyTitle: 'Verify Identity',
+                otpPrompt: 'Enter the code sent to Telegram',
+                otpLabel: 'Verification Code',
+                verify: 'Verify',
+                change: 'Change',
+                noCode: "Didn't receive the code?",
+                resend: 'Resend',
+                footer: 'Non Real Assistant © 2024',
+                toggleLang: 'العربية',
+                toggleFlag: '🇸🇦'
+            }
+        };
+
+        let currentLang = localStorage.getItem('app_language') || detectBrowserLanguage();
+
+        function detectBrowserLanguage() {
+            const browserLang = navigator.language || navigator.userLanguage;
+            return browserLang.startsWith('ar') ? 'ar' : 'en';
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            localStorage.setItem('app_language', currentLang);
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const t = translations[currentLang];
+            const html = document.getElementById('html-root');
+
+            // Set direction and lang
+            html.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+            html.setAttribute('lang', currentLang);
+
+            // Update title
+            document.title = t.title;
+
+            // Update content
+            document.querySelector('.logo p').textContent = t.subtitle;
+            document.querySelector('#phoneStep h3').textContent = t.loginTitle;
+            document.querySelector('#phoneStep .subtitle').textContent = t.phonePrompt;
+            document.querySelector('label[for="phoneInput"]').textContent = t.phoneLabel;
+            document.querySelector('#requestOtpBtn').textContent = t.sendOtp;
+            document.querySelector('#otpStep h3').textContent = t.verifyTitle;
+            document.querySelector('#otpStep .subtitle').textContent = t.otpPrompt;
+            document.querySelector('label[for="otpInput"]').textContent = t.otpLabel;
+            document.querySelector('#verifyOtpBtn').textContent = t.verify;
+            document.querySelector('.otp-info .link-btn').textContent = t.change;
+            document.querySelector('.resend-section span').textContent = t.noCode;
+            document.querySelector('#resendBtn').textContent = t.resend;
+            document.querySelector('footer p').textContent = t.footer;
+
+            // Update toggle button
+            document.querySelector('#lang-flag').textContent = t.toggleFlag;
+            document.querySelector('#lang-name').textContent = t.toggleLang;
+
+            // Update input direction
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.style.direction = currentLang === 'ar' ? 'rtl' : 'ltr';
+            });
+        }
+
+        // Apply language on page load
+        document.addEventListener('DOMContentLoaded', applyLanguage);
+    </script>
 </body>
 </html>

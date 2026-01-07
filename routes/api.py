@@ -409,6 +409,7 @@ def create_script():
 
     script = Script(
         name=data.get('name'),
+        language=data.get('language', 'python'),
         code=data.get('code', ''),
         create_user_id=session['user_id'],
         notify_template_id=data.get('notify_template_id'),
@@ -456,6 +457,8 @@ def update_script(script_id):
 
     if 'name' in data:
         script.name = data['name']
+    if 'language' in data:
+        script.language = data['language']
     if 'code' in data:
         script.code = data['code']
     if 'notify_template_id' in data:
@@ -965,3 +968,66 @@ def create_external_user():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+
+# ===== Notification Logs =====
+
+@api_bp.route('/notification-logs')
+@require_auth
+def get_notification_logs():
+    """Get notification logs for current user"""
+    from models import NotificationLog
+
+    limit = request.args.get('limit', 50, type=int)
+    channel = request.args.get('channel')
+    status = request.args.get('status')
+
+    query = NotificationLog.query.filter_by(user_id=session['user_id'])
+
+    if channel:
+        query = query.filter_by(channel=channel)
+    if status:
+        query = query.filter_by(status=status)
+
+    logs = query.order_by(NotificationLog.create_time.desc()).limit(limit).all()
+    return jsonify([log.to_dict() for log in logs])
+
+
+@api_bp.route('/notification-logs/<int:log_id>')
+@require_auth
+def get_notification_log(log_id):
+    """Get specific notification log"""
+    from models import NotificationLog
+
+    log = NotificationLog.query.get(log_id)
+    if not log or log.user_id != session['user_id']:
+        return jsonify({'error': 'Not found'}), 404
+
+    return jsonify(log.to_dict())
+
+
+@api_bp.route('/notification-logs/stats')
+@require_auth
+def get_notification_stats():
+    """Get notification statistics"""
+    from models import NotificationLog
+    from sqlalchemy import func
+
+    user_id = session['user_id']
+
+    total = NotificationLog.query.filter_by(user_id=user_id).count()
+    sent = NotificationLog.query.filter_by(user_id=user_id, status='sent').count()
+    failed = NotificationLog.query.filter_by(user_id=user_id, status='failed').count()
+
+    # Count by channel
+    by_channel = db.session.query(
+        NotificationLog.channel,
+        func.count(NotificationLog.id)
+    ).filter_by(user_id=user_id).group_by(NotificationLog.channel).all()
+
+    return jsonify({
+        'total': total,
+        'sent': sent,
+        'failed': failed,
+        'by_channel': dict(by_channel)
+    })
