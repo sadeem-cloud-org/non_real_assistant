@@ -95,6 +95,79 @@ def get_notify_templates():
     return jsonify([t.to_dict() for t in templates])
 
 
+@api_bp.route('/notify-templates', methods=['POST'])
+@require_auth
+def create_notify_template():
+    """Create a new notification template"""
+    from models import NotifyTemplate
+
+    data = request.get_json()
+
+    if not data.get('name') or not data.get('text'):
+        return jsonify({'error': 'Name and text are required'}), 400
+
+    template = NotifyTemplate(
+        name=data['name'],
+        text=data['text']
+    )
+
+    db.session.add(template)
+    db.session.commit()
+
+    return jsonify(template.to_dict()), 201
+
+
+@api_bp.route('/notify-templates/<int:template_id>')
+@require_auth
+def get_notify_template(template_id):
+    """Get a single notification template"""
+    from models import NotifyTemplate
+
+    template = NotifyTemplate.query.get(template_id)
+    if not template:
+        return jsonify({'error': 'Template not found'}), 404
+
+    return jsonify(template.to_dict())
+
+
+@api_bp.route('/notify-templates/<int:template_id>', methods=['PUT'])
+@require_auth
+def update_notify_template(template_id):
+    """Update a notification template"""
+    from models import NotifyTemplate
+
+    template = NotifyTemplate.query.get(template_id)
+    if not template:
+        return jsonify({'error': 'Template not found'}), 404
+
+    data = request.get_json()
+
+    if 'name' in data:
+        template.name = data['name']
+    if 'text' in data:
+        template.text = data['text']
+
+    db.session.commit()
+
+    return jsonify(template.to_dict())
+
+
+@api_bp.route('/notify-templates/<int:template_id>', methods=['DELETE'])
+@require_auth
+def delete_notify_template(template_id):
+    """Delete a notification template"""
+    from models import NotifyTemplate
+
+    template = NotifyTemplate.query.get(template_id)
+    if not template:
+        return jsonify({'error': 'Template not found'}), 404
+
+    db.session.delete(template)
+    db.session.commit()
+
+    return jsonify({'success': True})
+
+
 # ===== Assistants CRUD =====
 
 @api_bp.route('/assistants')

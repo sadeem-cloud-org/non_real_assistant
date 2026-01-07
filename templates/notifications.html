@@ -7,41 +7,29 @@
 
 {% block page_css %}
 <style>
-    .notification-card {
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .notification-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .message-box {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        max-height: 200px;
-        overflow-y: auto;
-        border: 1px solid #dee2e6;
-    }
-    [data-bs-theme="dark"] .message-box {
-        background: #1e1e1e;
-        border-color: #444;
+    .message-preview {
+        max-width: 300px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 </style>
 {% endblock %}
 
 {% block page_actions %}
-<select class="form-select" id="channel-filter" onchange="loadNotifications()" style="width: auto; display: inline-block;">
-    <option value="">جميع القنوات</option>
-    <option value="telegram">تيليجرام</option>
-    <option value="email">بريد إلكتروني</option>
-    <option value="browser">المتصفح</option>
-</select>
-<select class="form-select ms-2" id="status-filter" onchange="loadNotifications()" style="width: auto; display: inline-block;">
-    <option value="">جميع الحالات</option>
-    <option value="sent">تم الإرسال</option>
-    <option value="failed">فشل</option>
-</select>
+<div class="d-flex gap-2">
+    <select class="form-select" id="channel-filter" onchange="loadNotifications()" style="width: auto;">
+        <option value="">جميع القنوات</option>
+        <option value="telegram">تيليجرام</option>
+        <option value="email">بريد إلكتروني</option>
+        <option value="browser">المتصفح</option>
+    </select>
+    <select class="form-select" id="status-filter" onchange="loadNotifications()" style="width: auto;">
+        <option value="">جميع الحالات</option>
+        <option value="sent">تم الإرسال</option>
+        <option value="failed">فشل</option>
+    </select>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -120,11 +108,29 @@
     </div>
 </div>
 
-<!-- Notifications List -->
-<div class="row row-cards" id="notifications-container">
-    <div class="col-12 text-center py-5">
-        <div class="spinner-border text-muted" role="status"></div>
-        <div class="mt-2">جاري التحميل...</div>
+<!-- Notifications Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>القناة</th>
+                    <th>الحالة</th>
+                    <th>المهمة / المساعد</th>
+                    <th>الرسالة</th>
+                    <th>التاريخ</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="notifications-tbody">
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        <div class="spinner-border text-muted" role="status"></div>
+                        <div class="mt-2">جاري التحميل...</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}
@@ -136,13 +142,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">تفاصيل الإشعار</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" onclick="hideModal('modal-notification')"></button>
             </div>
             <div class="modal-body" id="modal-body">
                 <!-- Content loaded dynamically -->
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" class="btn" onclick="hideModal('modal-notification')">إغلاق</button>
             </div>
         </div>
     </div>
@@ -159,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function loadNotifications() {
-    const container = document.getElementById('notifications-container');
+    const tbody = document.getElementById('notifications-tbody');
     const channelFilter = document.getElementById('channel-filter').value;
     const statusFilter = document.getElementById('status-filter').value;
 
@@ -179,15 +185,13 @@ async function loadNotifications() {
 
     } catch (error) {
         console.error('Error loading notifications:', error);
-        container.innerHTML = `
-            <div class="col-12">
-                <div class="empty">
-                    <div class="empty-icon">
-                        <i class="ti ti-alert-circle icon text-red"></i>
-                    </div>
-                    <p class="empty-title">حدث خطأ في تحميل الإشعارات</p>
-                </div>
-            </div>
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-4">
+                    <i class="ti ti-alert-circle icon text-red mb-2" style="font-size: 2rem;"></i>
+                    <div class="text-muted">حدث خطأ في تحميل الإشعارات</div>
+                </td>
+            </tr>
         `;
     }
 }
@@ -208,91 +212,58 @@ async function loadStats() {
 }
 
 function displayNotifications(notifications) {
-    const container = document.getElementById('notifications-container');
+    const tbody = document.getElementById('notifications-tbody');
 
     if (notifications.length === 0) {
-        container.innerHTML = `
-            <div class="col-12">
-                <div class="empty">
-                    <div class="empty-icon">
-                        <i class="ti ti-bell-off icon"></i>
-                    </div>
-                    <p class="empty-title">لا توجد إشعارات</p>
-                    <p class="empty-subtitle text-muted">لم يتم إرسال أي إشعارات بعد</p>
-                </div>
-            </div>
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-4">
+                    <i class="ti ti-bell-off icon text-muted mb-2" style="font-size: 2rem;"></i>
+                    <div class="text-muted">لا توجد إشعارات</div>
+                </td>
+            </tr>
         `;
         return;
     }
 
-    container.innerHTML = notifications.map(notification => createNotificationCard(notification)).join('');
+    tbody.innerHTML = notifications.map(notification => createNotificationRow(notification)).join('');
 }
 
-function createNotificationCard(notification) {
+function createNotificationRow(notification) {
     const statusClass = notification.status === 'sent' ? 'green' : 'red';
     const statusText = notification.status === 'sent' ? 'تم الإرسال' : 'فشل';
     const channelIcon = getChannelIcon(notification.channel);
     const channelName = getChannelName(notification.channel);
+    const messagePreview = notification.message ? notification.message.substring(0, 50) + (notification.message.length > 50 ? '...' : '') : '-';
 
     return `
-        <div class="col-md-6 col-lg-4">
-            <div class="card notification-card">
-                <div class="card-status-top bg-${statusClass}"></div>
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="avatar bg-${statusClass}-lt text-${statusClass} me-3">
-                            <i class="ti ${channelIcon}"></i>
-                        </span>
-                        <div class="flex-fill">
-                            <div class="font-weight-medium">${channelName}</div>
-                            <div class="text-muted small">${statusText}</div>
-                        </div>
-                    </div>
-
-                    ${notification.task_name ? `
-                        <div class="mb-2">
-                            <span class="badge bg-blue-lt">
-                                <i class="ti ti-list-check"></i>
-                                ${escapeHtml(notification.task_name)}
-                            </span>
-                        </div>
-                    ` : ''}
-
-                    ${notification.assistant_name ? `
-                        <div class="mb-2">
-                            <span class="badge bg-cyan-lt">
-                                <i class="ti ti-robot"></i>
-                                ${escapeHtml(notification.assistant_name)}
-                            </span>
-                        </div>
-                    ` : ''}
-
-                    ${notification.message ? `
-                        <div class="message-box mb-3">
-                            ${escapeHtml(notification.message.substring(0, 200))}${notification.message.length > 200 ? '...' : ''}
-                        </div>
-                    ` : ''}
-
-                    ${notification.error_message ? `
-                        <div class="alert alert-danger mb-3">
-                            <i class="ti ti-alert-circle"></i>
-                            ${escapeHtml(notification.error_message)}
-                        </div>
-                    ` : ''}
-
-                    <div class="text-muted small">
-                        <i class="ti ti-clock icon"></i>
-                        ${formatDateTime(notification.create_time)}
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-sm" onclick="viewNotification(${notification.id})">
-                        <i class="ti ti-eye"></i>
-                        عرض التفاصيل
-                    </button>
-                </div>
-            </div>
-        </div>
+        <tr>
+            <td>
+                <span class="avatar avatar-sm bg-${getChannelColor(notification.channel)}-lt">
+                    <i class="ti ${channelIcon}"></i>
+                </span>
+                <span class="ms-2">${channelName}</span>
+            </td>
+            <td>
+                <span class="badge bg-${statusClass}-lt text-${statusClass}">${statusText}</span>
+            </td>
+            <td>
+                ${notification.task_name ? `<div><i class="ti ti-list-check me-1"></i>${escapeHtml(notification.task_name)}</div>` : ''}
+                ${notification.assistant_name ? `<div class="text-muted small"><i class="ti ti-robot me-1"></i>${escapeHtml(notification.assistant_name)}</div>` : ''}
+                ${!notification.task_name && !notification.assistant_name ? '<span class="text-muted">-</span>' : ''}
+            </td>
+            <td>
+                <div class="message-preview text-muted">${escapeHtml(messagePreview)}</div>
+            </td>
+            <td class="text-muted">
+                ${formatDateTime(notification.create_time)}
+            </td>
+            <td>
+                <button class="btn btn-ghost-primary btn-sm" onclick="viewNotification(${notification.id})" title="عرض التفاصيل">
+                    <i class="ti ti-eye"></i>
+                </button>
+            </td>
+        </tr>
     `;
 }
 
@@ -308,67 +279,96 @@ function getChannelIcon(channel) {
 function getChannelName(channel) {
     const names = {
         'telegram': 'تيليجرام',
-        'email': 'بريد إلكتروني',
-        'browser': 'المتصفح'
+        'email': 'بريد',
+        'browser': 'متصفح'
     };
     return names[channel] || channel;
 }
 
-async function viewNotification(notificationId) {
+function getChannelColor(channel) {
+    const colors = {
+        'telegram': 'cyan',
+        'email': 'blue',
+        'browser': 'yellow'
+    };
+    return colors[channel] || 'gray';
+}
+
+function viewNotification(notificationId) {
     const notification = allNotifications.find(n => n.id === notificationId);
     if (!notification) return;
 
     const modalBody = document.getElementById('modal-body');
     modalBody.innerHTML = `
-        <div class="row">
+        <div class="row mb-3">
             <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">القناة</label>
-                    <div class="form-control-plaintext">${getChannelName(notification.channel)}</div>
-                </div>
+                <label class="form-label text-muted">القناة</label>
+                <div><i class="ti ${getChannelIcon(notification.channel)} me-2"></i>${getChannelName(notification.channel)}</div>
             </div>
             <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">الحالة</label>
-                    <div class="form-control-plaintext">
-                        <span class="badge bg-${notification.status === 'sent' ? 'green' : 'red'}-lt">
-                            ${notification.status === 'sent' ? 'تم الإرسال' : 'فشل'}
-                        </span>
-                    </div>
+                <label class="form-label text-muted">الحالة</label>
+                <div>
+                    <span class="badge bg-${notification.status === 'sent' ? 'green' : 'red'}-lt">
+                        ${notification.status === 'sent' ? 'تم الإرسال' : 'فشل'}
+                    </span>
                 </div>
             </div>
         </div>
         ${notification.task_name ? `
             <div class="mb-3">
-                <label class="form-label">المهمة</label>
-                <div class="form-control-plaintext">${escapeHtml(notification.task_name)}</div>
+                <label class="form-label text-muted">المهمة</label>
+                <div>${escapeHtml(notification.task_name)}</div>
             </div>
         ` : ''}
         ${notification.assistant_name ? `
             <div class="mb-3">
-                <label class="form-label">المساعد</label>
-                <div class="form-control-plaintext">${escapeHtml(notification.assistant_name)}</div>
+                <label class="form-label text-muted">المساعد</label>
+                <div>${escapeHtml(notification.assistant_name)}</div>
             </div>
         ` : ''}
         <div class="mb-3">
-            <label class="form-label">الرسالة</label>
-            <div class="message-box">${notification.message ? escapeHtml(notification.message) : 'لا توجد رسالة'}</div>
+            <label class="form-label text-muted">الرسالة</label>
+            <div class="card">
+                <div class="card-body" style="white-space: pre-wrap; direction: rtl;">${notification.message ? escapeHtml(notification.message) : 'لا توجد رسالة'}</div>
+            </div>
         </div>
         ${notification.error_message ? `
             <div class="mb-3">
-                <label class="form-label">رسالة الخطأ</label>
+                <label class="form-label text-muted">رسالة الخطأ</label>
                 <div class="alert alert-danger">${escapeHtml(notification.error_message)}</div>
             </div>
         ` : ''}
         <div class="mb-3">
-            <label class="form-label">التاريخ</label>
-            <div class="form-control-plaintext">${formatDateTime(notification.create_time)}</div>
+            <label class="form-label text-muted">التاريخ</label>
+            <div>${formatDateTime(notification.create_time)}</div>
         </div>
     `;
 
-    // Show modal
-    const modal = new bootstrap.Modal(document.getElementById('modal-notification'));
-    modal.show();
+    showModal('modal-notification');
+}
+
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('show');
+    modal.style.display = 'block';
+    document.body.classList.add('modal-open');
+
+    let backdrop = document.querySelector('.modal-backdrop');
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+    }
+}
+
+function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) backdrop.remove();
 }
 
 function formatDateTime(dateString) {
@@ -379,24 +379,9 @@ function formatDateTime(dateString) {
     const now = new Date();
     const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diff < 60) {
-        if (diff < 5) return 'الآن';
-        return `منذ ${diff} ثانية`;
-    }
-
-    const minutes = Math.floor(diff / 60);
-    if (minutes < 60) {
-        if (minutes === 1) return 'منذ دقيقة';
-        if (minutes === 2) return 'منذ دقيقتين';
-        return `منذ ${minutes} دقيقة`;
-    }
-
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) {
-        if (hours === 1) return 'منذ ساعة';
-        if (hours === 2) return 'منذ ساعتين';
-        return `منذ ${hours} ساعة`;
-    }
+    if (diff < 60) return 'الآن';
+    if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
+    if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
 
     return date.toLocaleDateString('ar-EG', {
         year: 'numeric',
@@ -409,14 +394,15 @@ function formatDateTime(dateString) {
 
 function escapeHtml(text) {
     if (!text) return '';
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
+    const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
     return text.replace(/[&<>"']/g, m => map[m]);
 }
+
+// Close modal on backdrop click
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal')) {
+        hideModal(e.target.id);
+    }
+});
 </script>
 {% endblock %}

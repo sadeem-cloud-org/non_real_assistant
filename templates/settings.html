@@ -139,9 +139,92 @@
         </div>
     </div>
 </div>
+
+<!-- Notification Templates -->
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-template me-2"></i>
+                    قوالب الإشعارات
+                </h3>
+                <div class="card-actions">
+                    <button class="btn btn-primary btn-sm" onclick="showAddTemplateModal()">
+                        <i class="ti ti-plus icon"></i>
+                        إضافة قالب
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table">
+                        <thead>
+                            <tr>
+                                <th>اسم القالب</th>
+                                <th>محتوى القالب</th>
+                                <th class="w-1"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="templates-tbody">
+                            <tr>
+                                <td colspan="3" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-muted"></div>
+                                    جاري التحميل...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="text-muted small">
+                    <i class="ti ti-info-circle me-1"></i>
+                    المتغيرات المتاحة: <code>{user_name}</code>, <code>{assistant_name}</code>, <code>{task_name}</code>, <code>{script_name}</code>, <code>{output}</code>, <code>{state}</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block modals %}
+<!-- Template Modal -->
+<div class="modal fade" id="modal-template" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="template-modal-title">إضافة قالب جديد</h5>
+                <button type="button" class="btn-close" onclick="hideModal('modal-template')"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="template-id">
+                <div class="mb-3">
+                    <label class="form-label required">اسم القالب</label>
+                    <input type="text" class="form-control" id="template-name" placeholder="مثال: تذكير المهام">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label required">محتوى القالب</label>
+                    <textarea class="form-control" id="template-text" rows="6" placeholder="أهلاً {user_name}، هذا تذكير من المساعد {assistant_name}..."></textarea>
+                    <small class="form-hint">
+                        يمكنك استخدام المتغيرات التالية:
+                        <code>{user_name}</code> اسم المستخدم،
+                        <code>{assistant_name}</code> اسم المساعد،
+                        <code>{task_name}</code> اسم المهمة،
+                        <code>{script_name}</code> اسم السكريبت،
+                        <code>{output}</code> ناتج التنفيذ،
+                        <code>{state}</code> حالة التنفيذ
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="hideModal('modal-template')">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="saveTemplate()">حفظ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Change Phone Modal -->
 <div class="modal fade" id="modal-change-phone" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -191,8 +274,25 @@
 {% block page_js %}
 <script>
 let userData = {};
+let languagesMap = {};
 
-document.addEventListener('DOMContentLoaded', loadUserProfile);
+document.addEventListener('DOMContentLoaded', function() {
+    loadLanguages();
+    loadUserProfile();
+    loadTemplates();
+});
+
+async function loadLanguages() {
+    try {
+        const response = await fetch('/api/languages');
+        const languages = await response.json();
+        languages.forEach(lang => {
+            languagesMap[lang.iso_code] = lang.id;
+        });
+    } catch (error) {
+        console.error('Error loading languages:', error);
+    }
+}
 
 function loadUserProfile() {
     fetch('/api/user/profile')
@@ -208,7 +308,7 @@ function loadUserProfile() {
             if (data.language && data.language.iso_code) {
                 document.getElementById('user-language').value = data.language.iso_code;
             } else {
-                document.getElementById('user-language').value = 'ar';
+                document.getElementById('user-language').value = 'en';
             }
 
             document.getElementById('user-timezone').value = data.timezone || 'Africa/Cairo';
@@ -216,7 +316,7 @@ function loadUserProfile() {
 
             document.getElementById('account-id').textContent = '#' + data.id;
             document.getElementById('account-created').textContent = data.create_time ? new Date(data.create_time).toLocaleDateString('ar') : '-';
-            document.getElementById('account-last-login').textContent = '-'; // TODO: get from login history
+            document.getElementById('account-last-login').textContent = '-';
         });
 }
 
@@ -234,20 +334,24 @@ function saveProfile() {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            alert('تم حفظ الملف الشخصي بنجاح');
+            showToast('تم حفظ الملف الشخصي بنجاح', 'success');
         } else {
-            alert('خطأ: ' + (data.error || 'فشل الحفظ'));
+            showToast('خطأ: ' + (data.error || 'فشل الحفظ'), 'danger');
         }
     });
 }
 
 function savePreferences() {
-    // Get language id from iso_code
     const languageCode = document.getElementById('user-language').value;
-    const languageIdMap = {'ar': 1, 'en': 2}; // Matching seed data
+    const languageId = languagesMap[languageCode];
+
+    if (!languageId) {
+        showToast('خطأ في تحديد اللغة', 'danger');
+        return;
+    }
 
     const data = {
-        language_id: languageIdMap[languageCode] || 1,
+        language_id: languageId,
         timezone: document.getElementById('user-timezone').value,
         browser_notify: document.getElementById('notify-browser').checked
     };
@@ -260,32 +364,57 @@ function savePreferences() {
     .then(r => r.json())
     .then(response => {
         if (response.success) {
-            alert('تم حفظ التفضيلات بنجاح');
+            showToast('تم حفظ التفضيلات بنجاح', 'success');
             // Check if language changed
-            const oldLang = userData.language ? userData.language.iso_code : 'ar';
+            const oldLang = userData.language ? userData.language.iso_code : 'en';
             if (languageCode !== oldLang) {
-                location.reload(); // Reload to apply language change
+                setTimeout(() => location.reload(), 500);
             }
         } else {
-            alert('خطأ: ' + (response.error || 'فشل الحفظ'));
+            showToast('خطأ: ' + (response.error || 'فشل الحفظ'), 'danger');
         }
     });
 }
 
 function showChangePhone() {
     document.getElementById('new-phone').value = '';
-    new bootstrap.Modal(document.getElementById('modal-change-phone')).show();
+    showModal('modal-change-phone');
 }
 
 function showChangeTelegram() {
     document.getElementById('new-telegram').value = '';
-    new bootstrap.Modal(document.getElementById('modal-change-telegram')).show();
+    showModal('modal-change-telegram');
+}
+
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('show');
+    modal.style.display = 'block';
+    document.body.classList.add('modal-open');
+
+    // Add backdrop
+    let backdrop = document.querySelector('.modal-backdrop');
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+    }
+}
+
+function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) backdrop.remove();
 }
 
 function changePhone() {
     const phone = document.getElementById('new-phone').value.trim();
     if (!phone) {
-        alert('يرجى إدخال رقم الهاتف');
+        showToast('يرجى إدخال رقم الهاتف', 'warning');
         return;
     }
 
@@ -297,11 +426,11 @@ function changePhone() {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('modal-change-phone')).hide();
+            hideModal('modal-change-phone');
             loadUserProfile();
-            alert('تم تغيير رقم الهاتف بنجاح');
+            showToast('تم تغيير رقم الهاتف بنجاح', 'success');
         } else {
-            alert('خطأ: ' + (data.error || 'فشل التغيير'));
+            showToast('خطأ: ' + (data.error || 'فشل التغيير'), 'danger');
         }
     });
 }
@@ -309,7 +438,7 @@ function changePhone() {
 function changeTelegram() {
     const telegram_id = document.getElementById('new-telegram').value.trim();
     if (!telegram_id) {
-        alert('يرجى إدخال معرف التليجرام');
+        showToast('يرجى إدخال معرف التليجرام', 'warning');
         return;
     }
 
@@ -321,14 +450,204 @@ function changeTelegram() {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('modal-change-telegram')).hide();
+            hideModal('modal-change-telegram');
             loadUserProfile();
-            alert('تم تغيير معرف التليجرام بنجاح');
+            showToast('تم تغيير معرف التليجرام بنجاح', 'success');
         } else {
-            alert('خطأ: ' + (data.error || 'فشل التغيير'));
+            showToast('خطأ: ' + (data.error || 'فشل التغيير'), 'danger');
         }
     });
 }
 
+function showToast(message, type = 'success') {
+    const bgColors = {
+        'success': 'bg-green',
+        'danger': 'bg-red',
+        'warning': 'bg-yellow',
+        'info': 'bg-blue'
+    };
+
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container position-fixed bottom-0 start-0 p-3';
+        container.style.zIndex = '9999';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast show align-items-center text-white ${bgColors[type] || 'bg-green'} border-0`;
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
+        </div>
+    `;
+    container.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Close modal on backdrop click or close button
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal') || e.target.classList.contains('btn-close') || e.target.hasAttribute('data-bs-dismiss')) {
+        const modal = e.target.closest('.modal') || document.querySelector('.modal.show');
+        if (modal) hideModal(modal.id);
+    }
+});
+
+// ============================================
+// Template Management Functions
+// ============================================
+
+let allTemplates = [];
+
+async function loadTemplates() {
+    const tbody = document.getElementById('templates-tbody');
+
+    try {
+        const response = await fetch('/api/notify-templates');
+        allTemplates = await response.json();
+
+        if (allTemplates.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-center py-4 text-muted">
+                        <i class="ti ti-template icon mb-2" style="font-size: 2rem;"></i>
+                        <div>لا توجد قوالب بعد</div>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="showAddTemplateModal()">
+                            <i class="ti ti-plus icon"></i>
+                            إضافة قالب جديد
+                        </button>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = allTemplates.map(template => `
+            <tr>
+                <td>
+                    <div class="font-weight-medium">${escapeHtml(template.name)}</div>
+                </td>
+                <td>
+                    <div class="text-muted text-truncate" style="max-width: 400px;">
+                        ${escapeHtml(template.text.substring(0, 100))}${template.text.length > 100 ? '...' : ''}
+                    </div>
+                </td>
+                <td>
+                    <div class="btn-list flex-nowrap">
+                        <button class="btn btn-sm btn-ghost-primary" onclick="editTemplate(${template.id})" title="تعديل">
+                            <i class="ti ti-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-ghost-danger" onclick="deleteTemplate(${template.id})" title="حذف">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error loading templates:', error);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" class="text-center py-4 text-danger">
+                    حدث خطأ في تحميل القوالب
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function showAddTemplateModal() {
+    document.getElementById('template-id').value = '';
+    document.getElementById('template-name').value = '';
+    document.getElementById('template-text').value = '';
+    document.getElementById('template-modal-title').textContent = 'إضافة قالب جديد';
+    showModal('modal-template');
+}
+
+function editTemplate(templateId) {
+    const template = allTemplates.find(t => t.id === templateId);
+    if (!template) return;
+
+    document.getElementById('template-id').value = template.id;
+    document.getElementById('template-name').value = template.name;
+    document.getElementById('template-text').value = template.text;
+    document.getElementById('template-modal-title').textContent = 'تعديل القالب';
+    showModal('modal-template');
+}
+
+async function saveTemplate() {
+    const templateId = document.getElementById('template-id').value;
+    const name = document.getElementById('template-name').value.trim();
+    const text = document.getElementById('template-text').value.trim();
+
+    if (!name || !text) {
+        showToast('يرجى إدخال اسم ومحتوى القالب', 'warning');
+        return;
+    }
+
+    try {
+        let response;
+        if (templateId) {
+            // Update existing template
+            response = await fetch(`/api/notify-templates/${templateId}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name, text })
+            });
+        } else {
+            // Create new template
+            response = await fetch('/api/notify-templates', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name, text })
+            });
+        }
+
+        if (response.ok) {
+            hideModal('modal-template');
+            showToast(templateId ? 'تم تحديث القالب بنجاح' : 'تم إضافة القالب بنجاح', 'success');
+            loadTemplates();
+        } else {
+            const error = await response.json();
+            showToast('خطأ: ' + (error.error || 'فشل الحفظ'), 'danger');
+        }
+    } catch (error) {
+        console.error('Error saving template:', error);
+        showToast('حدث خطأ في الاتصال', 'danger');
+    }
+}
+
+async function deleteTemplate(templateId) {
+    if (!confirm('هل أنت متأكد من حذف هذا القالب؟')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/notify-templates/${templateId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            showToast('تم حذف القالب بنجاح', 'success');
+            loadTemplates();
+        } else {
+            showToast('حدث خطأ في حذف القالب', 'danger');
+        }
+    } catch (error) {
+        console.error('Error deleting template:', error);
+        showToast('حدث خطأ في الاتصال', 'danger');
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
 </script>
 {% endblock %}

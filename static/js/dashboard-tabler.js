@@ -85,6 +85,12 @@ async function loadDashboardStats() {
             document.getElementById('pending-tasks').textContent = data.pending_tasks;
             document.getElementById('completed-today').textContent = data.completed_today;
             document.getElementById('recent-executions-count').textContent = data.recent_executions.length;
+
+            // Show/hide no assistants alert
+            const noAssistantsAlert = document.getElementById('no-assistants-alert');
+            if (noAssistantsAlert) {
+                noAssistantsAlert.style.display = data.active_assistants === 0 ? 'block' : 'none';
+            }
         }
     } catch (error) {
         console.error('Error loading stats:', error);
