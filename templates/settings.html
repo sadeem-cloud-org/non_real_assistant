@@ -139,99 +139,16 @@
         </div>
     </div>
 </div>
-
-<!-- Notification Templates -->
-<div class="row mt-3">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="ti ti-template me-2"></i>
-                    قوالب الإشعارات
-                </h3>
-                <div class="card-actions">
-                    <button class="btn btn-primary btn-sm" onclick="showAddTemplateModal()">
-                        <i class="ti ti-plus icon"></i>
-                        إضافة قالب
-                    </button>
-                </div>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-vcenter card-table">
-                        <thead>
-                            <tr>
-                                <th>اسم القالب</th>
-                                <th>محتوى القالب</th>
-                                <th class="w-1"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="templates-tbody">
-                            <tr>
-                                <td colspan="3" class="text-center py-4">
-                                    <div class="spinner-border spinner-border-sm text-muted"></div>
-                                    جاري التحميل...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card-footer">
-                <div class="text-muted small">
-                    <i class="ti ti-info-circle me-1"></i>
-                    المتغيرات المتاحة: <code>{user_name}</code>, <code>{assistant_name}</code>, <code>{task_name}</code>, <code>{script_name}</code>, <code>{output}</code>, <code>{state}</code>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block modals %}
-<!-- Template Modal -->
-<div class="modal fade" id="modal-template" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="template-modal-title">إضافة قالب جديد</h5>
-                <button type="button" class="btn-close" onclick="hideModal('modal-template')"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="template-id">
-                <div class="mb-3">
-                    <label class="form-label required">اسم القالب</label>
-                    <input type="text" class="form-control" id="template-name" placeholder="مثال: تذكير المهام">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label required">محتوى القالب</label>
-                    <textarea class="form-control" id="template-text" rows="6" placeholder="أهلاً {user_name}، هذا تذكير من المساعد {assistant_name}..."></textarea>
-                    <small class="form-hint">
-                        يمكنك استخدام المتغيرات التالية:
-                        <code>{user_name}</code> اسم المستخدم،
-                        <code>{assistant_name}</code> اسم المساعد،
-                        <code>{task_name}</code> اسم المهمة،
-                        <code>{script_name}</code> اسم السكريبت،
-                        <code>{output}</code> ناتج التنفيذ،
-                        <code>{state}</code> حالة التنفيذ
-                    </small>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn" onclick="hideModal('modal-template')">إلغاء</button>
-                <button type="button" class="btn btn-primary" onclick="saveTemplate()">حفظ</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Change Phone Modal -->
 <div class="modal fade" id="modal-change-phone" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">تغيير رقم الهاتف</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" onclick="hideModal('modal-change-phone')"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
@@ -240,7 +157,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn" onclick="hideModal('modal-change-phone')">إلغاء</button>
                 <button type="button" class="btn btn-primary" onclick="changePhone()">تغيير</button>
             </div>
         </div>
@@ -253,7 +170,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">تغيير معرف التليجرام</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" onclick="hideModal('modal-change-telegram')"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
@@ -263,7 +180,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn" onclick="hideModal('modal-change-telegram')">إلغاء</button>
                 <button type="button" class="btn btn-primary" onclick="changeTelegram()">تغيير</button>
             </div>
         </div>
@@ -279,7 +196,6 @@ let languagesMap = {};
 document.addEventListener('DOMContentLoaded', function() {
     loadLanguages();
     loadUserProfile();
-    loadTemplates();
 });
 
 async function loadLanguages() {
@@ -489,165 +405,11 @@ function showToast(message, type = 'success') {
     setTimeout(() => toast.remove(), 3000);
 }
 
-// Close modal on backdrop click or close button
+// Close modal on backdrop click
 document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal') || e.target.classList.contains('btn-close') || e.target.hasAttribute('data-bs-dismiss')) {
-        const modal = e.target.closest('.modal') || document.querySelector('.modal.show');
-        if (modal) hideModal(modal.id);
+    if (e.target.classList.contains('modal')) {
+        hideModal(e.target.id);
     }
 });
-
-// ============================================
-// Template Management Functions
-// ============================================
-
-let allTemplates = [];
-
-async function loadTemplates() {
-    const tbody = document.getElementById('templates-tbody');
-
-    try {
-        const response = await fetch('/api/notify-templates');
-        allTemplates = await response.json();
-
-        if (allTemplates.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="3" class="text-center py-4 text-muted">
-                        <i class="ti ti-template icon mb-2" style="font-size: 2rem;"></i>
-                        <div>لا توجد قوالب بعد</div>
-                        <button class="btn btn-primary btn-sm mt-2" onclick="showAddTemplateModal()">
-                            <i class="ti ti-plus icon"></i>
-                            إضافة قالب جديد
-                        </button>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        tbody.innerHTML = allTemplates.map(template => `
-            <tr>
-                <td>
-                    <div class="font-weight-medium">${escapeHtml(template.name)}</div>
-                </td>
-                <td>
-                    <div class="text-muted text-truncate" style="max-width: 400px;">
-                        ${escapeHtml(template.text.substring(0, 100))}${template.text.length > 100 ? '...' : ''}
-                    </div>
-                </td>
-                <td>
-                    <div class="btn-list flex-nowrap">
-                        <button class="btn btn-sm btn-ghost-primary" onclick="editTemplate(${template.id})" title="تعديل">
-                            <i class="ti ti-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-ghost-danger" onclick="deleteTemplate(${template.id})" title="حذف">
-                            <i class="ti ti-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-
-    } catch (error) {
-        console.error('Error loading templates:', error);
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="3" class="text-center py-4 text-danger">
-                    حدث خطأ في تحميل القوالب
-                </td>
-            </tr>
-        `;
-    }
-}
-
-function showAddTemplateModal() {
-    document.getElementById('template-id').value = '';
-    document.getElementById('template-name').value = '';
-    document.getElementById('template-text').value = '';
-    document.getElementById('template-modal-title').textContent = 'إضافة قالب جديد';
-    showModal('modal-template');
-}
-
-function editTemplate(templateId) {
-    const template = allTemplates.find(t => t.id === templateId);
-    if (!template) return;
-
-    document.getElementById('template-id').value = template.id;
-    document.getElementById('template-name').value = template.name;
-    document.getElementById('template-text').value = template.text;
-    document.getElementById('template-modal-title').textContent = 'تعديل القالب';
-    showModal('modal-template');
-}
-
-async function saveTemplate() {
-    const templateId = document.getElementById('template-id').value;
-    const name = document.getElementById('template-name').value.trim();
-    const text = document.getElementById('template-text').value.trim();
-
-    if (!name || !text) {
-        showToast('يرجى إدخال اسم ومحتوى القالب', 'warning');
-        return;
-    }
-
-    try {
-        let response;
-        if (templateId) {
-            // Update existing template
-            response = await fetch(`/api/notify-templates/${templateId}`, {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, text })
-            });
-        } else {
-            // Create new template
-            response = await fetch('/api/notify-templates', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, text })
-            });
-        }
-
-        if (response.ok) {
-            hideModal('modal-template');
-            showToast(templateId ? 'تم تحديث القالب بنجاح' : 'تم إضافة القالب بنجاح', 'success');
-            loadTemplates();
-        } else {
-            const error = await response.json();
-            showToast('خطأ: ' + (error.error || 'فشل الحفظ'), 'danger');
-        }
-    } catch (error) {
-        console.error('Error saving template:', error);
-        showToast('حدث خطأ في الاتصال', 'danger');
-    }
-}
-
-async function deleteTemplate(templateId) {
-    if (!confirm('هل أنت متأكد من حذف هذا القالب؟')) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/notify-templates/${templateId}`, {
-            method: 'DELETE'
-        });
-
-        if (response.ok) {
-            showToast('تم حذف القالب بنجاح', 'success');
-            loadTemplates();
-        } else {
-            showToast('حدث خطأ في حذف القالب', 'danger');
-        }
-    } catch (error) {
-        console.error('Error deleting template:', error);
-        showToast('حدث خطأ في الاتصال', 'danger');
-    }
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
 </script>
 {% endblock %}
