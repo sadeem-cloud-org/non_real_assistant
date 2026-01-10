@@ -1,27 +1,55 @@
-# Production docker-compose with nginx
-# Database options: SQLite (default), PostgreSQL, or MariaDB
-# To use PostgreSQL: docker-compose --profile postgres up -d
-# To use MariaDB: docker-compose --profile mariadb up -d
-# Default (SQLite): docker-compose up -d
+# =============================================================================
+# Non Real Assistant - Docker Compose
+# =============================================================================
+# Automatically pulls source code from GitHub - no external files needed!
+#
+# Quick Start:
+#   1. Edit the environment variables below (SECRET_KEY, TELEGRAM_BOT_TOKEN)
+#   2. Run: docker-compose up -d
+#   3. Create user: docker exec -it nra_web python create_user.py create --phone 01234567890 --telegram_id YOUR_TELEGRAM_ID --is_admin
+#   4. Access: http://localhost:8880
+#
+# Database Options:
+#   - SQLite (default): docker-compose up -d
+#   - PostgreSQL: docker-compose --profile postgres up -d
+#   - MariaDB: docker-compose --profile mariadb up -d
+# =============================================================================
 
 version: '3.8'
 
 services:
+  # =========================================================================
   # Flask Web Application
+  # =========================================================================
   web:
-    build: .
+    build:
+      context: .
+      args:
+        REPO_URL: https://github.com/sadeem-cloud-org/non_real_assistant.git
+        BRANCH: main
     container_name: nra_web
     restart: unless-stopped
     environment:
+      # ----- REQUIRED SETTINGS (Edit these!) -----
+      - SECRET_KEY=CHANGE_THIS_TO_A_RANDOM_SECRET_KEY_MIN_32_CHARS
+      - TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN_FROM_BOTFATHER
+      - API_SECRET_KEY=CHANGE_THIS_TO_ANOTHER_RANDOM_KEY
+
+      # ----- OPTIONAL SETTINGS -----
       - FLASK_ENV=production
-      - SECRET_KEY=${SECRET_KEY}
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - API_SECRET_KEY=${API_SECRET_KEY}
-      - SYSTEM_URL=${SYSTEM_URL:-http://localhost}
-      - DATABASE_URL=${DATABASE_URL:-sqlite:///data/database.db}
+      - SYSTEM_URL=http://localhost
+      - OTP_EXPIRE_MINUTES=5
+
+      # ----- DATABASE (Choose one) -----
+      # SQLite (default - data stored in volume):
+      - DATABASE_URL=sqlite:////app/data/database.db
+      # PostgreSQL (uncomment if using --profile postgres):
+      # - DATABASE_URL=postgresql://nra_user:nra_password@postgres:5432/non_real_assistant
+      # MariaDB (uncomment if using --profile mariadb):
+      # - DATABASE_URL=mysql+pymysql://nra_user:nra_password@mariadb:3306/non_real_assistant
     volumes:
-      - ./data:/app/data
-      - ./translations:/app/translations
+      # Persist database and uploads
+      - nra_data:/app/data
     expose:
       - "5000"
     networks:
@@ -34,47 +62,80 @@ services:
         condition: service_started
         required: false
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/static/images/logo.png"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
       interval: 30s
       timeout: 10s
+      start_period: 30s
       retries: 3
 
-  # Telegram Bot (runs automatically)
+  # =========================================================================
+  # Telegram Bot
+  # =========================================================================
   bot:
-    build: .
+    build:
+      context: .
+      args:
+        REPO_URL: https://github.com/sadeem-cloud-org/non_real_assistant.git
+        BRANCH: main
     container_name: nra_bot
     restart: unless-stopped
     command: python telegram_bot.py
     environment:
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - API_SECRET_KEY=${API_SECRET_KEY}
-      - SYSTEM_URL=${SYSTEM_URL:-http://localhost}
-      - DATABASE_URL=${DATABASE_URL:-sqlite:///data/database.db}
+      # Copy same values from web service
+      - SECRET_KEY=CHANGE_THIS_TO_A_RANDOM_SECRET_KEY_MIN_32_CHARS
+      - TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN_FROM_BOTFATHER
+      - API_SECRET_KEY=CHANGE_THIS_TO_ANOTHER_RANDOM_KEY
+      - SYSTEM_URL=http://localhost
+      - DATABASE_URL=sqlite:////app/data/database.db
     volumes:
-      - ./data:/app/data
+      - nra_data:/app/data
     networks:
       - app_network
     depends_on:
-      - web
+      web:
+        condition: service_healthy
 
-  # Nginx Reverse Proxy
+  # =========================================================================
+  # Nginx Reverse Proxy (with auto-generated config)
+  # =========================================================================
   nginx:
     image: nginx:alpine
     container_name: nra_nginx
     restart: unless-stopped
     ports:
       - "8880:80"
-      - "4430:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-      - ./static:/app/static:ro
+      - nginx_config:/etc/nginx/conf.d
     networks:
       - app_network
     depends_on:
-      - web
+      web:
+        condition: service_healthy
+    command: |
+      sh -c "echo 'server {
+        listen 80;
+        server_name _;
 
-  # PostgreSQL Database (optional)
+        location / {
+          proxy_pass http://web:5000;
+          proxy_set_header Host \$$host;
+          proxy_set_header X-Real-IP \$$remote_addr;
+          proxy_set_header X-Forwarded-For \$$proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto \$$scheme;
+          proxy_connect_timeout 60s;
+          proxy_read_timeout 120s;
+        }
+
+        location /static {
+          proxy_pass http://web:5000/static;
+          proxy_cache_valid 200 1d;
+          expires 1d;
+        }
+      }' > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+
+  # =========================================================================
+  # PostgreSQL Database (Optional - use with: docker-compose --profile postgres up -d)
+  # =========================================================================
   postgres:
     image: postgres:15-alpine
     container_name: nra_postgres
@@ -82,20 +143,22 @@ services:
     profiles:
       - postgres
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-non_real_assistant}
-      - POSTGRES_USER=${POSTGRES_USER:-nra_user}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-nra_password}
+      - POSTGRES_DB=non_real_assistant
+      - POSTGRES_USER=nra_user
+      - POSTGRES_PASSWORD=nra_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nra_user}"]
+      test: ["CMD-SHELL", "pg_isready -U nra_user -d non_real_assistant"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # MariaDB Database (optional)
+  # =========================================================================
+  # MariaDB Database (Optional - use with: docker-compose --profile mariadb up -d)
+  # =========================================================================
   mariadb:
     image: mariadb:10.11
     container_name: nra_mariadb
@@ -103,10 +166,10 @@ services:
     profiles:
       - mariadb
     environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE:-non_real_assistant}
-      - MYSQL_USER=${MYSQL_USER:-nra_user}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-nra_password}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_password}
+      - MYSQL_DATABASE=non_real_assistant
+      - MYSQL_USER=nra_user
+      - MYSQL_PASSWORD=nra_password
+      - MYSQL_ROOT_PASSWORD=root_password_change_me
     volumes:
       - mariadb_data:/var/lib/mysql
     networks:
@@ -122,5 +185,11 @@ networks:
     driver: bridge
 
 volumes:
+  nra_data:
+    name: nra_data
+  nginx_config:
+    name: nra_nginx_config
   postgres_data:
+    name: nra_postgres_data
   mariadb_data:
+    name: nra_mariadb_data
