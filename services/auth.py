@@ -33,8 +33,12 @@ class AuthService:
         Returns: dict with success status and message
         """
         # Normalize phone number (remove + prefix)
+        original_mobile = mobile
         mobile = normalize_phone(mobile)
+        print(f"[DEBUG] Auth service - original: {original_mobile}, normalized: {mobile}")
+
         user = User.query.filter_by(mobile=mobile).first()
+        print(f"[DEBUG] User found: {user}")
 
         if not user:
             return {

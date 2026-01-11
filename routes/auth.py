@@ -36,17 +36,32 @@ def logout():
 @auth_bp.route('/api/request-otp', methods=['POST'])
 def request_otp():
     """API endpoint to request OTP"""
-    data = request.get_json()
-    mobile = data.get('phone', '').strip()  # Keep 'phone' for backward compatibility
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'طلب غير صالح / Invalid request'
+            }), 400
 
-    if not mobile:
+        mobile = data.get('phone', '').strip()  # Keep 'phone' for backward compatibility
+
+        if not mobile:
+            return jsonify({
+                'success': False,
+                'message': 'يرجى إدخال رقم الهاتف / Please enter phone number'
+            }), 400
+
+        print(f"[DEBUG] Request OTP for phone: {mobile}")  # Debug log
+        result = auth_service.request_otp(mobile)
+        print(f"[DEBUG] Result: {result}")  # Debug log
+        return jsonify(result)
+    except Exception as e:
+        print(f"[ERROR] request_otp error: {e}")
         return jsonify({
             'success': False,
-            'message': 'يرجى إدخال رقم الهاتف / Please enter phone number'
-        }), 400
-
-    result = auth_service.request_otp(mobile)
-    return jsonify(result)
+            'message': 'حدث خطأ في الخادم / Server error'
+        }), 500
 
 
 @auth_bp.route('/api/verify-otp', methods=['POST'])

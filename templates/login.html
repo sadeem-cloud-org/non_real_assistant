@@ -187,7 +187,24 @@
         // Get full phone number with country code
         function getFullPhoneNumber() {
             if (iti) {
-                return iti.getNumber(); // Returns full E.164 format like +966501234567
+                // Try to get full number from intl-tel-input
+                let fullNumber = iti.getNumber();
+
+                // If getNumber() fails or returns empty (utils.js not loaded), construct manually
+                if (!fullNumber || fullNumber.length < 8) {
+                    const dialCode = iti.getSelectedCountryData().dialCode;
+                    let nationalNumber = phoneInput.value.trim();
+                    // Remove leading 0 if present (common in local formats)
+                    if (nationalNumber.startsWith('0')) {
+                        nationalNumber = nationalNumber.substring(1);
+                    }
+                    // Remove any non-digit characters
+                    nationalNumber = nationalNumber.replace(/\D/g, '');
+                    fullNumber = '+' + dialCode + nationalNumber;
+                }
+
+                console.log('Phone number being sent:', fullNumber); // Debug
+                return fullNumber;
             }
             return phoneInput.value;
         }
