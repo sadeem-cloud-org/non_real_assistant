@@ -1332,7 +1332,7 @@ msgid "مهام"
 msgstr ""
 
 #: dashboard.html
-msgid "مهام معلقة"
+msgid "مهام مُتأخرة"
 msgstr ""
 
 #: dashboard.html

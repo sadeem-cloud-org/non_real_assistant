@@ -145,7 +145,7 @@ async function loadPendingTasks() {
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">🎉</div>
-                    <p>${t.no_pending_tasks || 'رائع! لا توجد مهام معلقة'}</p>
+                    <p>${t.no_pending_tasks || 'رائع! لا توجد مهام مُتأخرة'}</p>
                 </div>
             `;
             return;

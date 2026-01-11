@@ -1776,7 +1776,7 @@ msgid "دنفر (America/Denver)"
 msgstr "Denver (America/Denver)"
 
 #: dashboard.html
-msgid "رائع! لا توجد مهام معلقة"
+msgid "رائع! لا توجد مهام مُتأخرة"
 msgstr "Great! No pending tasks"
 
 #: share_not_found.html
@@ -2588,7 +2588,7 @@ msgid "مهام"
 msgstr "Tasks"
 
 #: dashboard.html
-msgid "مهام معلقة"
+msgid "مهام مُتأخرة"
 msgstr "Pending tasks"
 
 #: dashboard.html
