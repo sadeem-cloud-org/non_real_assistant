@@ -1,7 +1,7 @@
 """
 Telegram Bot for Non Real Assistant
 - /user_id - Show user their Telegram ID
-- /create_user - Create a new user account
+- /create_account - Create a new user account
 - /create_task - Create a new task
 - /today_tasks - Show today's scheduled tasks
 """
@@ -37,7 +37,7 @@ BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 SYSTEM_URL = os.getenv('SYSTEM_URL', 'http://localhost:5000')
 API_SECRET_KEY = os.getenv('API_SECRET_KEY')
 
-# Conversation states for create_user
+# Conversation states for create_account
 MOBILE, EMAIL, NAME, CONFIRM = range(4)
 
 # Conversation states for create_task
@@ -62,7 +62,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 <b>الأوامر المتاحة:</b>
 /user_id - عرض معرف التليجرام الخاص بك
-/create_user - إنشاء حساب جديد في النظام
+/create_account - إنشاء حساب جديد في النظام
 /create_task - إنشاء مهمة جديدة
 /today_tasks - عرض مهام اليوم
 /cancel - إلغاء العملية الحالية
@@ -114,7 +114,7 @@ async def today_tasks(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 يبدو أن معرف التليجرام الخاص بك غير مرتبط بأي حساب.
 
-استخدم /create_user لإنشاء حساب جديد.
+استخدم /create_account لإنشاء حساب جديد.
                     """,
                     parse_mode='HTML'
                 )

@@ -169,7 +169,7 @@ async function loadOverdueTasks() {
                     <div class="empty-icon">
                         <i class="ti ti-mood-smile icon"></i>
                     </div>
-                    <p class="empty-title">${t.no_pending_tasks || 'رائع! لا توجد مهام معلقة'}</p>
+                    <p class="empty-title">${t.no_pending_tasks || 'رائع! لا توجد مهام مُتأخرة'}</p>
                 </div>
             `;
             return;
