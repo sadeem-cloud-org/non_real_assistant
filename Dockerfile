@@ -25,6 +25,9 @@ ARG BRANCH=main
 RUN git clone --depth 1 --branch ${BRANCH} ${REPO_URL} . && \
     rm -rf .git
 
+# Upgrade pip to fix CVE-2025-8869
+RUN pip install --upgrade pip
+
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
