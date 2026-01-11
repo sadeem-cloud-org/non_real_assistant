@@ -26,6 +26,57 @@ def convert_to_user_timezone(utc_time, user_timezone='Africa/Cairo'):
         return utc_time
 
 
+def get_user_language(user):
+    """Get user's language code (ar, en)"""
+    if user.language:
+        return user.language.iso_code if hasattr(user.language, 'iso_code') else user.language
+    return 'ar'  # Default to Arabic
+
+
+# Notification message templates for different languages
+NOTIFICATION_MESSAGES = {
+    'ar': {
+        'hello': 'أهلاً',
+        'i_am_assistant': 'أنا المساعد',
+        'task_reminder': 'أود تنبيهك بالمهمة التي يجب إنجازها في',
+        'script_executed': 'تم تنفيذ السكريبت',
+        'success': 'نجح ✅',
+        'failed': 'فشل ❌',
+        'output': 'ناتج التشغيل',
+        'good_morning': 'صباح الخير!',
+        'no_tasks_today': 'لا توجد مهام لليوم. استمتع بيومك!',
+        'tasks_today': 'عندك {count} مهام اليوم',
+        'lets_start': 'يلا نبدأ يوم منتج!',
+        'default_user': 'المستخدم',
+        'personal_assistant': 'المساعد الشخصي'
+    },
+    'en': {
+        'hello': 'Hello',
+        'i_am_assistant': "I'm your assistant",
+        'task_reminder': 'Reminder for the task due at',
+        'script_executed': 'Script executed',
+        'success': 'Success ✅',
+        'failed': 'Failed ❌',
+        'output': 'Output',
+        'good_morning': 'Good morning!',
+        'no_tasks_today': 'No tasks for today. Enjoy your day!',
+        'tasks_today': 'You have {count} tasks today',
+        'lets_start': "Let's have a productive day!",
+        'default_user': 'User',
+        'personal_assistant': 'Personal Assistant'
+    }
+}
+
+
+def get_message(lang, key, **kwargs):
+    """Get translated message"""
+    messages = NOTIFICATION_MESSAGES.get(lang, NOTIFICATION_MESSAGES['ar'])
+    msg = messages.get(key, NOTIFICATION_MESSAGES['ar'].get(key, key))
+    if kwargs:
+        msg = msg.format(**kwargs)
+    return msg
+
+
 class TaskScheduler:
     """Background scheduler for tasks and scripts"""
 
@@ -110,18 +161,25 @@ class TaskScheduler:
             if not should_notify or not user.telegram_id:
                 continue
 
+            # Get user's language
+            lang = get_user_language(user)
+
             # Get user display name
-            user_name = user.name or user.mobile or 'المستخدم'
-            assistant_name = assistant.name if assistant else 'المساعد الشخصي'
+            user_name = user.name or user.mobile or get_message(lang, 'default_user')
+            assistant_name = assistant.name if assistant else get_message(lang, 'personal_assistant')
 
             # Format task time in user's timezone
             local_time = convert_to_user_timezone(task.time, user.timezone or 'Africa/Cairo')
             task_time = local_time.strftime('%Y-%m-%d %H:%M') if local_time else ''
 
-            # Prepare message with new format
-            message = f"""أهلاً {user_name}، أنا المساعد: {assistant_name}
+            # Prepare message based on user's language
+            hello = get_message(lang, 'hello')
+            i_am = get_message(lang, 'i_am_assistant')
+            reminder = get_message(lang, 'task_reminder')
 
-أود تنبيهك بالمهمة التي يجب إنجازها في: {task_time}
+            message = f"""{hello} {user_name}، {i_am}: {assistant_name}
+
+{reminder}: {task_time}
 
 📝 <b>{task.name}</b>"""
 
@@ -241,8 +299,11 @@ class TaskScheduler:
         if not user or not user.telegram_id:
             return
 
+        # Get user's language
+        lang = get_user_language(user)
+
         # Get user display name
-        user_name = user.name or user.mobile or 'المستخدم'
+        user_name = user.name or user.mobile or get_message(lang, 'default_user')
         assistant_name = assistant.name
 
         # Get notification template if set
@@ -253,7 +314,7 @@ class TaskScheduler:
                 template_text = template.text
 
         # Determine status
-        state = 'نجح ✅' if result.get('success') else 'فشل ❌'
+        state = get_message(lang, 'success') if result.get('success') else get_message(lang, 'failed')
         output = result.get('output', '')[:500]
 
         if template_text:
@@ -265,13 +326,18 @@ class TaskScheduler:
                 output=output
             )
         else:
-            message = f"""أهلاً {user_name}، أنا المساعد: {assistant_name}
+            hello = get_message(lang, 'hello')
+            i_am = get_message(lang, 'i_am_assistant')
+            script_exec = get_message(lang, 'script_executed')
+            output_text = get_message(lang, 'output')
 
-تم تنفيذ السكريبت: {state}
+            message = f"""{hello} {user_name}، {i_am}: {assistant_name}
+
+{script_exec}: {state}
 
 📜 <b>{script.name}</b>
 
-ناتج التشغيل:
+{output_text}:
 <code>{output}</code>"""
 
         result = self.telegram_sender.send_message(user.telegram_id, message.strip())
@@ -295,6 +361,9 @@ class TaskScheduler:
             if not user or not user.telegram_id:
                 return
 
+            # Get user's language
+            lang = get_user_language(user)
+
             # Get today's tasks
             today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
             today_end = today_start + timedelta(days=1)
@@ -307,10 +376,14 @@ class TaskScheduler:
                 Task.time < today_end
             ).order_by(Task.time).all()
 
+            good_morning = get_message(lang, 'good_morning')
+
             if not pending_tasks:
-                message = "🎉 <b>صباح الخير!</b>\n\nلا توجد مهام لليوم. استمتع بيومك!"
+                no_tasks = get_message(lang, 'no_tasks_today')
+                message = f"🎉 <b>{good_morning}</b>\n\n{no_tasks}"
             else:
-                message = f"🌅 <b>صباح الخير!</b>\n\nعندك {len(pending_tasks)} مهام اليوم:\n\n"
+                tasks_today = get_message(lang, 'tasks_today', count=len(pending_tasks))
+                message = f"🌅 <b>{good_morning}</b>\n\n{tasks_today}:\n\n"
 
                 for i, task in enumerate(pending_tasks, 1):
                     # Convert to user's timezone
@@ -322,7 +395,8 @@ class TaskScheduler:
                         message += f" ({time_text})"
                     message += "\n"
 
-                message += "\n💪 يلا نبدأ يوم منتج!"
+                lets_start = get_message(lang, 'lets_start')
+                message += f"\n💪 {lets_start}"
 
             # Send message
             result = self.telegram_sender.send_message(user.telegram_id, message)

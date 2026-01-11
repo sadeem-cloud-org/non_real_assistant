@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeDateTimePickers();
     loadDashboardStats();
     loadRecentExecutions();
-    loadPendingTasks();
+    loadOverdueTasks();
 
     // Initialize theme
     initializeTheme();
@@ -84,7 +84,7 @@ async function loadDashboardStats() {
 
         if (response.ok) {
             document.getElementById('active-assistants').textContent = data.active_assistants;
-            document.getElementById('pending-tasks').textContent = data.pending_tasks;
+            document.getElementById('overdue-tasks').textContent = data.overdue_tasks;
             document.getElementById('completed-today').textContent = data.completed_today;
             document.getElementById('recent-executions-count').textContent = data.recent_executions.length;
 
@@ -147,22 +147,21 @@ async function loadRecentExecutions() {
     }
 }
 
-// Load pending tasks
-async function loadPendingTasks() {
+// Load overdue tasks
+async function loadOverdueTasks() {
     const container = document.getElementById('tasks-list');
 
     try {
-        // Fetch both 'new' and 'in_progress' tasks
-        const response = await fetch('/api/tasks');
+        // Fetch overdue tasks
+        const response = await fetch('/api/tasks?status=overdue');
         const allTasks = await response.json();
 
         if (!response.ok) {
             throw new Error('Failed to load tasks');
         }
 
-        // Filter for active tasks (new + in_progress)
-        const tasks = allTasks.filter(task => task.status === 'new' || task.status === 'in_progress');
-        const limitedTasks = tasks.slice(0, 5);
+        // Limit to 5 tasks
+        const limitedTasks = allTasks.slice(0, 5);
 
         if (limitedTasks.length === 0) {
             container.innerHTML = `
@@ -181,10 +180,10 @@ async function loadPendingTasks() {
                 const priorityClass = task.priority === 'high' ? 'text-red' : task.priority === 'medium' ? 'text-yellow' : 'text-green';
                 const priorityIcon = task.priority === 'high' ? 'alert-circle' : task.priority === 'medium' ? 'alert-triangle' : 'circle-check';
 
-                // Status badge
-                const statusClass = task.status === 'new' ? 'blue' : task.status === 'in_progress' ? 'cyan' : 'green';
-                const statusIcon = task.status === 'new' ? 'sparkles' : task.status === 'in_progress' ? 'player-play' : 'check';
-                const statusText = task.status === 'new' ? 'جديدة' : task.status === 'in_progress' ? 'قيد التنفيذ' : 'مكتملة';
+                // Status badge - these are overdue tasks
+                const statusClass = 'red';
+                const statusIcon = 'clock-exclamation';
+                const statusText = 'متأخرة';
 
                 return `
                     <div class="list-group-item">
@@ -194,14 +193,14 @@ async function loadPendingTasks() {
                             </div>
                             <div class="col text-truncate">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="text-reset d-block">${escapeHtml(task.title)}</span>
+                                    <span class="text-reset d-block">${escapeHtml(task.name)}</span>
                                     <span class="badge bg-${statusClass}">
                                         <i class="ti ti-${statusIcon}"></i>
                                         ${statusText}
                                     </span>
                                 </div>
                                 ${task.description ? `<div class="text-muted text-truncate mt-1">${escapeHtml(task.description)}</div>` : ''}
-                                ${task.due_date ? `<div class="text-muted mt-1"><i class="ti ti-calendar icon"></i> ${formatDateTime(task.due_date)}</div>` : ''}
+                                ${task.time ? `<div class="text-danger mt-1"><i class="ti ti-clock-exclamation icon"></i> ${formatDateTime(task.time)}</div>` : ''}
                             </div>
                             <div class="col-auto">
                                 <div class="btn-list flex-nowrap">
@@ -245,7 +244,7 @@ async function completeTask(taskId) {
         if (response.ok) {
             showToast('تم إكمال المهمة بنجاح ✓', 'success');
             await loadDashboardStats();
-            await loadPendingTasks();
+            await loadOverdueTasks();
         } else {
             showToast('حدث خطأ في تحديث المهمة', 'danger');
         }
@@ -342,7 +341,7 @@ async function cancelTask(taskId) {
         if (response.ok) {
             showToast('تم إلغاء المهمة', 'warning');
             await loadDashboardStats();
-            await loadPendingTasks();
+            await loadOverdueTasks();
         } else {
             showToast('حدث خطأ في إلغاء المهمة', 'danger');
         }
@@ -366,7 +365,7 @@ async function deleteTask(taskId) {
         if (response.ok) {
             showToast('تم حذف المهمة ✓', 'success');
             await loadDashboardStats();
-            await loadPendingTasks();
+            await loadOverdueTasks();
         } else {
             showToast('حدث خطأ في حذف المهمة', 'danger');
         }
@@ -434,7 +433,7 @@ async function saveTask() {
             // Wait a bit then reload
             setTimeout(async () => {
                 await loadDashboardStats();
-                await loadPendingTasks();
+                await loadOverdueTasks();
             }, 300);
 
         } else {

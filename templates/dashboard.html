@@ -67,7 +67,7 @@
                 <div class="d-flex align-items-center">
                     <div class="subheader">{{ t('مهام معلقة') }}</div>
                 </div>
-                <div class="h1 mb-3" id="pending-tasks">0</div>
+                <div class="h1 mb-3 text-danger" id="overdue-tasks">0</div>
                 <div class="d-flex mb-2">
                     <div>{{ t('مهمة تحتاج إنجاز') }}</div>
                 </div>
@@ -106,7 +106,7 @@
 
 <!-- Content Row -->
 <div class="row row-deck row-cards mt-3">
-    <!-- Pending Tasks -->
+    <!-- Overdue Tasks -->
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">

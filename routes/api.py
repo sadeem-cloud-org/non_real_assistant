@@ -31,11 +31,14 @@ def dashboard_stats():
     # Count assistants
     total_assistants = Assistant.query.filter_by(create_user_id=user_id).count()
 
-    # Count pending tasks (not completed, not cancelled)
-    pending_tasks = Task.query.filter(
+    # Count overdue tasks (time passed, not completed, not cancelled)
+    now = datetime.utcnow()
+    overdue_tasks = Task.query.filter(
         Task.create_user_id == user_id,
         Task.complete_time.is_(None),
-        Task.cancel_time.is_(None)
+        Task.cancel_time.is_(None),
+        Task.time.isnot(None),
+        Task.time < now
     ).count()
 
     # Count completed today
@@ -56,8 +59,8 @@ def dashboard_stats():
         ).order_by(ScriptExecuteLog.create_time.desc()).limit(5).all()
 
     return jsonify({
-        'total_assistants': total_assistants,
-        'pending_tasks': pending_tasks,
+        'active_assistants': total_assistants,
+        'overdue_tasks': overdue_tasks,
         'completed_today': completed_today,
         'recent_executions': [e.to_dict() for e in recent_executions]
     })

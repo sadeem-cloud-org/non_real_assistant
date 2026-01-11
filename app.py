@@ -117,6 +117,17 @@ def inject_translate():
     return {'t': translate, 'translate': translate}
 
 
+# Inject current language into templates
+@app.context_processor
+def inject_language():
+    """Inject current language code into all templates"""
+    lang = get_locale()
+    return {
+        'current_language': lang,
+        'is_rtl': lang == 'ar'
+    }
+
+
 # Create tables and initialize default data
 with app.app_context():
     db.create_all()

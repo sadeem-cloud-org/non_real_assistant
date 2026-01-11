@@ -37,16 +37,27 @@ function showStep(stepId) {
 // Request OTP
 async function requestOTP() {
     const phoneInput = document.getElementById('phoneInput');
-    const phone = phoneInput.value.trim();
+
+    // Get full phone number with country code if intl-tel-input is available
+    let phone;
+    if (typeof getFullPhoneNumber === 'function') {
+        phone = getFullPhoneNumber();
+    } else {
+        phone = phoneInput.value.trim();
+    }
 
     // Validation
-    if (!phone) {
+    if (!phone || phone.length < 8) {
         showError('phoneError', 'يرجى إدخال رقم الهاتف / Please enter phone number');
         phoneInput.focus();
         return;
     }
 
-    if (!/^[0-9]{10,15}$/.test(phone)) {
+    // Clean phone number (remove spaces, dashes, etc.)
+    phone = phone.replace(/[\s\-\(\)]/g, '');
+
+    // Validate with intl-tel-input if available
+    if (typeof iti !== 'undefined' && iti.isValidNumber && !iti.isValidNumber()) {
         showError('phoneError', 'رقم الهاتف غير صحيح / Invalid phone number');
         phoneInput.focus();
         return;
@@ -188,11 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') {
             verifyOTP();
         }
-    });
-
-    // Auto-format phone input (numbers only)
-    document.getElementById('phoneInput').addEventListener('input', function(e) {
-        this.value = this.value.replace(/[^0-9]/g, '');
     });
 
     // Auto-format OTP input (numbers only)
