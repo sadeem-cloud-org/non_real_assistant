@@ -463,6 +463,47 @@ class TaskAttachment(db.Model):
         }
 
 
+# ===== SSH Servers =====
+
+class SSHServer(db.Model):
+    """Remote servers for script execution via SSH"""
+    __tablename__ = 'ssh_servers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    host = db.Column(db.String(255), nullable=False)
+    port = db.Column(db.Integer, default=22)
+    username = db.Column(db.String(100), nullable=False)
+    auth_type = db.Column(db.String(20), default='password')  # password, key
+    password = db.Column(db.String(255))  # Encrypted in production
+    private_key = db.Column(db.Text)  # SSH private key
+    is_active = db.Column(db.Boolean, default=True)
+    create_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    scripts = db.relationship('Script', backref='ssh_server', lazy=True)
+
+    def __repr__(self):
+        return f'<SSHServer {self.name} ({self.host})>'
+
+    def to_dict(self, include_credentials=False):
+        result = {
+            'id': self.id,
+            'name': self.name,
+            'host': self.host,
+            'port': self.port,
+            'username': self.username,
+            'auth_type': self.auth_type,
+            'is_active': self.is_active,
+            'create_time': self.create_time.isoformat() if self.create_time else None
+        }
+        if include_credentials:
+            result['password'] = self.password
+            result['private_key'] = self.private_key
+        return result
+
+
 # ===== Scripts =====
 
 class Script(db.Model):
@@ -477,6 +518,7 @@ class Script(db.Model):
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     notify_template_id = db.Column(db.Integer, db.ForeignKey('notify_templates.id'))
     assistant_id = db.Column(db.Integer, db.ForeignKey('assistants.id'))
+    ssh_server_id = db.Column(db.Integer, db.ForeignKey('ssh_servers.id'))  # Remote execution server
 
     # Relationships
     notify_template = db.relationship('NotifyTemplate')
@@ -496,7 +538,9 @@ class Script(db.Model):
             'notify_template_id': self.notify_template_id,
             'notify_template': self.notify_template.to_dict() if self.notify_template else None,
             'assistant_id': self.assistant_id,
-            'assistant_name': self.assistant.name if self.assistant else None
+            'assistant_name': self.assistant.name if self.assistant else None,
+            'ssh_server_id': self.ssh_server_id,
+            'ssh_server_name': self.ssh_server.name if self.ssh_server else None
         }
 
 
