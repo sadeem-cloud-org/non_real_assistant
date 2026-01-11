@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ task.name }} - Non Real Assistant</title>
+
+    <!-- Tabler CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+    <style>
+        body {
+            background: #f6f8fb;
+        }
+        .share-header {
+            background: linear-gradient(135deg, #206bc4 0%, #4299e1 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .status-badge {
+            font-size: 1.1rem;
+            padding: 0.5rem 1rem;
+        }
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e6e8eb;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        .attachment-item i {
+            font-size: 1.5rem;
+            margin-left: 0.75rem;
+        }
+        .task-description {
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e6e8eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="share-header">
+        <h1><i class="ti ti-robot"></i> Non Real Assistant</h1>
+        <p>مهمة مشاركة</p>
+    </div>
+
+    <div class="container mt-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <h3 class="card-title mb-0">
+                        <i class="ti ti-checkbox me-2"></i>
+                        {{ task.name }}
+                    </h3>
+                    <span class="badge status-badge
+                        {% if task.get_status() == 'completed' %}bg-success
+                        {% elif task.get_status() == 'cancelled' %}bg-secondary
+                        {% elif task.get_status() == 'overdue' %}bg-danger
+                        {% else %}bg-warning{% endif %}">
+                        {% if task.get_status() == 'completed' %}
+                            <i class="ti ti-check me-1"></i> مكتملة
+                        {% elif task.get_status() == 'cancelled' %}
+                            <i class="ti ti-x me-1"></i> ملغية
+                        {% elif task.get_status() == 'overdue' %}
+                            <i class="ti ti-alert-triangle me-1"></i> متأخرة
+                        {% else %}
+                            <i class="ti ti-clock me-1"></i> قيد الانتظار
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Task Info -->
+                <div class="row mb-4">
+                    {% if task.time %}
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="ti ti-calendar text-muted me-2"></i>
+                            <div>
+                                <small class="text-muted d-block">موعد التنفيذ</small>
+                                <strong>{{ task.time.strftime('%Y-%m-%d %H:%M') }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if task.complete_time %}
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="ti ti-check text-success me-2"></i>
+                            <div>
+                                <small class="text-muted d-block">وقت الإكمال</small>
+                                <strong>{{ task.complete_time.strftime('%Y-%m-%d %H:%M') }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if task.assistant %}
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="ti ti-robot text-primary me-2"></i>
+                            <div>
+                                <small class="text-muted d-block">المساعد</small>
+                                <strong>{{ task.assistant.name }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                {% if task.description %}
+                <h4 class="mb-3"><i class="ti ti-file-text me-2"></i>الوصف</h4>
+                <div class="task-description mb-4">{{ task.description }}</div>
+                {% endif %}
+
+                <!-- Attachments -->
+                {% if task.attachments %}
+                <h4 class="mb-3"><i class="ti ti-paperclip me-2"></i>المرفقات</h4>
+                <div class="attachments-list">
+                    {% for attachment in task.attachments %}
+                    <a href="/uploads/tasks/{{ task.id }}/{{ attachment.filename }}"
+                       class="attachment-item text-decoration-none text-dark" target="_blank">
+                        <i class="ti ti-file text-primary"></i>
+                        <div>
+                            <div>{{ attachment.original_filename }}</div>
+                            <small class="text-muted">
+                                {% if attachment.file_size %}
+                                    {{ (attachment.file_size / 1024)|round(1) }} KB
+                                {% endif %}
+                            </small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if not task.description and not task.attachments %}
+                <div class="text-center text-muted py-4">
+                    <i class="ti ti-file-off" style="font-size: 3rem;"></i>
+                    <p>لا يوجد تفاصيل إضافية</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer text-muted text-center">
+                <small>تمت المشاركة عبر Non Real Assistant</small>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+</body>
+</html>

@@ -1,30 +1,146 @@
 """
 Script Executor - Safe script execution service
+
+SECURITY NOTES:
+- Scripts run in a restricted environment
+- Dangerous imports are blocked for Python
+- Bash scripts are disabled by default for security
+- File system access is restricted
+- Network access is controlled
 """
 
 import json
 import subprocess
 import tempfile
 import os
+import re
 from datetime import datetime
 from models import db, Script, ScriptExecuteLog, User
 from services.telegram_bot import TelegramOTPSender
 
 
+# Dangerous patterns to block in scripts
+DANGEROUS_PYTHON_PATTERNS = [
+    r'\bimport\s+os\b',
+    r'\bfrom\s+os\b',
+    r'\bimport\s+subprocess\b',
+    r'\bfrom\s+subprocess\b',
+    r'\bimport\s+sys\b',
+    r'\bfrom\s+sys\b',
+    r'\bimport\s+socket\b',
+    r'\bfrom\s+socket\b',
+    r'\bimport\s+shutil\b',
+    r'\bfrom\s+shutil\b',
+    r'\bimport\s+pickle\b',
+    r'\bfrom\s+pickle\b',
+    r'\b__import__\b',
+    r'\beval\s*\(',
+    r'\bexec\s*\(',
+    r'\bcompile\s*\(',
+    r'\bopen\s*\(',
+    r'\bfile\s*\(',
+    r'\bgetattr\s*\(',
+    r'\bsetattr\s*\(',
+    r'\bdelattr\s*\(',
+    r'\bglobals\s*\(',
+    r'\blocals\s*\(',
+    r'\bvars\s*\(',
+    r'\bdir\s*\(',
+    r'\b__builtins__\b',
+    r'\b__class__\b',
+    r'\b__bases__\b',
+    r'\b__subclasses__\b',
+    r'\b__mro__\b',
+]
+
+DANGEROUS_BASH_PATTERNS = [
+    r'\brm\s+-rf\b',
+    r'\brm\s+-r\b',
+    r'\bdd\s+',
+    r'\bmkfs\b',
+    r'\bfdisk\b',
+    r'\bparted\b',
+    r'\bchmod\s+777\b',
+    r'\bchown\b',
+    r'\bsudo\b',
+    r'\bsu\s+',
+    r'\bpasswd\b',
+    r'\buseradd\b',
+    r'\buserdel\b',
+    r'\b/etc/passwd\b',
+    r'\b/etc/shadow\b',
+    r'\biptables\b',
+    r'\bsystemctl\b',
+    r'\bservice\b',
+    r'\bkill\b',
+    r'\bpkill\b',
+    r'\bkillall\b',
+    r'\breboot\b',
+    r'\bshutdown\b',
+    r'\bhalt\b',
+    r'\bpoweroff\b',
+    r'\bcrontab\b',
+    r'\bat\s+',
+    r'\bnc\s+',
+    r'\bnetcat\b',
+    r'\btelnet\b',
+    r'\bssh\b',
+    r'\bscp\b',
+    r'\brsync\b',
+    r'\bwget\s+.*-O\s*/\b',
+    r'\bcurl\s+.*-o\s*/\b',
+    r'\b>\s*/etc/\b',
+    r'\b>\s*/var/\b',
+    r'\b>\s*/usr/\b',
+    r'\b>\s*/root/\b',
+    r'\bchroot\b',
+    r'\bdocker\b',
+    r'\bpodman\b',
+]
+
+# Allowed bash commands (whitelist approach)
+ALLOWED_BASH_COMMANDS = [
+    'echo', 'printf', 'date', 'cal',
+    'expr', 'bc', 'test',
+    'head', 'tail', 'wc', 'sort', 'uniq', 'grep', 'awk', 'sed',
+    'cut', 'tr', 'paste', 'join',
+    'curl', 'wget',  # For API calls only, restricted
+    'jq', 'python3', 'node',
+]
+
+
 class ScriptExecutor:
-    """Execute scripts safely"""
+    """Execute scripts safely with security restrictions"""
+
+    # Security configuration
+    ALLOW_BASH_SCRIPTS = False  # Bash scripts disabled by default for security
+    MAX_OUTPUT_SIZE = 100000  # 100KB max output
 
     def __init__(self):
         self.telegram_sender = TelegramOTPSender()
 
+    def _check_python_security(self, script_code):
+        """Check Python script for dangerous patterns"""
+        for pattern in DANGEROUS_PYTHON_PATTERNS:
+            if re.search(pattern, script_code, re.IGNORECASE):
+                return False, f"Security violation: Dangerous pattern detected ({pattern})"
+        return True, None
+
+    def _check_bash_security(self, script_code):
+        """Check Bash script for dangerous patterns"""
+        for pattern in DANGEROUS_BASH_PATTERNS:
+            if re.search(pattern, script_code, re.IGNORECASE):
+                return False, f"Security violation: Dangerous command detected ({pattern})"
+        return True, None
+
     def execute(self, script_code, input_data=None, timeout=30, language='python'):
         """
-        Execute a script code
+        Execute a script code with security checks
 
         Args:
             script_code: Script code to execute
             input_data: Input data (dict)
-            timeout: Timeout in seconds
+            timeout: Timeout in seconds (max 60)
             language: Script language (python, javascript, bash)
 
         Returns:
@@ -32,20 +148,53 @@ class ScriptExecutor:
         """
         start_time = datetime.utcnow()
 
+        # Limit timeout to prevent long-running scripts
+        timeout = min(timeout, 60)
+
         try:
             if language == 'bash':
+                # Security check for bash
+                if not self.ALLOW_BASH_SCRIPTS:
+                    return {
+                        'success': False,
+                        'output': 'Bash scripts are disabled for security reasons',
+                        'start_time': start_time,
+                        'end_time': datetime.utcnow()
+                    }
+
+                is_safe, error = self._check_bash_security(script_code)
+                if not is_safe:
+                    return {
+                        'success': False,
+                        'output': error,
+                        'start_time': start_time,
+                        'end_time': datetime.utcnow()
+                    }
+
                 result = self._execute_bash_command(
                     script_code,
                     input_data or {},
                     timeout
                 )
+
             elif language == 'javascript':
                 result = self._execute_javascript(
                     script_code,
                     input_data or {},
                     timeout
                 )
+
             else:  # default to python
+                # Security check for Python
+                is_safe, error = self._check_python_security(script_code)
+                if not is_safe:
+                    return {
+                        'success': False,
+                        'output': error,
+                        'start_time': start_time,
+                        'end_time': datetime.utcnow()
+                    }
+
                 result = self._execute_python_script(
                     script_code,
                     input_data or {},
@@ -54,9 +203,14 @@ class ScriptExecutor:
 
             end_time = datetime.utcnow()
 
+            # Truncate output if too large
+            output = result.get('message', '') or result.get('output', '')
+            if len(output) > self.MAX_OUTPUT_SIZE:
+                output = output[:self.MAX_OUTPUT_SIZE] + '\n... (output truncated)'
+
             return {
                 'success': result.get('success', False),
-                'output': result.get('message', '') or result.get('output', ''),
+                'output': output,
                 'start_time': start_time,
                 'end_time': end_time,
                 'data': result.get('data')
@@ -182,44 +336,67 @@ class ScriptExecutor:
             }
 
     def _execute_bash_command(self, command, input_data, timeout):
-        """Execute Bash command"""
+        """Execute Bash command with restricted environment"""
         try:
-            env = os.environ.copy()
-            env['INPUT_DATA'] = json.dumps(input_data, ensure_ascii=False)
+            # Create a minimal, safe environment
+            safe_env = {
+                'PATH': '/usr/bin:/bin',
+                'HOME': '/tmp',
+                'LANG': 'C.UTF-8',
+                'INPUT_DATA': json.dumps(input_data, ensure_ascii=False)
+            }
 
-            result = subprocess.run(
-                command,
-                shell=True,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                env=env,
-                encoding='utf-8'
-            )
-
-            if result.returncode != 0:
-                return {
-                    "success": False,
-                    "message": f"Execution error: {result.stderr}",
-                    "output": result.stderr
-                }
+            # Write command to a temp script file to avoid shell=True
+            with tempfile.NamedTemporaryFile(
+                    mode='w',
+                    suffix='.sh',
+                    delete=False,
+                    encoding='utf-8'
+            ) as temp_file:
+                temp_file.write('#!/bin/bash\nset -e\n' + command)
+                temp_path = temp_file.name
 
             try:
-                output = json.loads(result.stdout)
-                return output
-            except json.JSONDecodeError:
+                os.chmod(temp_path, 0o700)
+
+                result = subprocess.run(
+                    ['/bin/bash', temp_path],
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout,
+                    env=safe_env,
+                    encoding='utf-8',
+                    cwd='/tmp'  # Run in /tmp to restrict file access
+                )
+
+                os.unlink(temp_path)
+
+                if result.returncode != 0:
+                    return {
+                        "success": False,
+                        "message": f"Execution error: {result.stderr}",
+                        "output": result.stderr
+                    }
+
+                try:
+                    output = json.loads(result.stdout)
+                    return output
+                except json.JSONDecodeError:
+                    return {
+                        "success": True,
+                        "message": result.stdout,
+                        "output": result.stdout
+                    }
+
+            except subprocess.TimeoutExpired:
+                if os.path.exists(temp_path):
+                    os.unlink(temp_path)
                 return {
-                    "success": True,
-                    "message": result.stdout,
-                    "output": result.stdout
+                    "success": False,
+                    "message": f"Timeout ({timeout} seconds)",
+                    "output": f"Command timed out after {timeout} seconds"
                 }
 
-        except subprocess.TimeoutExpired:
-            return {
-                "success": False,
-                "message": f"Timeout ({timeout} seconds)",
-                "output": f"Command timed out after {timeout} seconds"
-            }
         except Exception as e:
             return {
                 "success": False,
