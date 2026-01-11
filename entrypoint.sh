@@ -14,7 +14,7 @@ chmod 755 /app/data
 
 # Run migrations as appuser
 echo "Running database migrations..."
-gosu appuser python -m migrations.migrate
+su appuser -c "python -m migrations.migrate"
 
 # Fix database permissions after migration
 if [ -f /app/data/database.db ]; then
@@ -25,4 +25,4 @@ fi
 
 # Start the application as appuser
 echo "Starting application..."
-exec gosu appuser "$@"
+exec su appuser -c "$*"
