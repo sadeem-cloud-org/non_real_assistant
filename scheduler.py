@@ -191,7 +191,14 @@ class TaskScheduler:
             i_am = get_message(lang, 'i_am_assistant')
             reminder = get_message(lang, 'task_reminder')
 
-            message = f"""{hello} {user_name}، {i_am}: {assistant_name}
+            # Build task link
+            import os
+            system_url = os.getenv('SYSTEM_URL', 'http://localhost:5000')
+            task_link = f"{system_url}/tasks/{task.id}"
+
+            # Format: Hello on one line, username on new line, assistant bold
+            message = f"""{hello}
+<b>{user_name}</b>، {i_am}: <b>{assistant_name}</b>
 
 {reminder}: {task_time}
 
@@ -199,6 +206,8 @@ class TaskScheduler:
 
             if task.description:
                 message += f"\n📋 {task.description}"
+
+            message += f"\n\n🔗 <a href=\"{task_link}\">فتح المهمة</a>"
 
             # Send notification
             result = self.telegram_sender.send_message(
