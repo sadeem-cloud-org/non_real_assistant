@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="{{ 'rtl' if session.get('language', 'ar') == 'ar' else 'ltr' }}" lang="{{ session.get('language', 'ar') }}">
+<html dir="{{ 'rtl' if is_rtl else 'ltr' }}" lang="{{ current_language }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,21 +33,29 @@
             padding-left: 1rem;
         }
 
-        /* Flatpickr RTL */
-        .flatpickr-calendar {
+        /* Flatpickr RTL - only when RTL */
+        [dir="rtl"] .flatpickr-calendar {
             direction: rtl;
         }
 
-        .flatpickr-months {
+        [dir="rtl"] .flatpickr-months {
             direction: rtl;
         }
 
-        .flatpickr-weekdays,
-        .flatpickr-days {
+        [dir="rtl"] .flatpickr-weekdays,
+        [dir="rtl"] .flatpickr-days {
             direction: rtl;
         }
 
         .flatpickr-time {
+            direction: ltr;
+        }
+
+        /* Flatpickr LTR for English */
+        [dir="ltr"] .flatpickr-calendar,
+        [dir="ltr"] .flatpickr-months,
+        [dir="ltr"] .flatpickr-weekdays,
+        [dir="ltr"] .flatpickr-days {
             direction: ltr;
         }
         /* LTR overrides for English */

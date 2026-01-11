@@ -1,16 +1,22 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar" id="html-root">
+<html dir="ltr" lang="en" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول - Non Real Assistant</title>
+    <title>Login - Non Real Assistant</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- intl-tel-input CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
     <style>
         .lang-selector {
             position: absolute;
             top: 15px;
             left: 15px;
             z-index: 10;
+        }
+        [dir="rtl"] .lang-selector {
+            left: auto;
+            right: 15px;
         }
         .lang-btn {
             background: rgba(255,255,255,0.9);
@@ -34,6 +40,42 @@
             height: 14px;
             border-radius: 2px;
         }
+        /* intl-tel-input customizations */
+        .iti {
+            width: 100%;
+        }
+        .iti__flag-container {
+            direction: ltr;
+        }
+        .iti__selected-flag {
+            background: transparent;
+        }
+        .iti__country-list {
+            direction: ltr;
+            text-align: left;
+        }
+        .input-group .iti input {
+            width: 100%;
+            padding-left: 90px !important;
+        }
+        [dir="rtl"] .input-group .iti input {
+            padding-left: 90px !important;
+            padding-right: 15px !important;
+            text-align: left;
+            direction: ltr;
+        }
+        .iti--allow-dropdown .iti__flag-container:hover .iti__selected-flag {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        .phone-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            text-align: center;
+        }
+        [dir="rtl"] .phone-hint {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -42,45 +84,45 @@
             <!-- Language Selector -->
             <div class="lang-selector">
                 <button class="lang-btn" onclick="toggleLanguage()" id="lang-toggle">
-                    <span id="lang-flag">🇬🇧</span>
-                    <span id="lang-name">English</span>
+                    <span id="lang-flag">🇸🇦</span>
+                    <span id="lang-name">العربية</span>
                 </button>
             </div>
             <div class="logo">
                 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Non Real Assistant" class="logo-img">
                 <h2>Non Real Assistant</h2>
-                <p>المساعد الشخصي الذكي</p>
+                <p id="subtitle">Your Smart Personal Assistant</p>
             </div>
 
             <div id="phoneStep" class="step active">
-                <h3>تسجيل الدخول</h3>
-                <p class="subtitle">أدخل رقم هاتفك لتلقي رمز التحقق</p>
+                <h3 id="loginTitle">Login</h3>
+                <p class="subtitle" id="phonePrompt">Enter your phone number to receive verification code</p>
 
                 <div class="input-group">
                     <input
                         type="tel"
                         id="phoneInput"
-                        placeholder="01234567890"
-                        maxlength="15"
+                        placeholder=""
                         autocomplete="tel"
                     >
-                    <label for="phoneInput">رقم الهاتف</label>
+                    <label for="phoneInput" id="phoneLabel">Phone Number</label>
                 </div>
+                <p class="phone-hint" id="phoneHint">Select your country code and enter your phone number</p>
 
                 <button id="requestOtpBtn" class="btn btn-primary" onclick="requestOTP()">
-                    إرسال رمز التحقق
+                    Send Verification Code
                 </button>
 
                 <div id="phoneError" class="error-message"></div>
             </div>
 
             <div id="otpStep" class="step">
-                <h3>التحقق من الهوية</h3>
-                <p class="subtitle">أدخل الرمز المرسل إلى تيليجرام</p>
+                <h3 id="verifyTitle">Verify Identity</h3>
+                <p class="subtitle" id="otpPrompt">Enter the code sent to Telegram</p>
 
                 <div class="otp-info">
                     <span id="phoneDisplay"></span>
-                    <button class="link-btn" onclick="backToPhone()">تغيير</button>
+                    <button class="link-btn" onclick="backToPhone()" id="changeBtn">Change</button>
                 </div>
 
                 <div class="input-group">
@@ -92,17 +134,17 @@
                         inputmode="numeric"
                         autocomplete="one-time-code"
                     >
-                    <label for="otpInput">رمز التحقق</label>
+                    <label for="otpInput" id="otpLabel">Verification Code</label>
                 </div>
 
                 <button id="verifyOtpBtn" class="btn btn-primary" onclick="verifyOTP()">
-                    تحقق
+                    Verify
                 </button>
 
                 <div class="resend-section">
-                    <span>لم يصلك الرمز؟</span>
+                    <span id="noCodeText">Didn't receive the code?</span>
                     <button id="resendBtn" class="link-btn" onclick="resendOTP()">
-                        إعادة الإرسال
+                        Resend
                     </button>
                 </div>
 
@@ -115,12 +157,41 @@
         </div>
 
         <footer>
-            <p>Non Real Assistant &copy; 2024</p>
+            <p id="footerText">Non Real Assistant &copy; 2024</p>
         </footer>
     </div>
 
+    <!-- intl-tel-input JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
+        // Initialize intl-tel-input
+        let iti;
+        const phoneInput = document.querySelector("#phoneInput");
+
+        function initPhoneInput() {
+            iti = window.intlTelInput(phoneInput, {
+                initialCountry: "auto",
+                geoIpLookup: function(callback) {
+                    fetch('https://ipapi.co/json/')
+                        .then(res => res.json())
+                        .then(data => callback(data.country_code))
+                        .catch(() => callback('SA')); // Default to Saudi Arabia
+                },
+                preferredCountries: ['sa', 'eg', 'ae', 'kw', 'qa', 'bh', 'om', 'jo', 'lb', 'sy', 'iq'],
+                separateDialCode: true,
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js"
+            });
+        }
+
+        // Get full phone number with country code
+        function getFullPhoneNumber() {
+            if (iti) {
+                return iti.getNumber(); // Returns full E.164 format like +966501234567
+            }
+            return phoneInput.value;
+        }
+
         // Language translations
         const translations = {
             ar: {
@@ -129,6 +200,7 @@
                 loginTitle: 'تسجيل الدخول',
                 phonePrompt: 'أدخل رقم هاتفك لتلقي رمز التحقق',
                 phoneLabel: 'رقم الهاتف',
+                phoneHint: 'اختر كود الدولة وأدخل رقم هاتفك',
                 sendOtp: 'إرسال رمز التحقق',
                 verifyTitle: 'التحقق من الهوية',
                 otpPrompt: 'أدخل الرمز المرسل إلى تيليجرام',
@@ -147,6 +219,7 @@
                 loginTitle: 'Login',
                 phonePrompt: 'Enter your phone number to receive verification code',
                 phoneLabel: 'Phone Number',
+                phoneHint: 'Select your country code and enter your phone number',
                 sendOtp: 'Send Verification Code',
                 verifyTitle: 'Verify Identity',
                 otpPrompt: 'Enter the code sent to Telegram',
@@ -178,7 +251,7 @@
             const t = translations[currentLang];
             const html = document.getElementById('html-root');
 
-            // Set direction and lang
+            // Set direction and lang - IMPORTANT: English = LTR, Arabic = RTL
             html.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
             html.setAttribute('lang', currentLang);
 
@@ -186,33 +259,35 @@
             document.title = t.title;
 
             // Update content
-            document.querySelector('.logo p').textContent = t.subtitle;
-            document.querySelector('#phoneStep h3').textContent = t.loginTitle;
-            document.querySelector('#phoneStep .subtitle').textContent = t.phonePrompt;
-            document.querySelector('label[for="phoneInput"]').textContent = t.phoneLabel;
-            document.querySelector('#requestOtpBtn').textContent = t.sendOtp;
-            document.querySelector('#otpStep h3').textContent = t.verifyTitle;
-            document.querySelector('#otpStep .subtitle').textContent = t.otpPrompt;
-            document.querySelector('label[for="otpInput"]').textContent = t.otpLabel;
-            document.querySelector('#verifyOtpBtn').textContent = t.verify;
-            document.querySelector('.otp-info .link-btn').textContent = t.change;
-            document.querySelector('.resend-section span').textContent = t.noCode;
-            document.querySelector('#resendBtn').textContent = t.resend;
-            document.querySelector('footer p').textContent = t.footer;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('loginTitle').textContent = t.loginTitle;
+            document.getElementById('phonePrompt').textContent = t.phonePrompt;
+            document.getElementById('phoneLabel').textContent = t.phoneLabel;
+            document.getElementById('phoneHint').textContent = t.phoneHint;
+            document.getElementById('requestOtpBtn').textContent = t.sendOtp;
+            document.getElementById('verifyTitle').textContent = t.verifyTitle;
+            document.getElementById('otpPrompt').textContent = t.otpPrompt;
+            document.getElementById('otpLabel').textContent = t.otpLabel;
+            document.getElementById('verifyOtpBtn').textContent = t.verify;
+            document.getElementById('changeBtn').textContent = t.change;
+            document.getElementById('noCodeText').textContent = t.noCode;
+            document.getElementById('resendBtn').textContent = t.resend;
+            document.getElementById('footerText').textContent = t.footer;
 
             // Update toggle button
-            document.querySelector('#lang-flag').textContent = t.toggleFlag;
-            document.querySelector('#lang-name').textContent = t.toggleLang;
+            document.getElementById('lang-flag').textContent = t.toggleFlag;
+            document.getElementById('lang-name').textContent = t.toggleLang;
 
-            // Update input direction
-            const inputs = document.querySelectorAll('input');
-            inputs.forEach(input => {
-                input.style.direction = currentLang === 'ar' ? 'rtl' : 'ltr';
-            });
+            // Keep phone input LTR always
+            phoneInput.style.direction = 'ltr';
+            phoneInput.style.textAlign = 'left';
         }
 
-        // Apply language on page load
-        document.addEventListener('DOMContentLoaded', applyLanguage);
+        // Apply language and init phone input on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initPhoneInput();
+            applyLanguage();
+        });
     </script>
 </body>
 </html>
