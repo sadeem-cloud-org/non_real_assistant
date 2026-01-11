@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}إدارة الترجمات - Non Real Assistant{% endblock %}
+{% block title %}{{ t('إدارة الترجمات') }} - Non Real Assistant{% endblock %}
 
-{% block page_title %}إدارة الترجمات{% endblock %}
-{% block page_subtitle %}إدارة اللغات والترجمات{% endblock %}
+{% block page_title %}{{ t('إدارة الترجمات') }}{% endblock %}
+{% block page_subtitle %}{{ t('إدارة اللغات والترجمات') }}{% endblock %}
 
 {% block page_actions %}
 <button class="btn btn-outline-success me-2" onclick="loadFromFiles()">
     <i class="ti ti-folder-open"></i>
-    تحميل من الملفات
+    {{ t('تحميل من الملفات') }}
 </button>
 <button class="btn btn-primary" onclick="showAddLanguageModal()">
     <i class="ti ti-plus"></i>
-    إضافة لغة
+    {{ t('إضافة لغة') }}
 </button>
 {% endblock %}
 
@@ -22,7 +22,7 @@
     <div class="col-12 col-lg-4">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">اللغات</h3>
+                <h3 class="card-title">{{ t('اللغات') }}</h3>
             </div>
             <div class="list-group list-group-flush" id="languages-list">
                 <div class="text-center p-3">
@@ -36,19 +36,19 @@
     <div class="col-12 col-lg-8">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title" id="translations-title">اختر لغة</h3>
+                <h3 class="card-title" id="translations-title">{{ t('اختر لغة') }}</h3>
                 <div class="card-actions" id="translation-actions" style="display: none;">
                     <button class="btn btn-ghost-primary btn-sm" onclick="syncStrings()">
                         <i class="ti ti-refresh"></i>
-                        مزامنة النصوص
+                        {{ t('مزامنة النصوص') }}
                     </button>
                     <button class="btn btn-ghost-success btn-sm" onclick="exportTranslations()">
                         <i class="ti ti-download"></i>
-                        تصدير .po
+                        {{ t('تصدير .po') }}
                     </button>
                     <button class="btn btn-ghost-warning btn-sm" onclick="showImportModal()">
                         <i class="ti ti-upload"></i>
-                        استيراد .po
+                        {{ t('استيراد .po') }}
                     </button>
                 </div>
             </div>
@@ -57,9 +57,9 @@
                     <div class="empty-icon">
                         <i class="ti ti-language icon"></i>
                     </div>
-                    <p class="empty-title">اختر لغة من القائمة</p>
+                    <p class="empty-title">{{ t('اختر لغة من القائمة') }}</p>
                     <p class="empty-subtitle text-muted">
-                        اختر لغة لعرض وتحرير الترجمات الخاصة بها
+                        {{ t('اختر لغة لعرض وتحرير الترجمات الخاصة بها') }}
                     </p>
                 </div>
             </div>
@@ -72,23 +72,23 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">إضافة لغة جديدة</h5>
+                <h5 class="modal-title">{{ t('إضافة لغة جديدة') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">اسم اللغة</label>
+                    <label class="form-label">{{ t('اسم اللغة') }}</label>
                     <input type="text" class="form-control" id="new-lang-name" placeholder="مثال: English">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">رمز اللغة (ISO 639-1)</label>
-                    <input type="text" class="form-control" id="new-lang-code" placeholder="مثال: en" maxlength="5">
-                    <small class="text-muted">رمز اللغة مثل: en, fr, de, es</small>
+                    <label class="form-label">{{ t('رمز اللغة (ISO 639-1)') }}</label>
+                    <input type="text" class="form-control" id="new-lang-code" placeholder="{{ t('مثال: en') }}" maxlength="5">
+                    <small class="text-muted">{{ t('رمز اللغة مثل: en, fr, de, es') }}</small>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn" data-bs-dismiss="modal">إلغاء</button>
-                <button type="button" class="btn btn-primary" onclick="addLanguage()">إضافة</button>
+                <button type="button" class="btn" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-primary" onclick="addLanguage()">{{ t('إضافة') }}</button>
             </div>
         </div>
     </div>
@@ -99,22 +99,22 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">استيراد ملف ترجمة</h5>
+                <h5 class="modal-title">{{ t('استيراد ملف ترجمة') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">ملف .po</label>
+                    <label class="form-label">{{ t('ملف .po') }}</label>
                     <input type="file" class="form-control" id="import-file" accept=".po">
                 </div>
                 <div class="alert alert-info">
                     <i class="ti ti-info-circle"></i>
-                    سيتم تحديث الترجمات الموجودة وإضافة الجديدة
+                    {{ t('سيتم تحديث الترجمات الموجودة وإضافة الجديدة') }}
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn" data-bs-dismiss="modal">إلغاء</button>
-                <button type="button" class="btn btn-primary" onclick="importTranslations()">استيراد</button>
+                <button type="button" class="btn" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-primary" onclick="importTranslations()">{{ t('استيراد') }}</button>
             </div>
         </div>
     </div>
@@ -125,23 +125,23 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">تحرير الترجمة</h5>
+                <h5 class="modal-title">{{ t('تحرير الترجمة') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">النص الأصلي</label>
+                    <label class="form-label">{{ t('النص الأصلي') }}</label>
                     <div class="form-control-plaintext bg-light p-2 rounded" id="edit-original" dir="auto"></div>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">الترجمة</label>
+                    <label class="form-label">{{ t('الترجمة') }}</label>
                     <textarea class="form-control" id="edit-value" rows="3" dir="auto"></textarea>
                 </div>
                 <input type="hidden" id="edit-translation-id">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn" data-bs-dismiss="modal">إلغاء</button>
-                <button type="button" class="btn btn-primary" onclick="saveTranslation()">حفظ</button>
+                <button type="button" class="btn" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-primary" onclick="saveTranslation()">{{ t('حفظ') }}</button>
             </div>
         </div>
     </div>
@@ -226,7 +226,7 @@ async function loadLanguages() {
                 <div class="d-flex justify-content-between align-items-center">
                     <small>
                         <span class="badge bg-blue">${lang.translated_count}</span> /
-                        <span>${lang.total_strings}</span> مترجم
+                        <span>${lang.total_strings}</span> {{ t('مترجم') }}
                     </small>
                     ${lang.iso_code !== 'ar' ? `
                         <button class="btn btn-ghost-danger btn-sm" onclick="deleteLanguage(${lang.id}, event)">

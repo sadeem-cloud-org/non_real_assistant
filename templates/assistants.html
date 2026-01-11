@@ -1,19 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}المساعدين - Non Real Assistant{% endblock %}
+{% block title %}{{ t('المساعدين') }} - Non Real Assistant{% endblock %}
 
-{% block page_title %}المساعدين الافتراضيين{% endblock %}
-{% block page_subtitle %}إنشاء وإدارة المساعدين الذكية الخاصة بك{% endblock %}
+{% block page_title %}{{ t('المساعدين الافتراضيين') }}{% endblock %}
+{% block page_subtitle %}{{ t('إنشاء وإدارة المساعدين الذكية الخاصة بك') }}{% endblock %}
 
 {% block page_css %}
 <style>
     .assistant-card {
         transition: transform 0.2s, box-shadow 0.2s;
     }
+
     .assistant-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
+
     .assistant-avatar {
         width: 80px;
         height: 80px;
@@ -25,7 +27,7 @@
 {% block page_actions %}
 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-assistant">
     <i class="ti ti-plus icon"></i>
-    إضافة مساعد
+    {{ t('إضافة مساعد') }}
 </button>
 {% endblock %}
 
@@ -43,7 +45,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-total">0</div>
-                        <div class="text-muted">إجمالي المساعدين</div>
+                        <div class="text-muted">{{ t('إجمالي المساعدين') }}</div>
                     </div>
                 </div>
             </div>
@@ -61,7 +63,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-tasks">0</div>
-                        <div class="text-muted">مساعدين المهام</div>
+                        <div class="text-muted">{{ t('مساعدين المهام') }}</div>
                     </div>
                 </div>
             </div>
@@ -79,7 +81,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-scripts">0</div>
-                        <div class="text-muted">مساعدين السكريبتات</div>
+                        <div class="text-muted">{{ t('مساعدين السكريبتات') }}</div>
                     </div>
                 </div>
             </div>
@@ -97,7 +99,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-scheduled">0</div>
-                        <div class="text-muted">بجدول زمني</div>
+                        <div class="text-muted">{{ t('بجدول زمني') }}</div>
                     </div>
                 </div>
             </div>
@@ -109,7 +111,7 @@
 <div class="row row-cards" id="assistants-container">
     <div class="col-12 text-center py-5">
         <div class="spinner-border text-muted" role="status"></div>
-        <div class="mt-2">جاري التحميل...</div>
+        <div class="mt-2">{{ t('جاري التحميل...') }}</div>
     </div>
 </div>
 {% endblock %}
@@ -120,21 +122,22 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal-title">إضافة مساعد جديد</h5>
+                <h5 class="modal-title" id="modal-title">{{ t('إضافة مساعد جديد') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label required">اسم المساعد</label>
-                    <input type="text" class="form-control" id="assistant-name" placeholder="مثال: مساعد المهام اليومية">
+                    <label class="form-label required">{{ t('اسم المساعد') }}</label>
+                    <input type="text" class="form-control" id="assistant-name"
+                           placeholder="{{ t('مثال: مساعد المهام اليومية') }}">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label required">نوع المساعد</label>
+                    <label class="form-label required">{{ t('نوع المساعد') }}</label>
                     <select class="form-select" id="assistant-type">
                         <!-- Will be populated from API -->
                     </select>
-                    <small class="form-hint" id="type-hint">اختر نوع المساعد حسب الوظيفة المطلوبة</small>
+                    <small class="form-hint" id="type-hint">{{ t('اختر نوع المساعد حسب الوظيفة المطلوبة') }}</small>
                 </div>
 
                 <!-- Notification Settings -->
@@ -142,17 +145,18 @@
                     <div class="card-header">
                         <h4 class="card-title">
                             <i class="ti ti-bell me-2"></i>
-                            إعدادات الإشعارات
+                            {{ t('إعدادات الإشعارات') }}
                         </h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <label class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="assistant-telegram-notify" checked>
+                                    <input class="form-check-input" type="checkbox" id="assistant-telegram-notify"
+                                           checked>
                                     <span class="form-check-label">
                                         <i class="ti ti-brand-telegram text-info"></i>
-                                        إشعارات التليجرام
+                                        {{ t('إشعارات التليجرام') }}
                                     </span>
                                 </label>
                             </div>
@@ -161,15 +165,15 @@
                                     <input class="form-check-input" type="checkbox" id="assistant-email-notify">
                                     <span class="form-check-label">
                                         <i class="ti ti-mail text-warning"></i>
-                                        إشعارات البريد الإلكتروني
+                                        {{ t('إشعارات البريد الإلكتروني') }}
                                     </span>
                                 </label>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label class="form-label">قالب الإشعار</label>
+                            <label class="form-label">{{ t('قالب الإشعار') }}</label>
                             <select class="form-select" id="assistant-notify-template">
-                                <option value="">القالب الافتراضي</option>
+                                <option value="">{{ t('القالب الافتراضي') }}</option>
                                 <!-- Will be populated from API -->
                             </select>
                         </div>
@@ -181,45 +185,49 @@
                     <div class="card-header">
                         <h4 class="card-title">
                             <i class="ti ti-clock me-2"></i>
-                            الجدولة (اختياري)
+                            {{ t('الجدولة (اختياري)') }}
                         </h4>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label">نوع الجدولة</label>
+                            <label class="form-label">{{ t('نوع الجدولة') }}</label>
                             <select class="form-select" id="assistant-schedule-type" onchange="toggleScheduleOptions()">
-                                <option value="">بدون جدولة</option>
-                                <option value="recurring">تكرار (كل فترة)</option>
-                                <option value="once">تشغيل مرة واحدة (وقت محدد)</option>
+                                <option value="">{{ t('بدون جدولة') }}</option>
+                                <option value="recurring">{{ t('تكرار (كل فترة)') }}</option>
+                                <option value="once">{{ t('تشغيل مرة واحدة (وقت محدد)') }}</option>
                             </select>
                         </div>
 
                         <!-- Recurring Schedule -->
                         <div class="mb-3" id="recurring-schedule" style="display: none;">
-                            <label class="form-label">تشغيل تلقائي كل</label>
+                            <label class="form-label">{{ t('تشغيل تلقائي كل') }}</label>
                             <select class="form-select" id="assistant-run-every">
-                                <option value="">اختر الفترة</option>
-                                <option value="minute">دقيقة</option>
-                                <option value="hourly">ساعة</option>
-                                <option value="daily">يوم</option>
-                                <option value="weekly">أسبوع</option>
-                                <option value="monthly">شهر</option>
+                                <option value="">{{ t('اختر الفترة') }}</option>
+                                <option value="minute">{{ t('دقيقة') }}</option>
+                                <option value="hourly">{{ t('ساعة') }}</option>
+                                <option value="daily">{{ t('يوم') }}</option>
+                                <option value="weekly">{{ t('أسبوع') }}</option>
+                                <option value="monthly">{{ t('شهر') }}</option>
                             </select>
-                            <small class="form-hint">سيتم تنفيذ السكريبتات المرتبطة بهذا المساعد تلقائياً</small>
+                            <small class="form-hint">{{ t('سيتم تنفيذ السكريبتات المرتبطة بهذا المساعد تلقائياً')
+                                }}</small>
                         </div>
 
                         <!-- One-time Schedule -->
                         <div class="mb-3" id="once-schedule" style="display: none;">
-                            <label class="form-label">تشغيل في تاريخ ووقت محدد</label>
-                            <input type="text" class="form-control" id="assistant-run-at" placeholder="اختر التاريخ والوقت">
-                            <small class="form-hint">سيتم تنفيذ السكريبتات مرة واحدة في الوقت المحدد</small>
+                            <label class="form-label">{{ t('تشغيل في تاريخ ووقت محدد') }}</label>
+                            <input type="text" class="form-control" id="assistant-run-at"
+                                   placeholder="{{ t('اختر التاريخ والوقت') }}">
+                            <small class="form-hint">{{ t('سيتم تنفيذ السكريبتات مرة واحدة في الوقت المحدد') }}</small>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">إلغاء</button>
-                <button type="button" class="btn btn-primary" id="btn-save-assistant" onclick="saveAssistant()">حفظ</button>
+                <button type="button" class="btn me-auto" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-primary" id="btn-save-assistant" onclick="saveAssistant()">{{
+                    t('حفظ') }}
+                </button>
             </div>
         </div>
     </div>
@@ -227,5 +235,59 @@
 {% endblock %}
 
 {% block page_js %}
+<script>
+    window.translations = {
+        'task_notify': "{{ t('تنبيه بالمهام') }}",
+        'script_runner': "{{ t('تشغيل سكريبتات') }}",
+        'every_minute': "{{ t('كل دقيقة') }}",
+        'every_hour': "{{ t('كل ساعة') }}",
+        'daily': "{{ t('يومياً') }}",
+        'weekly': "{{ t('أسبوعياً') }}",
+        'monthly': "{{ t('شهرياً') }}",
+        'once': "{{ t('مرة واحدة') }}",
+        'created': "{{ t('تم الإنشاء') }}",
+        'please_enter_assistant_name': "{{ t('يرجى إدخال اسم المساعد') }}",
+        'please_select_assistant_type': "{{ t('يرجى اختيار نوع المساعد') }}",
+        'saving': "{{ t('جاري الحفظ...') }}",
+        'assistant_updated': "{{ t('تم تحديث المساعد بنجاح') }}",
+        'assistant_added': "{{ t('تم إضافة المساعد بنجاح') }}",
+        'failed_to_save': "{{ t('فشل في حفظ المساعد') }}",
+        'assistant_not_found': "{{ t('المساعد غير موجود') }}",
+        'edit_assistant': "{{ t('تعديل المساعد') }}",
+        'confirm_delete_assistant': "{{ t('هل أنت متأكد من حذف هذا المساعد نهائياً؟ لا يمكن التراجع!') }}",
+        'assistant_deleted': "{{ t('تم حذف المساعد') }}",
+        'error_deleting_assistant': "{{ t('حدث خطأ في حذف المساعد') }}",
+        'error_loading_assistant': "{{ t('حدث خطأ في تحميل المساعد') }}",
+        'error_loading_assistants': "{{ t('حدث خطأ في تحميل المساعدين') }}",
+        'no_assistants': "{{ t('لا يوجد مساعدين') }}",
+        'create_first_assistant': "{{ t('ابدأ بإنشاء مساعدك الافتراضي الأول') }}",
+        'works_with_tasks': "{{ t('هذا المساعد يعمل مع المهام') }}",
+        'works_with_scripts': "{{ t('هذا المساعد يعمل مع السكريبتات') }}",
+        'error': "{{ t('حدث خطأ:') }}",
+        'connection_error': "{{ t('حدث خطأ في الاتصال') }}",
+        'now': "{{ t('الآن') }}",
+        'since': "{{ t('منذ') }}",
+        'second': "{{ t('ثانية') }}",
+        'minute': "{{ t('دقيقة') }}",
+        'minutes_two': "{{ t('دقيقتين') }}",
+        'hour': "{{ t('ساعة') }}",
+        'hours_two': "{{ t('ساعتين') }}",
+        'day': "{{ t('يوم') }}",
+        'days_two': "{{ t('يومين') }}",
+        'save_changes': "{{ t('حفظ التعديلات') }}",
+        'save': "{{ t('حفظ') }}",
+        'add_new_assistant': "{{ t('إضافة مساعد جديد') }}",
+        'add_assistant': "{{ t('إضافة مساعد') }}",
+        'custom': "{{ t('مخصص') }}",
+        'tasks': "{{ t('مهام') }}",
+        'scripts': "{{ t('سكريبتات') }}",
+        'telegram': "{{ t('تيليجرام') }}",
+        'email': "{{ t('إيميل') }}",
+        'edit': "{{ t('تعديل') }}",
+        'details': "{{ t('التفاصيل') }}",
+        'delete': "{{ t('حذف') }}",
+        'default_template': "{{ t('القالب الافتراضي') }}"
+    };
+</script>
 <script src="{{ url_for('static', filename='js/assistants.js') }}"></script>
 {% endblock %}

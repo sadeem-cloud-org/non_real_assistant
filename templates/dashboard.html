@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}لوحة التحكم - Non Real Assistant{% endblock %}
+{% block title %}{{ t('لوحة التحكم') }} - Non Real Assistant{% endblock %}
 
-{% block page_title %}لوحة التحكم{% endblock %}
-{% block page_subtitle %}مرحباً بك في Non Real Assistant{% endblock %}
+{% block page_title %}{{ t('لوحة التحكم') }}{% endblock %}
+{% block page_subtitle %}{{ t('مرحباً بك في') }} Non Real Assistant{% endblock %}
 
 {% block page_actions %}
 <div class="btn-list">
     <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-task">
         <i class="ti ti-plus icon"></i>
-        إضافة مهمة
+        {{ t('إضافة مهمة') }}
     </a>
     <a href="/assistants" class="btn btn-ghost-secondary">
         <i class="ti ti-robot icon"></i>
-        إضافة مساعد
+        {{ t('إضافة مساعد') }}
     </a>
 </div>
 {% endblock %}
@@ -26,12 +26,13 @@
             <i class="ti ti-robot icon alert-icon"></i>
         </div>
         <div class="ms-3">
-            <h4 class="alert-title">لا يوجد لديك مساعدين بعد!</h4>
-            <div class="text-muted">ابدأ بإنشاء مساعد شخصي لتتمكن من تنظيم مهامك وتلقي الإشعارات التلقائية.</div>
+            <h4 class="alert-title">{{ t('لا يوجد لديك مساعدين بعد!') }}</h4>
+            <div class="text-muted">{{ t('ابدأ بإنشاء مساعد شخصي لتتمكن من تنظيم مهامك وتلقي الإشعارات التلقائية.') }}
+            </div>
             <div class="mt-2">
                 <a href="/assistants" class="btn btn-primary btn-sm">
                     <i class="ti ti-plus icon"></i>
-                    إنشاء مساعد جديد
+                    {{ t('إنشاء مساعد جديد') }}
                 </a>
             </div>
         </div>
@@ -44,16 +45,17 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="subheader">مساعدين نشطين</div>
+                    <div class="subheader">{{ t('مساعدين نشطين') }}</div>
                     <div class="ms-auto lh-1">
                         <div class="dropdown">
-                            <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown">آخر 7 أيام</a>
+                            <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown">{{ t('آخر 7 أيام')
+                                }}</a>
                         </div>
                     </div>
                 </div>
                 <div class="h1 mb-3" id="active-assistants">0</div>
                 <div class="d-flex mb-2">
-                    <div>مساعد نشط</div>
+                    <div>{{ t('مساعد نشط') }}</div>
                 </div>
             </div>
         </div>
@@ -63,11 +65,11 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="subheader">{{ t('مهام متأخرة') }}</div>
+                    <div class="subheader">{{ t('مهام معلقة') }}</div>
                 </div>
                 <div class="h1 mb-3 text-danger" id="overdue-tasks">0</div>
                 <div class="d-flex mb-2">
-                    <div>{{ t('مهمة تجاوزت وقتها') }}</div>
+                    <div>{{ t('مهمة تحتاج إنجاز') }}</div>
                 </div>
             </div>
         </div>
@@ -77,11 +79,11 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="subheader">أُنجزت اليوم</div>
+                    <div class="subheader">{{ t('أُنجزت اليوم') }}</div>
                 </div>
                 <div class="h1 mb-3" id="completed-today">0</div>
                 <div class="d-flex mb-2">
-                    <div>مهمة مكتملة</div>
+                    <div>{{ t('مهمة مكتملة') }}</div>
                 </div>
             </div>
         </div>
@@ -91,11 +93,11 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="subheader">عمليات حديثة</div>
+                    <div class="subheader">{{ t('عمليات حديثة') }}</div>
                 </div>
                 <div class="h1 mb-3" id="recent-executions-count">0</div>
                 <div class="d-flex mb-2">
-                    <div>عملية تنفيذ</div>
+                    <div>{{ t('عملية تنفيذ') }}</div>
                 </div>
             </div>
         </div>
@@ -108,10 +110,10 @@
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">{{ t('مهام متأخرة') }}</h3>
+                <h3 class="card-title">{{ t('مهام معلقة') }}</h3>
                 <div class="card-actions">
                     <a href="/tasks" class="btn btn-sm btn-ghost-secondary">
-                        عرض الكل
+                        {{ t('عرض الكل') }}
                         <i class="ti ti-arrow-left icon"></i>
                     </a>
                 </div>
@@ -119,7 +121,7 @@
             <div class="card-body" id="tasks-list">
                 <div class="text-center py-5">
                     <div class="spinner-border text-muted" role="status"></div>
-                    <div class="mt-2">جاري التحميل...</div>
+                    <div class="mt-2">{{ t('جاري التحميل...') }}</div>
                 </div>
             </div>
         </div>
@@ -129,10 +131,10 @@
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">آخر العمليات</h3>
+                <h3 class="card-title">{{ t('آخر العمليات') }}</h3>
                 <div class="card-actions">
                     <a href="/executions" class="btn btn-sm btn-ghost-secondary">
-                        عرض الكل
+                        {{ t('عرض الكل') }}
                         <i class="ti ti-arrow-left icon"></i>
                     </a>
                 </div>
@@ -140,7 +142,7 @@
             <div class="card-body" id="executions-list">
                 <div class="text-center py-5">
                     <div class="spinner-border text-muted" role="status"></div>
-                    <div class="mt-2">جاري التحميل...</div>
+                    <div class="mt-2">{{ t('جاري التحميل...') }}</div>
                 </div>
             </div>
         </div>
@@ -154,44 +156,47 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal-title">إضافة مهمة جديدة</h5>
+                <h5 class="modal-title" id="modal-title">{{ t('إضافة مهمة جديدة') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label required">عنوان المهمة</label>
-                    <input type="text" class="form-control" id="task-title" placeholder="اكتب عنوان المهمة">
+                    <label class="form-label required">{{ t('عنوان المهمة') }}</label>
+                    <input type="text" class="form-control" id="task-title" placeholder="{{ t('اكتب عنوان المهمة') }}">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">الوصف</label>
-                    <textarea class="form-control" id="task-description" rows="3" placeholder="تفاصيل المهمة (اختياري)"></textarea>
+                    <label class="form-label">{{ t('الوصف') }}</label>
+                    <textarea class="form-control" id="task-description" rows="3"
+                              placeholder="{{ t('تفاصيل المهمة (اختياري)') }}"></textarea>
                 </div>
                 <div class="row">
                     <div class="col-lg-6">
                         <div class="mb-3">
-                            <label class="form-label">الأولوية</label>
+                            <label class="form-label">{{ t('الأولوية') }}</label>
                             <select class="form-select" id="task-priority">
-                                <option value="low">منخفضة</option>
-                                <option value="medium" selected>متوسطة</option>
-                                <option value="high">عالية</option>
+                                <option value="low">{{ t('منخفضة') }}</option>
+                                <option value="medium" selected>{{ t('متوسطة') }}</option>
+                                <option value="high">{{ t('عالية') }}</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-lg-6">
                         <div class="mb-3">
-                            <label class="form-label">تاريخ ووقت الاستحقاق</label>
-                            <input type="text" class="form-control" id="task-due-date" placeholder="dd/mm/yyyy hh:mm" readonly>
+                            <label class="form-label">{{ t('تاريخ ووقت الاستحقاق') }}</label>
+                            <input type="text" class="form-control" id="task-due-date" placeholder="dd/mm/yyyy hh:mm"
+                                   readonly>
                         </div>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">وقت التذكير</label>
+                    <label class="form-label">{{ t('وقت التذكير') }}</label>
                     <input type="text" class="form-control" id="task-reminder" placeholder="dd/mm/yyyy hh:mm" readonly>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">إلغاء</button>
-                <button type="button" class="btn btn-primary" id="btn-save-task" onclick="saveTask()">حفظ</button>
+                <button type="button" class="btn me-auto" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-primary" id="btn-save-task" onclick="saveTask()">{{ t('حفظ') }}
+                </button>
             </div>
         </div>
     </div>
@@ -199,5 +204,46 @@
 {% endblock %}
 
 {% block page_js %}
+<script>
+    // Translation strings for JavaScript
+    window.translations = {
+        'no_recent_operations': "{{ t('لا توجد عمليات حديثة') }}",
+        'deleted_script': "{{ t('سكريبت محذوف') }}",
+        'error_loading_data': "{{ t('حدث خطأ في تحميل البيانات') }}",
+        'no_pending_tasks': "{{ t('رائع! لا توجد مهام معلقة') }}",
+        'complete': "{{ t('إكمال') }}",
+        'edit': "{{ t('تعديل') }}",
+        'hold': "{{ t('تعليق') }}",
+        'delete': "{{ t('حذف') }}",
+        'confirm_complete_task': "{{ t('هل تريد تعليم هذه المهمة كمكتملة؟') }}",
+        'error_updating_task': "{{ t('حدث خطأ في تحديث المهمة') }}",
+        'connection_error': "{{ t('حدث خطأ في الاتصال') }}",
+        'task_not_found': "{{ t('المهمة غير موجودة') }}",
+        'edit_task': "{{ t('تعديل المهمة') }}",
+        'save_changes': "{{ t('حفظ التعديلات') }}",
+        'error_loading_task': "{{ t('حدث خطأ في تحميل المهمة') }}",
+        'confirm_hold_task': "{{ t('هل تريد تعليق هذه المهمة مؤقتاً؟') }}",
+        'error_holding_task': "{{ t('حدث خطأ في تعليق المهمة') }}",
+        'confirm_delete_task': "{{ t('هل أنت متأكد من حذف هذه المهمة؟ لا يمكن التراجع عن هذا الإجراء!') }}",
+        'error_deleting_task': "{{ t('حدث خطأ في حذف المهمة') }}",
+        'add_new_task': "{{ t('إضافة مهمة جديدة') }}",
+        'save': "{{ t('حفظ') }}",
+        'please_enter_task_title': "{{ t('يرجى إدخال عنوان المهمة') }}",
+        'error': "{{ t('خطأ') }}",
+        'failed_to_save_task': "{{ t('فشل في حفظ المهمة') }}",
+        'confirm_logout': "{{ t('هل أنت متأكد من تسجيل الخروج؟') }}",
+        'success_status': "{{ t('✓ نجح') }}",
+        'failed_status': "{{ t('✗ فشل') }}",
+        'running_status': "{{ t('⏳ قيد التنفيذ') }}",
+        'pending_status': "{{ t('⏸ معلق') }}",
+        'high_priority': "{{ t('🔴 عالية') }}",
+        'medium_priority': "{{ t('🟡 متوسطة') }}",
+        'low_priority': "{{ t('🟢 منخفضة') }}",
+        'since': "{{ t('منذ') }}",
+        'minute': "{{ t('دقيقة') }}",
+        'hour': "{{ t('ساعة') }}",
+        'day': "{{ t('يوم') }}"
+    };
+</script>
 <script src="{{ url_for('static', filename='js/dashboard-tabler.js') }}"></script>
 {% endblock %}

@@ -1,79 +1,1694 @@
-# English translations for Non Real Assistant
+# Translation file for English
 # Language: en
-#
-# To add a new language, create a file named {language_code}.po
-# Then add the language in the admin panel and click "Load from files"
+# Generated: 2026-01-07T20:12:22.975361
 
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Language: en\n"
 
-# Navigation
-msgid "لوحة التحكم"
-msgstr "Dashboard"
+msgid "# اكتب الكود هنا"
+msgstr "# Write code here"
 
-msgid "المساعدين"
-msgstr "Assistants"
+msgid "Cannot show notification - permission not granted"
+msgstr "Cannot show notification - permission not granted"
 
-msgid "المهام"
-msgstr "Tasks"
+msgid "Closed"
+msgstr "Closed"
 
-msgid "السكريبتات"
-msgstr "Scripts"
+msgid "Error (stderr):"
+msgstr "Error (stderr):"
 
-msgid "سجل التنفيذ"
-msgstr "Execution Log"
+msgid "Error creating card for execution"
+msgstr "Error creating card for execution"
 
-# User Menu
-msgid "الإعدادات"
-msgstr "Settings"
+msgid "Error requesting notification permission"
+msgstr "Error requesting notification permission"
+
+msgid "Failed to close notifications"
+msgstr "Failed to close notifications"
+
+msgid "Notification failed"
+msgstr "Notification failed"
+
+msgid "Notification permission"
+msgstr "Notification permission"
+
+msgid "Notification permission denied"
+msgstr "Notification permission denied"
+
+msgid "Notification permission dismissed"
+msgstr "Notification permission dismissed"
+
+msgid "Notification permission granted"
+msgstr "Notification permission granted"
+
+msgid "Notification shown"
+msgstr "Notification shown"
+
+msgid "Notification shown via Service Worker"
+msgstr "Notification shown via Service Worker"
+
+msgid "Notifications not supported"
+msgstr "Notifications not supported"
+
+msgid "Output (stdout):"
+msgstr "Output (stdout):"
+
+msgid "Service Worker not available (this is OK)"
+msgstr "Service Worker not available (this is OK)"
+
+msgid "Service Worker not supported"
+msgstr "Service Worker not supported"
+
+msgid "Service Worker notification failed"
+msgstr "Service Worker notification failed"
+
+msgid "Service Worker registered"
+msgstr "Service Worker registered"
+
+msgid "UTC"
+msgstr "UTC"
+
+msgid "Unknown Script"
+msgstr "Unknown Script"
+
+msgid "notifications with tag:"
+msgstr "notifications with tag:"
+
+#: admin/panel.html
+msgid "، هذا تذكير من المساعد"
+msgstr ", this is a reminder from the assistant"
+
+#: dashboard.html
+msgid "آخر 7 أيام"
+msgstr "Last 7 days"
+
+#: dashboard.html
+msgid "آخر العمليات"
+msgstr "Recent operations"
+
+#: settings.html
+msgid "آخر تسجيل دخول"
+msgstr "Last login"
+
+#: settings.html
+msgid "آسيا الوسطى والجنوبية"
+msgstr "Central & South Asia"
+
+#: settings.html
+msgid "أبيدجان ("
+msgstr ""
+
+msgid "أبيدجان (Africa/Abidjan)"
+msgstr "Abidjan (Africa/Abidjan)"
+
+#: settings.html
+msgid "أثينا ("
+msgstr ""
+
+msgid "أثينا (Europe/Athens)"
+msgstr "Athens (Europe/Athens)"
+
+#: translations.html
+msgid "أخطاء:"
+msgstr "Errors:"
+
+#: login.html
+msgid "أدخل الرمز المرسل إلى تيليجرام"
+msgstr "Enter the code sent to Telegram"
+
+#: login.html
+msgid "أدخل رقم هاتفك لتلقي رمز التحقق"
+msgstr "Enter your phone number to receive verification code"
+
+#: settings.html
+msgid "أديس أبابا ("
+msgstr ""
+
+msgid "أديس أبابا (Africa/Addis_Ababa)"
+msgstr "Addis Ababa (Africa/Addis_Ababa)"
+
+#: settings.html
+msgid "أديليد ("
+msgstr ""
+
+msgid "أديليد (Australia/Adelaide)"
+msgstr "Adelaide (Australia/Adelaide)"
+
+#: assistants.html
+msgid "أسبوع"
+msgstr "Week"
+
+#: assistants.html
+msgid "أسبوعياً"
+msgstr "Weekly"
+
+#: settings.html
+msgid "أستراليا والمحيط الهادئ"
+msgstr "Australia & Pacific"
+
+#: settings.html
+msgid "أفريقيا"
+msgstr "Africa"
+
+#: settings.html
+msgid "أكرا ("
+msgstr ""
+
+msgid "أكرا (Africa/Accra)"
+msgstr "Accra (Africa/Accra)"
+
+#: settings.html
+msgid "أمريكا الجنوبية"
+msgstr "South America"
+
+#: settings.html
+msgid "أمريكا الشمالية"
+msgstr "North America"
+
+#: settings.html
+msgid "أمريكا الوسطى والكاريبي"
+msgstr "Central America & Caribbean"
+
+#: settings.html
+msgid "أمستردام ("
+msgstr ""
+
+msgid "أمستردام (Europe/Amsterdam)"
+msgstr "Amsterdam (Europe/Amsterdam)"
+
+#: settings.html
+msgid "أنكوراج ("
+msgstr ""
+
+msgid "أنكوراج (America/Anchorage)"
+msgstr "Anchorage (America/Anchorage)"
+
+#: admin/panel.html
+msgid "أنواع المساعدين"
+msgstr "Assistant Types"
+
+#: admin/panel.html
+msgid "أهلاً"
+msgstr "Hello"
+
+#: admin/assistant_types.html
+msgid "أو"
+msgstr "Or"
+
+#: admin/email_settings.html
+msgid "أو 465 بدون"
+msgstr "Or 465 without"
+
+#: settings.html
+msgid "أوروبا الشرقية"
+msgstr "Eastern Europe"
+
+#: settings.html
+msgid "أوروبا الغربية"
+msgstr "Western Europe"
+
+#: settings.html
+msgid "أوروبا الوسطى"
+msgstr "Central Europe"
+
+#: settings.html
+msgid "أوكلاند ("
+msgstr ""
+
+msgid "أوكلاند (Pacific/Auckland)"
+msgstr "Auckland (Pacific/Auckland)"
+
+#: dashboard.html
+msgid "أُنجزت اليوم"
+msgstr "Completed today"
+
+#: translations.html
+msgid "إجراءات"
+msgstr "Actions"
+
+#: tasks.html
+msgid "إجمالي"
+msgstr "Total"
+
+#: notifications.html
+msgid "إجمالي الإشعارات"
+msgstr "Total notifications"
+
+#: executions.html
+msgid "إجمالي التنفيذات"
+msgstr "Total executions"
+
+#: scripts.html
+msgid "إجمالي السكريبتات"
+msgstr "Total scripts"
+
+#: assistants.html
+msgid "إجمالي المساعدين"
+msgstr "Total assistants"
+
+#: admin/panel.html
+msgid "إجمالي المستخدمين"
+msgstr "Total users"
+
+#: admin/panel.html
+msgid "إحصائيات النظام"
+msgstr "System statistics"
+
+#: admin/panel.html
+msgid "إدارة أنواع المساعدين المتاحة"
+msgstr "Manage available assistant types"
+
+#: admin/assistant_types.html
+msgid "إدارة أنواع المساعدين المتاحة في النظام"
+msgstr "Manage available assistant types in the system"
+
+#: system_settings.html
+msgid "إدارة إعدادات النظام العامة"
+msgstr "Manage general system settings"
+
+#: admin/panel.html
+msgid "إدارة الأنواع"
+msgstr "Manage types"
 
 msgid "إدارة الترجمات"
 msgstr "Translation Management"
 
-msgid "تسجيل الخروج"
-msgstr "Logout"
+#: translations.html
+msgid "إدارة الترجمات -"
+msgstr "Translation Management -"
 
-# Settings Page
+#: scripts.html
+msgid "إدارة السكريبتات البرمجية للمساعدين"
+msgstr "Manage programming scripts for assistants"
+
+#: translations.html
+msgid "إدارة اللغات والترجمات"
+msgstr "Manage languages and translations"
+
+#: admin/users.html
+msgid "إدارة المستخدمين"
+msgstr "User Management"
+
+#: admin/panel.html
+msgid "إدارة النظام والمستخدمين"
+msgstr "System and user management"
+
+#: tasks.html
+msgid "إدارة جميع المهام الخاصة بك"
+msgstr "Manage all your tasks"
+
 msgid "إدارة حسابك وتفضيلاتك"
 msgstr "Manage your account and preferences"
 
-msgid "الملف الشخصي"
-msgstr "Profile"
+#: system_settings.html
+msgid "إرسال"
+msgstr "Send"
 
-msgid "الاسم"
-msgstr "Name"
+#: system_settings.html
+msgid "إرسال بريد تجريبي"
+msgstr "Send test email"
 
-msgid "البريد الإلكتروني"
-msgstr "Email"
+#: admin/email_settings.html
+msgid "إرسال رسالة اختبار"
+msgstr "Send test message"
 
-msgid "رقم الهاتف"
-msgstr "Phone Number"
+#: login.html
+msgid "إرسال رمز التحقق"
+msgstr "Send verification code"
 
-msgid "معرف التليجرام"
-msgstr "Telegram ID"
+#: settings.html
+msgid "إسطنبول ("
+msgstr ""
 
-msgid "التفضيلات"
-msgstr "Preferences"
+msgid "إسطنبول (Europe/Istanbul)"
+msgstr "Istanbul (Europe/Istanbul)"
 
-msgid "اللغة"
-msgstr "Language"
+#: assistants.html
+msgid "إشعارات البريد الإلكتروني"
+msgstr "Email notifications"
 
-msgid "المنطقة الزمنية"
-msgstr "Timezone"
+#: assistants.html
+msgid "إشعارات التليجرام"
+msgstr "Telegram notifications"
 
-msgid "الإشعارات"
-msgstr "Notifications"
+#: settings.html
+msgid "إشعارات التليجرام والبريد الإلكتروني يتم تحديدها لكل مساعد على حدة من صفحة المساعدين"
+msgstr "Telegram and email notifications are set individually for each assistant from the assistants page"
 
 msgid "إشعارات المتصفح"
 msgstr "Browser Notifications"
 
-msgid "معلومات الحساب"
-msgstr "Account Info"
+#: settings.html
+msgid "إشعارات فورية في المتصفح"
+msgstr "Instant browser notifications"
+
+#: scripts.html
+msgid "إصلاح اتجاه الكود"
+msgstr "Fix code direction"
+
+#: scripts.html
+msgid "إصلاح التنسيق"
+msgstr "Fix formatting"
+
+msgid "إضافة"
+msgstr "Add"
+
+#: scripts.html
+msgid "إضافة سكريبت"
+msgstr "Add script"
+
+#: scripts.html
+msgid "إضافة سكريبت جديد"
+msgstr "Add new script"
+
+#: admin/panel.html
+msgid "إضافة قالب"
+msgstr "Add template"
+
+#: admin/panel.html
+msgid "إضافة قالب جديد"
+msgstr "Add new template"
+
+#: translations.html
+msgid "إضافة لغة"
+msgstr "Add language"
+
+#: translations.html
+msgid "إضافة لغة جديدة"
+msgstr "Add new language"
+
+#: dashboard.html
+msgid "إضافة مساعد"
+msgstr "Add assistant"
+
+#: assistants.html
+msgid "إضافة مساعد جديد"
+msgstr "Add new assistant"
+
+#: admin/users.html
+msgid "إضافة مستخدم"
+msgstr "Add user"
+
+#: admin/users.html
+msgid "إضافة مستخدم جديد"
+msgstr "Add new user"
+
+#: dashboard.html
+msgid "إضافة مهمة"
+msgstr "Add task"
+
+#: dashboard.html
+msgid "إضافة مهمة جديدة"
+msgstr "Add new task"
+
+#: admin/assistant_types.html
+msgid "إضافة نوع جديد"
+msgstr "Add new type"
+
+#: admin/assistant_types.html
+msgid "إضافة نوع مساعد جديد"
+msgstr "Add new assistant type"
+
+#: admin/panel.html
+msgid "إضافة وتعديل وحذف المستخدمين"
+msgstr "Add, edit and delete users"
+
+#: login.html
+msgid "إعادة الإرسال"
+msgstr "Resend"
+
+#: admin/email_settings.html
+msgid "إعدادات"
+msgstr "Settings"
+
+#: assistants.html
+msgid "إعدادات الإشعارات"
+msgstr "Notification settings"
+
+#: admin/panel.html
+msgid "إعدادات البريد"
+msgstr "Email settings"
+
+#: admin/email_settings.html
+msgid "إعدادات البريد الإلكتروني"
+msgstr "Email settings"
+
+#: system_settings.html
+msgid "إعدادات البريد الإلكتروني ("
+msgstr "Email settings ("
+
+msgid "إعدادات البريد الصادر"
+msgstr "Outgoing Email Settings"
+
+#: system_settings.html
+msgid "إعدادات التطبيق"
+msgstr "Application settings"
+
+#: system_settings.html
+msgid "إعدادات التليجرام"
+msgstr "Telegram settings"
+
+#: system_settings.html
+msgid "إعدادات التليجرام موجودة في ملف ."
+msgstr "Telegram settings are in the . file"
+
+#: system_settings.html
+msgid "إعدادات النظام"
+msgstr "System settings"
+
+#: system_settings.html
+msgid "إعدادات النظام -"
+msgstr "System Settings -"
+
+#: admin/email_settings.html
+msgid "إعدادات خادم"
+msgstr "Server settings"
+
+#: notifications.html
+msgid "إغلاق"
+msgstr "Close"
+
+#: dashboard.html
+msgid "إكمال"
+msgstr "Complete"
+
+msgid "إلغاء"
+msgstr "Cancel"
+
+#: dashboard.html
+msgid "إنشاء مساعد جديد"
+msgstr "Create new assistant"
+
+#: assistants.html
+msgid "إنشاء وإدارة المساعدين الذكية الخاصة بك"
+msgstr "Create and manage your smart assistants"
+
+#: admin/users.html
+msgid "إنشاء وتعديل وحذف المستخدمين"
+msgstr "Create, edit and delete users"
+
+#: assistants.html
+msgid "إيميل"
+msgstr "Email"
+
+#: tasks.html
+msgid "ابحث في العنوان أو الوصف..."
+msgstr "Search in title or description..."
+
+#: tasks.html
+msgid "ابدأ بإضافة مهمة جديدة"
+msgstr "Start by adding a new task"
+
+#: scripts.html
+msgid "ابدأ بإنشاء سكريبت جديد"
+msgstr "Start by creating a new script"
+
+#: dashboard.html
+msgid "ابدأ بإنشاء مساعد شخصي لتتمكن من تنظيم مهامك وتلقي الإشعارات التلقائية."
+msgstr "Start by creating a personal assistant to organize your tasks and receive automatic notifications."
+
+#: assistants.html
+msgid "ابدأ بإنشاء مساعدك الافتراضي الأول"
+msgstr "Start by creating your first virtual assistant"
+
+#: admin/email_settings.html
+msgid "اتركه فارغاً للإبقاء على القيمة الحالية"
+msgstr "Leave empty to keep current value"
+
+msgid "اختبار"
+msgstr "Test"
+
+#: admin/email_settings.html
+msgid "اختبار الإعدادات"
+msgstr "Test settings"
+
+#: assistants.html
+msgid "اختر التاريخ والوقت"
+msgstr "Select date and time"
+
+#: assistants.html
+msgid "اختر الفترة"
+msgstr "Select period"
+
+#: scripts.html
+msgid "اختر المساعد لربط السكريبت"
+msgstr "Select assistant to link script"
+
+#: tasks.html
+msgid "اختر المساعد لربط المهمة به وتفعيل الإشعارات التلقائية"
+msgstr "Select assistant to link task and enable automatic notifications"
+
+#: translations.html
+msgid "اختر لغة"
+msgstr "Select language"
+
+#: translations.html
+msgid "اختر لغة لعرض وتحرير الترجمات الخاصة بها"
+msgstr "Select a language to view and edit its translations"
+
+#: translations.html
+msgid "اختر لغة من القائمة"
+msgstr "Select a language from the list"
+
+#: assistants.html
+msgid "اختر نوع المساعد حسب الوظيفة المطلوبة"
+msgstr "Select assistant type according to required function"
+
+#: system_settings.html
+msgid "استخدام"
+msgstr "Use"
+
+#: system_settings.html
+msgid "استخدم"
+msgstr "Use"
+
+#: admin/email_settings.html
+msgid "استخدم كلمة مرور التطبيقات"
+msgstr "Use app password"
+
+#: translations.html
+msgid "استيراد"
+msgstr "Import"
+
+#: translations.html
+msgid "استيراد ."
+msgstr "Import ."
+
+#: translations.html
+msgid "استيراد ملف ترجمة"
+msgstr "Import translation file"
+
+#: system_settings.html
+msgid "اسم التطبيق"
+msgstr "Application name"
+
+#: scripts.html
+msgid "اسم السكريبت"
+msgstr "Script name"
+
+#: admin/panel.html
+msgid "اسم القالب"
+msgstr "Template name"
+
+#: translations.html
+msgid "اسم اللغة"
+msgstr "Language name"
+
+msgid "اسم المرسل"
+msgstr "Sender Name"
+
+#: assistants.html
+msgid "اسم المساعد"
+msgstr "Assistant name"
+
+#: system_settings.html
+msgid "اسم المستخدم"
+msgstr "Username"
+
+msgid "اسم المستخدم / البريد"
+msgstr "Username / Email"
+
+#: admin/panel.html
+msgid "اسم المهمة"
+msgstr "Task name"
+
+#: admin/assistant_types.html
+msgid "اسم النوع"
+msgstr "Type name"
+
+#: admin/assistant_types.html
+msgid "اسم فريد للنوع (يفضل بالإنجليزية)"
+msgstr "Unique name for type (preferably in English)"
+
+#: settings.html
+msgid "اسمك"
+msgstr "Your name"
+
+#: translations.html
+msgid "اضغط على"
+msgstr "Click on"
+
+#: executions.html
+msgid "اضغط لتفعيل الإشعارات"
+msgstr "Click to enable notifications"
+
+#: scripts.html
+msgid "اكتب الكود هنا"
+msgstr ""
+
+#: dashboard.html
+msgid "اكتب عنوان المهمة"
+msgstr "Write task title"
+
+#: notifications.html
+msgid "الآن"
+msgstr "Now"
+
+#: share_execution.html
+msgid "الأخطاء ("
+msgstr "Errors ("
+
+#: settings.html
+msgid "الأزور ("
+msgstr ""
+
+msgid "الأزور (Atlantic/Azores)"
+msgstr "Azores (Atlantic/Azores)"
+
+#: dashboard.html
+msgid "الأولوية"
+msgstr "Priority"
+
+#: admin/assistant_types.html
+msgid "الإجراء المرتبط"
+msgstr "Associated action"
+
+#: admin/users.html
+msgid "الإجراءات"
+msgstr "Actions"
+
+msgid "الإشعارات"
+msgstr "Notifications"
+
+#: base.html
+msgid "الإشعارات معطلة"
+msgstr "Notifications disabled"
+
+#: executions.html
+msgid "الإشعارات مغلقة"
+msgstr "Notifications disabled"
+
+#: base.html
+msgid "الإشعارات مفعلة"
+msgstr "Notifications enabled"
+
+#: executions.html
+msgid "الإشعارات مفعّلة"
+msgstr "Notifications enabled"
+
+msgid "الإعدادات"
+msgstr "Settings"
+
+msgid "الاسم"
+msgstr "Name"
+
+#: settings.html
+msgid "البحرين ("
+msgstr ""
+
+msgid "البحرين (Asia/Bahrain)"
+msgstr "Bahrain (Asia/Bahrain)"
+
+#: admin/users.html
+msgid "البريد"
+msgstr "Email"
+
+msgid "البريد الإلكتروني"
+msgstr "Email"
+
+#: admin/email_settings.html
+msgid "البريد المرسل"
+msgstr "Sender email"
+
+msgid "البريد المرسل منه"
+msgstr "From Email"
+
+#: notifications.html
+msgid "التاريخ"
+msgstr "Date"
+
+#: share_execution.html
+msgid "التاريخ:"
+msgstr "Date:"
+
+#: login.html
+msgid "التحقق من الهوية"
+msgstr "Identity verification"
+
+#: admin/panel.html
+msgid "الترجمات"
+msgstr "Translations"
+
+#: translations.html
+msgid "الترجمة"
+msgstr "Translation"
+
+msgid "التشفير"
+msgstr "Encryption"
+
+#: assistants.html
+msgid "التفاصيل"
+msgstr "Details"
+
+#: translations.html
+msgid "التفاصيل:"
+msgstr "Details:"
+
+msgid "التفضيلات"
+msgstr "Preferences"
+
+#: settings.html
+msgid "التوقيت العالمي المنسق"
+msgstr "Coordinated Universal Time"
+
+#: assistants.html
+msgid "الجدولة (اختياري)"
+msgstr "Scheduling (optional)"
+
+#: settings.html
+msgid "الجزائر ("
+msgstr ""
+
+msgid "الجزائر (Africa/Algiers)"
+msgstr "Algiers (Africa/Algiers)"
+
+#: notifications.html
+msgid "الحالة"
+msgstr "Status"
+
+#: settings.html
+msgid "الخرطوم ("
+msgstr ""
+
+msgid "الخرطوم (Africa/Khartoum)"
+msgstr "Khartoum (Africa/Khartoum)"
+
+#: settings.html
+msgid "الدار البيضاء ("
+msgstr ""
+
+msgid "الدار البيضاء (Africa/Casablanca)"
+msgstr "Casablanca (Africa/Casablanca)"
+
+#: executions.html
+msgid "الذهاب للسكريبتات"
+msgstr "Go to scripts"
+
+#: share_not_found.html
+msgid "الذهاب للصفحة الرئيسية"
+msgstr "Go to home page"
+
+#: settings.html
+msgid "الرأس الأخضر ("
+msgstr ""
+
+msgid "الرأس الأخضر (Atlantic/Cape_Verde)"
+msgstr "Cape Verde (Atlantic/Cape_Verde)"
+
+#: share_not_found.html
+msgid "الرابط غير موجود"
+msgstr "Link not found"
+
+#: translations.html
+msgid "الرجاء إدخال اسم اللغة ورمزها"
+msgstr "Please enter language name and code"
+
+#: translations.html
+msgid "الرجاء اختيار ملف"
+msgstr "Please select a file"
+
+#: notifications.html
+msgid "الرسالة"
+msgstr "Message"
+
+#: settings.html
+msgid "الرياض ("
+msgstr "Riyadh ("
+
+msgid "الرياض (Asia/Riyadh)"
+msgstr "Riyadh (Asia/Riyadh)"
+
+#: scripts.html
+msgid "السكريبت غير موجود"
+msgstr "Script not found"
+
+msgid "السكريبتات"
+msgstr "Scripts"
+
+#: scripts.html
+msgid "السكريبتات -"
+msgstr "Scripts -"
+
+#: settings.html
+msgid "الشرق الأوسط"
+msgstr "Middle East"
+
+#: admin/users.html
+msgid "الصلاحية"
+msgstr "Permission"
+
+#: settings.html
+msgid "العربية"
+msgstr "Arabic"
+
+#: admin/users.html
+msgid "العودة"
+msgstr "Back"
+
+#: assistants.html
+msgid "القالب الافتراضي"
+msgstr "Default template"
+
+#: settings.html
+msgid "القاهرة ("
+msgstr "Cairo ("
+
+msgid "القاهرة (Africa/Cairo)"
+msgstr "Cairo (Africa/Cairo)"
+
+#: settings.html
+msgid "القدس ("
+msgstr ""
+
+msgid "القدس (Asia/Jerusalem)"
+msgstr "Jerusalem (Asia/Jerusalem)"
+
+#: notifications.html
+msgid "القناة"
+msgstr "Channel"
+
+#: tasks.html
+msgid "الكل"
+msgstr "All"
+
+#: scripts.html
+msgid "الكود"
+msgstr "Code"
+
+#: settings.html
+msgid "الكويت ("
+msgstr ""
+
+msgid "الكويت (Asia/Kuwait)"
+msgstr "Kuwait (Asia/Kuwait)"
+
+#: translations.html
+msgid "اللغات"
+msgstr "Languages"
+
+#: translations.html
+msgid "اللغات المعالجة:"
+msgstr "Processed languages:"
+
+msgid "اللغة"
+msgstr "Language"
+
+#: system_settings.html
+msgid "اللغة الافتراضية"
+msgstr "Default language"
+
+#: share_execution.html
+msgid "اللغة:"
+msgstr "Language:"
+
+#: settings.html
+msgid "المالديف ("
+msgstr ""
+
+msgid "المالديف (Indian/Maldives)"
+msgstr "Maldives (Indian/Maldives)"
+
+#: notifications.html
+msgid "المتصفح"
+msgstr "Browser"
+
+#: admin/panel.html
+msgid "المتغيرات المتاحة"
+msgstr "Available variables"
+
+#: settings.html
+msgid "المحيط الأطلسي"
+msgstr "Atlantic"
+
+#: settings.html
+msgid "المحيط الهندي"
+msgstr "Indian Ocean"
+
+#: admin/panel.html
+msgid "المدراء"
+msgstr "Admins"
+
+#: admin/users.html
+msgid "المدير يمكنه الوصول للوحة تحكم الإدارة"
+msgstr "Admin can access admin control panel"
+
+#: notifications.html
+msgid "المساعد"
+msgstr "Assistant"
+
+#: login.html
+msgid "المساعد الشخصي الذكي"
+msgstr "Smart Personal Assistant"
+
+#: assistants.html
+msgid "المساعد غير موجود"
+msgstr "Assistant not found"
+
+msgid "المساعدين"
+msgstr "Assistants"
+
+#: assistants.html
+msgid "المساعدين -"
+msgstr "Assistants -"
+
+#: assistants.html
+msgid "المساعدين الافتراضيين"
+msgstr "Default assistants"
+
+#: admin/panel.html
+msgid "المستخدمين"
+msgstr "Users"
+
+msgid "الملف الشخصي"
+msgstr "Profile"
+
+msgid "المنطقة الزمنية"
+msgstr "Timezone"
+
+#: system_settings.html
+msgid "المنطقة الزمنية الافتراضية"
+msgstr "Default timezone"
+
+msgid "المنفذ"
+msgstr "Port"
+
+#: system_settings.html
+msgid "المنفذ ("
+msgstr "Port ("
+
+#: admin/email_settings.html
+msgid "المنفذ 587 مع"
+msgstr "Port 587 with"
+
+msgid "المهام"
+msgstr "Tasks"
+
+#: tasks.html
+msgid "المهام -"
+msgstr "Tasks -"
+
+#: notifications.html
+msgid "المهمة"
+msgstr "Task"
+
+#: dashboard.html
+msgid "المهمة غير موجودة"
+msgstr "Task not found"
+
+#: share_execution.html
+msgid "الناتج ("
+msgstr "Output ("
+
+#: translations.html
+msgid "النص الأصلي"
+msgstr "Original text"
+
+#: dashboard.html
+msgid "الوصف"
+msgstr "Description"
+
+#: executions.html
+msgid "انتهى الوقت"
+msgstr "Timeout"
+
+#: settings.html
+msgid "باريس ("
+msgstr ""
+
+msgid "باريس (Europe/Paris)"
+msgstr "Paris (Europe/Paris)"
+
+#: settings.html
+msgid "بانكوك ("
+msgstr ""
+
+msgid "بانكوك (Asia/Bangkok)"
+msgstr "Bangkok (Asia/Bangkok)"
+
+#: assistants.html
+msgid "بجدول زمني"
+msgstr "Scheduled"
+
+msgid "بحث"
+msgstr "Search"
+
+#: executions.html
+msgid "بدأ"
+msgstr "Started"
+
+#: executions.html
+msgid "بداية التنفيذ:"
+msgstr "Start time:"
+
+#: assistants.html
+msgid "بدون جدولة"
+msgstr "Without schedule"
+
+#: scripts.html
+msgid "بدون مساعد"
+msgstr "Without assistant"
+
+#: settings.html
+msgid "برلين ("
+msgstr ""
+
+msgid "برلين (Europe/Berlin)"
+msgstr "Berlin (Europe/Berlin)"
+
+#: settings.html
+msgid "بروكسل ("
+msgstr ""
+
+msgid "بروكسل (Europe/Brussels)"
+msgstr "Brussels (Europe/Brussels)"
+
+#: notifications.html
+msgid "بريد"
+msgstr "Email"
+
+#: notifications.html
+msgid "بريد إلكتروني"
+msgstr "Email"
+
+msgid "بريد الاختبار"
+msgstr "Test Email"
+
+#: settings.html
+msgid "بريسبان ("
+msgstr ""
+
+msgid "بريسبان (Australia/Brisbane)"
+msgstr "Brisbane (Australia/Brisbane)"
+
+#: settings.html
+msgid "بغداد ("
+msgstr ""
+
+msgid "بغداد (Asia/Baghdad)"
+msgstr "Baghdad (Asia/Baghdad)"
+
+#: settings.html
+msgid "بنما ("
+msgstr ""
+
+msgid "بنما (America/Panama)"
+msgstr "Panama (America/Panama)"
+
+#: base.html
+msgid "بواسطة"
+msgstr "By"
+
+#: settings.html
+msgid "بوخارست ("
+msgstr ""
+
+msgid "بوخارست (Europe/Bucharest)"
+msgstr "Bucharest (Europe/Bucharest)"
+
+#: settings.html
+msgid "بورت أو برنس ("
+msgstr ""
+
+msgid "بورت أو برنس (America/Port-au-Prince)"
+msgstr "Port-au-Prince (America/Port-au-Prince)"
+
+#: settings.html
+msgid "بوغوتا ("
+msgstr ""
+
+msgid "بوغوتا (America/Bogota)"
+msgstr "Bogota (America/Bogota)"
+
+#: settings.html
+msgid "بوينس آيرس\n                                ("
+msgstr ""
+
+msgid "بوينس آيرس (America/Argentina/Buenos_Aires)"
+msgstr "Buenos Aires (America/Argentina/Buenos_Aires)"
+
+#: settings.html
+msgid "بيرث ("
+msgstr ""
+
+msgid "بيرث (Australia/Perth)"
+msgstr "Perth (Australia/Perth)"
+
+#: settings.html
+msgid "بيروت ("
+msgstr ""
+
+msgid "بيروت (Asia/Beirut)"
+msgstr "Beirut (Asia/Beirut)"
+
+#: admin/email_settings.html
+msgid "تأكد من تفعيل"
+msgstr "Make sure to enable"
+
+msgid "تأكيد"
+msgstr "Confirm"
+
+#: admin/assistant_types.html
+msgid "تاريخ الإنشاء"
+msgstr "Creation date"
 
 msgid "تاريخ التسجيل"
 msgstr "Registration Date"
+
+#: dashboard.html
+msgid "تاريخ ووقت الاستحقاق"
+msgstr "Due date and time"
+
+#: settings.html
+msgid "تايبيه ("
+msgstr ""
+
+msgid "تايبيه (Asia/Taipei)"
+msgstr "Taipei (Asia/Taipei)"
+
+#: translations.html
+msgid "تحرير الترجمة"
+msgstr "Edit translation"
+
+#: login.html
+msgid "تحقق"
+msgstr "Verify"
+
+msgid "تحميل"
+msgstr "Loading"
+
+#: translations.html
+msgid "تحميل من الملفات"
+msgstr "Load from files"
+
+#: base.html
+msgid "تذكير بمهمة"
+msgstr ""
+
+#: translations.html
+msgid "ترجمات"
+msgstr "Translations"
+
+#: translations.html
+msgid "ترجمات جديدة:"
+msgstr "New translations:"
+
+#: translations.html
+msgid "ترجمات محدثة:"
+msgstr "Updated translations:"
+
+#: admin/panel.html
+msgid "ترجمة النظام للغات المختلفة"
+msgstr "System translation to different languages"
+
+msgid "تسجيل الخروج"
+msgstr "Logout"
+
+#: login.html
+msgid "تسجيل الدخول"
+msgstr "Login"
+
+#: login.html
+msgid "تسجيل الدخول -"
+msgstr "Login -"
+
+#: scripts.html
+msgid "تشغيل"
+msgstr "Run"
+
+#: assistants.html
+msgid "تشغيل تلقائي كل"
+msgstr "Auto run every"
+
+#: assistants.html
+msgid "تشغيل سكريبتات"
+msgstr "Script execution"
+
+#: assistants.html
+msgid "تشغيل في تاريخ ووقت محدد"
+msgstr "Run at specific date and time"
+
+#: assistants.html
+msgid "تشغيل مرة واحدة (وقت محدد)"
+msgstr "Run once (specific time)"
+
+#: translations.html
+msgid "تصدير ."
+msgstr "Export ."
+
+msgid "تعديل"
+msgstr "Edit"
+
+#: scripts.html
+msgid "تعديل السكريبت"
+msgstr "Edit script"
+
+#: admin/panel.html
+msgid "تعديل القالب"
+msgstr "Edit template"
+
+#: assistants.html
+msgid "تعديل المساعد"
+msgstr "Edit assistant"
+
+#: admin/users.html
+msgid "تعديل المستخدم"
+msgstr "Edit user"
+
+#: dashboard.html
+msgid "تعديل المهمة"
+msgstr "Edit task"
+
+#: admin/assistant_types.html
+msgid "تعديل نوع المساعد"
+msgstr "Edit assistant type"
+
+#: dashboard.html
+msgid "تعليق"
+msgstr "Hold"
+
+#: settings.html
+msgid "تغيير"
+msgstr "Change"
+
+#: settings.html
+msgid "تغيير رقم الهاتف"
+msgstr "Change phone number"
+
+#: settings.html
+msgid "تغيير معرف التليجرام"
+msgstr "Change Telegram ID"
+
+#: notifications.html
+msgid "تفاصيل الإشعار"
+msgstr "Notification details"
+
+#: executions.html
+msgid "تفاصيل التنفيذ"
+msgstr "Execution details"
+
+#: dashboard.html
+msgid "تفاصيل المهمة (اختياري)"
+msgstr "Task details (optional)"
+
+#: base.html
+msgid "تفعيل الإشعارات"
+msgstr "Enable notifications"
+
+#: base.html
+msgid "تفعيل الوضع الليلي"
+msgstr "Enable dark mode"
+
+#: base.html
+msgid "تفعيل الوضع النهاري"
+msgstr "Enable light mode"
+
+#: assistants.html
+msgid "تكرار (كل فترة)"
+msgstr "Repeat (every period)"
+
+#: admin/panel.html
+msgid "تكوين إعدادات البريد الإلكتروني"
+msgstr "Configure email settings"
+
+#: tasks.html
+msgid "تم إرسال الإشعار"
+msgstr "Notification sent"
+
+#: system_settings.html
+msgid "تم إرسال البريد التجريبي بنجاح! تحقق من صندوق البريد."
+msgstr "Test email sent successfully! Check your inbox."
+
+#: admin/email_settings.html
+msgid "تم إرسال رسالة الاختبار بنجاح"
+msgstr "Test message sent successfully"
+
+#: scripts.html
+msgid "تم إضافة السكريبت بنجاح"
+msgstr ""
+
+msgid "تم إضافة السكريبت بنجاح ✓"
+msgstr "Script added successfully ✓"
+
+#: admin/panel.html
+msgid "تم إضافة القالب بنجاح"
+msgstr "Template added successfully"
+
+#: assistants.html
+msgid "تم إضافة المساعد بنجاح"
+msgstr "Assistant added successfully"
+
+#: tasks.html
+msgid "تم إضافة المهمة بنجاح"
+msgstr ""
+
+msgid "تم إضافة المهمة بنجاح ✓"
+msgstr "Task added successfully ✓"
+
+#: tasks.html
+msgid "تم إكمال المهمة بنجاح"
+msgstr ""
+
+msgid "تم إكمال المهمة بنجاح ✓"
+msgstr "Task completed successfully ✓"
+
+#: tasks.html
+msgid "تم إلغاء المهمة"
+msgstr "Task cancelled"
+
+#: notifications.html
+msgid "تم الإرسال"
+msgstr "Sent"
+
+#: scripts.html
+msgid "تم الإنشاء"
+msgstr "Created"
+
+#: translations.html
+msgid "تم الاستيراد:"
+msgstr "Imported:"
+
+#: translations.html
+msgid "تم التخطي -"
+msgstr "Skipped -"
+
+#: scripts.html
+msgid "تم تحديث السكريبت بنجاح"
+msgstr ""
+
+msgid "تم تحديث السكريبت بنجاح ✓"
+msgstr "Script updated successfully ✓"
+
+#: admin/panel.html
+msgid "تم تحديث القالب بنجاح"
+msgstr "Template updated successfully"
+
+#: assistants.html
+msgid "تم تحديث المساعد بنجاح"
+msgstr "Assistant updated successfully"
+
+#: tasks.html
+msgid "تم تحديث المهمة بنجاح"
+msgstr ""
+
+msgid "تم تحديث المهمة بنجاح ✓"
+msgstr "Task updated successfully ✓"
+
+#: translations.html
+msgid "تم تحميل الترجمات:"
+msgstr "Translations loaded:"
+
+#: scripts.html
+msgid "تم تشغيل السكريبت بنجاح"
+msgstr ""
+
+msgid "تم تشغيل السكريبت بنجاح ✓"
+msgstr "Script ran successfully ✓"
+
+#: settings.html
+msgid "تم تغيير رقم الهاتف بنجاح"
+msgstr "Phone number changed successfully"
+
+#: settings.html
+msgid "تم تغيير معرف التليجرام بنجاح"
+msgstr "Telegram ID changed successfully"
+
+#: executions.html
+msgid "تم تفعيل الإشعارات بنجاح"
+msgstr ""
+
+msgid "تم تفعيل الإشعارات بنجاح ✓"
+msgstr "Notifications enabled successfully ✓"
+
+#: scripts.html
+msgid "تم حذف السكريبت"
+msgstr ""
+
+msgid "تم حذف السكريبت ✓"
+msgstr "Script deleted ✓"
+
+#: admin/panel.html
+msgid "تم حذف القالب بنجاح"
+msgstr "Template deleted successfully"
+
+#: assistants.html
+msgid "تم حذف المساعد"
+msgstr "Assistant deleted"
+
+#: tasks.html
+msgid "تم حذف المهمة"
+msgstr ""
+
+msgid "تم حذف المهمة ✓"
+msgstr "Task deleted ✓"
+
+#: system_settings.html
+msgid "تم حفظ إعدادات البريد الإلكتروني"
+msgstr "Email settings saved"
+
+#: system_settings.html
+msgid "تم حفظ إعدادات التطبيق"
+msgstr "Application settings saved"
+
+#: admin/email_settings.html
+msgid "تم حفظ الإعدادات بنجاح"
+msgstr "Settings saved successfully"
+
+#: settings.html
+msgid "تم حفظ التفضيلات بنجاح"
+msgstr "Preferences saved successfully"
+
+#: settings.html
+msgid "تم حفظ الملف الشخصي بنجاح"
+msgstr "Profile saved successfully"
+
+#: translations.html
+msgid "تمت المزامنة:"
+msgstr "Synchronized:"
+
+#: share_execution.html
+msgid "تمت المشاركة عبر"
+msgstr "Shared via"
+
+#: assistants.html
+msgid "تنبيه بالمهام"
+msgstr "Task notifications"
+
+#: settings.html
+msgid "تورونتو ("
+msgstr ""
+
+msgid "تورونتو (America/Toronto)"
+msgstr "Toronto (America/Toronto)"
+
+#: settings.html
+msgid "تونس ("
+msgstr ""
+
+msgid "تونس (Africa/Tunis)"
+msgstr "Tunis (Africa/Tunis)"
+
+#: notifications.html
+msgid "تيليجرام"
+msgstr "Telegram"
+
+#: notifications.html
+msgid "ثانية"
+msgstr "second"
+
+#: admin/email_settings.html
+msgid "جاري الإرسال..."
+msgstr "Sending..."
+
+#: notifications.html
+msgid "جاري التحميل..."
+msgstr "Loading..."
+
+#: scripts.html
+msgid "جاري الحفظ..."
+msgstr "Saving..."
+
+#: scripts.html
+msgid "جاري تشغيل السكريبت..."
+msgstr "Running script..."
+
+#: settings.html
+msgid "جاكرتا ("
+msgstr ""
+
+msgid "جاكرتا (Asia/Jakarta)"
+msgstr "Jakarta (Asia/Jakarta)"
+
+#: settings.html
+msgid "جامايكا ("
+msgstr ""
+
+msgid "جامايكا (America/Jamaica)"
+msgstr "Jamaica (America/Jamaica)"
+
+#: translations.html
+msgid "جديد،"
+msgstr "New,"
+
+#: notifications.html
+msgid "جميع الحالات"
+msgstr "All statuses"
+
+#: notifications.html
+msgid "جميع القنوات"
+msgstr "All channels"
+
+#: settings.html
+msgid "جوهانسبرج ("
+msgstr ""
+
+msgid "جوهانسبرج (Africa/Johannesburg)"
+msgstr "Johannesburg (Africa/Johannesburg)"
+
+#: settings.html
+msgid "جيبوتي ("
+msgstr ""
+
+msgid "جيبوتي (Africa/Djibouti)"
+msgstr "Djibouti (Africa/Djibouti)"
+
+#: admin/panel.html
+msgid "حالة التنفيذ"
+msgstr "Execution status"
+
+#: translations.html
+msgid "حدث خطأ"
+msgstr "An error occurred"
+
+#: translations.html
+msgid "حدث خطأ في الإضافة"
+msgstr "An error occurred while adding"
+
+#: admin/panel.html
+msgid "حدث خطأ في الاتصال"
+msgstr "A connection error occurred"
+
+#: translations.html
+msgid "حدث خطأ في الاستيراد"
+msgstr "An error occurred during import"
+
+#: translations.html
+msgid "حدث خطأ في الحذف"
+msgstr "An error occurred while deleting"
+
+#: translations.html
+msgid "حدث خطأ في الحفظ"
+msgstr "An error occurred while saving"
+
+#: translations.html
+msgid "حدث خطأ في المزامنة"
+msgstr "An error occurred during synchronization"
+
+#: dashboard.html
+msgid "حدث خطأ في تحديث المهمة"
+msgstr "An error occurred updating the task"
+
+#: notifications.html
+msgid "حدث خطأ في تحميل الإشعارات"
+msgstr "An error occurred loading notifications"
+
+#: dashboard.html
+msgid "حدث خطأ في تحميل البيانات"
+msgstr "An error occurred loading data"
+
+#: translations.html
+msgid "حدث خطأ في تحميل الترجمات"
+msgstr "An error occurred loading translations"
+
+#: translations.html
+msgid "حدث خطأ في تحميل الترجمات من الملفات"
+msgstr "An error occurred loading translations from files"
+
+#: executions.html
+msgid "حدث خطأ في تحميل السجل"
+msgstr "An error occurred loading log"
+
+#: scripts.html
+msgid "حدث خطأ في تحميل السكريبت"
+msgstr ""
+
+#: scripts.html
+msgid "حدث خطأ في تحميل السكريبتات"
+msgstr "An error occurred loading scripts"
+
+#: admin/panel.html
+msgid "حدث خطأ في تحميل القوالب"
+msgstr "An error occurred loading templates"
+
+#: assistants.html
+msgid "حدث خطأ في تحميل المساعد"
+msgstr "An error occurred loading assistant"
+
+#: assistants.html
+msgid "حدث خطأ في تحميل المساعدين"
+msgstr "An error occurred loading assistants"
+
+#: tasks.html
+msgid "حدث خطأ في تحميل المهام"
+msgstr "An error occurred loading tasks"
+
+#: dashboard.html
+msgid "حدث خطأ في تحميل المهمة"
+msgstr "An error occurred loading the task"
+
+#: scripts.html
+msgid "حدث خطأ في تشغيل السكريبت"
+msgstr "An error occurred running the script"
+
+#: dashboard.html
+msgid "حدث خطأ في تعليق المهمة"
+msgstr "An error occurred holding the task"
+
+#: executions.html
+msgid "حدث خطأ في تفعيل الإشعارات"
+msgstr "An error occurred enabling notifications"
+
+#: scripts.html
+msgid "حدث خطأ في حذف السكريبت"
+msgstr "An error occurred deleting script"
+
+#: admin/panel.html
+msgid "حدث خطأ في حذف القالب"
+msgstr "An error occurred deleting template"
+
+#: assistants.html
+msgid "حدث خطأ في حذف المساعد"
+msgstr "An error occurred deleting assistant"
+
+#: dashboard.html
+msgid "حدث خطأ في حذف المهمة"
+msgstr "An error occurred deleting the task"
+
+#: scripts.html
+msgid "حدث خطأ:"
+msgstr ""
+
+msgid "حذف"
+msgstr "Delete"
+
+#: tasks.html
+msgid "حذف نهائي"
+msgstr "Permanently delete"
+
+msgid "حفظ"
+msgstr "Save"
+
+msgid "حفظ إعدادات البريد"
+msgstr "Save Email Settings"
+
+#: admin/email_settings.html
+msgid "حفظ الإعدادات"
+msgstr "Save settings"
+
+#: scripts.html
+msgid "حفظ التعديلات"
+msgstr "Save changes"
 
 msgid "حفظ التغييرات"
 msgstr "Save Changes"
@@ -81,73 +1696,1182 @@ msgstr "Save Changes"
 msgid "حفظ التفضيلات"
 msgstr "Save Preferences"
 
-# Email Settings
-msgid "إعدادات البريد الصادر"
-msgstr "Outgoing Email Settings"
+#: system_settings.html
+msgid "خادم"
+msgstr "Server"
 
 msgid "خادم SMTP"
 msgstr "SMTP Server"
 
-msgid "المنفذ"
-msgstr "Port"
+msgid "خطأ"
+msgstr "Error"
 
-msgid "التشفير"
-msgstr "Encryption"
+#: system_settings.html
+msgid "خطأ غير معروف"
+msgstr "Unknown error"
 
-msgid "اسم المستخدم / البريد"
-msgstr "Username / Email"
+#: settings.html
+msgid "خطأ في تحديد اللغة"
+msgstr "Error selecting language"
 
-msgid "كلمة المرور"
-msgstr "Password"
+#: settings.html
+msgid "خطأ:"
+msgstr "Error:"
 
-msgid "لـ Gmail استخدم App Password"
-msgstr "For Gmail use App Password"
+#: settings.html
+msgid "دار السلام ("
+msgstr ""
 
-msgid "البريد المرسل منه"
-msgstr "From Email"
+msgid "دار السلام (Africa/Dar_es_Salaam)"
+msgstr "Dar es Salaam (Africa/Dar_es_Salaam)"
 
-msgid "اسم المرسل"
-msgstr "Sender Name"
+#: settings.html
+msgid "داروين ("
+msgstr ""
 
-msgid "بريد الاختبار"
-msgstr "Test Email"
+msgid "داروين (Australia/Darwin)"
+msgstr "Darwin (Australia/Darwin)"
 
-msgid "اختبار"
-msgstr "Test"
+#: settings.html
+msgid "دبلن ("
+msgstr ""
 
-msgid "حفظ إعدادات البريد"
-msgstr "Save Email Settings"
+msgid "دبلن (Europe/Dublin)"
+msgstr "Dublin (Europe/Dublin)"
 
-# Common
-msgid "إضافة"
-msgstr "Add"
+#: settings.html
+msgid "دبي ("
+msgstr "Dubai ("
 
-msgid "تعديل"
-msgstr "Edit"
+msgid "دبي (Asia/Dubai)"
+msgstr "Dubai (Asia/Dubai)"
 
-msgid "حذف"
-msgstr "Delete"
+#: notifications.html
+msgid "دقيقة"
+msgstr "Minute"
 
-msgid "حفظ"
-msgstr "Save"
+#: notifications.html
+msgid "دقيقتين"
+msgstr ""
 
-msgid "إلغاء"
-msgstr "Cancel"
+#: settings.html
+msgid "دكا ("
+msgstr ""
 
-msgid "تأكيد"
-msgstr "Confirm"
+msgid "دكا (Asia/Dhaka)"
+msgstr "Dhaka (Asia/Dhaka)"
 
-msgid "بحث"
-msgstr "Search"
+#: settings.html
+msgid "دمشق ("
+msgstr ""
 
-msgid "تحميل"
-msgstr "Loading"
+msgid "دمشق (Asia/Damascus)"
+msgstr "Damascus (Asia/Damascus)"
 
-msgid "نجح"
-msgstr "Success"
+#: settings.html
+msgid "دنفر ("
+msgstr ""
+
+msgid "دنفر (America/Denver)"
+msgstr "Denver (America/Denver)"
+
+#: dashboard.html
+msgid "رائع! لا توجد مهام معلقة"
+msgstr "Great! No pending tasks"
+
+#: share_not_found.html
+msgid "ربما انتهت صلاحية المشاركة."
+msgstr "The share may have expired."
+
+#: notifications.html
+msgid "رسالة الخطأ"
+msgstr "Error message"
+
+#: settings.html
+msgid "رقم المستخدم"
+msgstr "User ID"
+
+msgid "رقم الهاتف"
+msgstr "Phone Number"
+
+#: settings.html
+msgid "رقم الهاتف الجديد"
+msgstr "New phone number"
+
+#: login.html
+msgid "رمز التحقق"
+msgstr "Verification code"
+
+#: translations.html
+msgid "رمز اللغة ("
+msgstr "Language code ("
+
+#: translations.html
+msgid "رمز اللغة مثل:"
+msgstr "Language code such as:"
+
+#: admin/panel.html
+msgid "روابط سريعة"
+msgstr "Quick links"
+
+#: settings.html
+msgid "روما ("
+msgstr ""
+
+msgid "روما (Europe/Rome)"
+msgstr "Rome (Europe/Rome)"
+
+#: settings.html
+msgid "ريكيافيك ("
+msgstr ""
+
+msgid "ريكيافيك (Atlantic/Reykjavik)"
+msgstr "Reykjavik (Atlantic/Reykjavik)"
+
+#: settings.html
+msgid "زيورخ ("
+msgstr ""
+
+msgid "زيورخ (Europe/Zurich)"
+msgstr "Zurich (Europe/Zurich)"
+
+#: notifications.html
+msgid "ساعة"
+msgstr "Hour"
+
+#: notifications.html
+msgid "ساعتين"
+msgstr ""
+
+#: settings.html
+msgid "سان خوسيه ("
+msgstr ""
+
+msgid "سان خوسيه (America/Costa_Rica)"
+msgstr "San Jose (America/Costa_Rica)"
+
+#: settings.html
+msgid "سانتياغو ("
+msgstr ""
+
+msgid "سانتياغو (America/Santiago)"
+msgstr "Santiago (America/Santiago)"
+
+#: settings.html
+msgid "ساو باولو ("
+msgstr ""
+
+msgid "ساو باولو (America/Sao_Paulo)"
+msgstr "Sao Paulo (America/Sao_Paulo)"
+
+#: notifications.html
+msgid "سجل الإشعارات"
+msgstr "Notifications log"
+
+#: notifications.html
+msgid "سجل الإشعارات -"
+msgstr "Notifications Log -"
+
+msgid "سجل التنفيذ"
+msgstr "Execution Log"
+
+#: executions.html
+msgid "سجل التنفيذ -"
+msgstr "Execution Log -"
+
+#: executions.html
+msgid "سجل تنفيذ السكريبتات"
+msgstr "Script execution log"
+
+#: dashboard.html
+msgid "سكريبت محذوف"
+msgstr "Deleted script"
+
+#: admin/assistant_types.html
+msgid "سكريبتات"
+msgstr "Scripts"
+
+#: settings.html
+msgid "سنغافورة ("
+msgstr ""
+
+msgid "سنغافورة (Asia/Singapore)"
+msgstr "Singapore (Asia/Singapore)"
+
+#: admin/email_settings.html
+msgid "سيتم إرسال رسالة اختبار لهذا البريد"
+msgstr "A test message will be sent to this email"
+
+#: translations.html
+msgid "سيتم تحديث الترجمات الموجودة وإضافة الجديدة"
+msgstr "Existing translations will be updated and new ones added"
+
+#: translations.html
+msgid "سيتم تحميل الترجمات من ملفات ."
+msgstr "Translations will be loaded from . files"
+
+#: assistants.html
+msgid "سيتم تنفيذ السكريبتات المرتبطة بهذا المساعد تلقائياً"
+msgstr "Scripts linked to this assistant will be executed automatically"
+
+#: assistants.html
+msgid "سيتم تنفيذ السكريبتات مرة واحدة في الوقت المحدد"
+msgstr "Scripts will be executed once at the specified time"
+
+#: settings.html
+msgid "سيدني ("
+msgstr ""
+
+msgid "سيدني (Australia/Sydney)"
+msgstr "Sydney (Australia/Sydney)"
+
+#: settings.html
+msgid "سيول ("
+msgstr ""
+
+msgid "سيول (Asia/Seoul)"
+msgstr "Seoul (Asia/Seoul)"
+
+#: settings.html
+msgid "شرق وجنوب شرق آسيا"
+msgstr "East & Southeast Asia"
+
+#: settings.html
+msgid "شنغهاي ("
+msgstr ""
+
+msgid "شنغهاي (Asia/Shanghai)"
+msgstr "Shanghai (Asia/Shanghai)"
+
+#: assistants.html
+msgid "شهر"
+msgstr "Month"
+
+#: assistants.html
+msgid "شهرياً"
+msgstr "Monthly"
+
+#: settings.html
+msgid "شيكاغو ("
+msgstr ""
+
+msgid "شيكاغو (America/Chicago)"
+msgstr "Chicago (America/Chicago)"
+
+#: settings.html
+msgid "طرابلس ("
+msgstr ""
+
+msgid "طرابلس (Africa/Tripoli)"
+msgstr "Tripoli (Africa/Tripoli)"
+
+#: settings.html
+msgid "طشقند ("
+msgstr ""
+
+msgid "طشقند (Asia/Tashkent)"
+msgstr "Tashkent (Asia/Tashkent)"
+
+#: settings.html
+msgid "طهران ("
+msgstr ""
+
+msgid "طهران (Asia/Tehran)"
+msgstr "Tehran (Asia/Tehran)"
+
+#: settings.html
+msgid "طوكيو ("
+msgstr ""
+
+msgid "طوكيو (Asia/Tokyo)"
+msgstr "Tokyo (Asia/Tokyo)"
+
+#: dashboard.html
+msgid "عالية"
+msgstr "High"
+
+#: notifications.html
+msgid "عرض التفاصيل"
+msgstr "View details"
+
+#: dashboard.html
+msgid "عرض الكل"
+msgstr "View all"
+
+#: notifications.html
+msgid "عرض جميع الإشعارات المرسلة"
+msgstr "View all sent notifications"
+
+#: executions.html
+msgid "عرض نتائج تشغيل جميع السكريبتات"
+msgstr "View execution results of all scripts"
+
+#: dashboard.html
+msgid "عمليات حديثة"
+msgstr "Recent operations"
+
+#: dashboard.html
+msgid "عملية تنفيذ"
+msgstr "Execution operation"
+
+#: settings.html
+msgid "عمّان ("
+msgstr ""
+
+msgid "عمّان (Asia/Amman)"
+msgstr "Amman (Asia/Amman)"
+
+#: system_settings.html
+msgid "عنوان البريد الإلكتروني"
+msgstr "Email address"
+
+#: system_settings.html
+msgid "عنوان المرسل"
+msgstr "Sender address"
+
+#: dashboard.html
+msgid "عنوان المهمة"
+msgstr "Task title"
+
+#: settings.html
+msgid "غزة ("
+msgstr ""
+
+msgid "غزة (Asia/Gaza)"
+msgstr "Gaza (Asia/Gaza)"
+
+#: settings.html
+msgid "غوام ("
+msgstr ""
+
+msgid "غوام (Pacific/Guam)"
+msgstr "Guam (Pacific/Guam)"
+
+#: translations.html
+msgid "غير مترجم"
+msgstr "Not translated"
+
+#: share_not_found.html
+msgid "غير موجود -"
+msgstr "Not Found -"
+
+#: settings.html
+msgid "فانكوفر ("
+msgstr ""
+
+msgid "فانكوفر (America/Vancouver)"
+msgstr "Vancouver (America/Vancouver)"
 
 msgid "فشل"
 msgstr "Failed"
 
-msgid "خطأ"
-msgstr "Error"
+#: admin/email_settings.html
+msgid "فشل إرسال الرسالة"
+msgstr "Failed to send message"
+
+#: system_settings.html
+msgid "فشل الإرسال:"
+msgstr "Sending failed:"
+
+#: settings.html
+msgid "فشل التغيير"
+msgstr "Change failed"
+
+#: settings.html
+msgid "فشل الحفظ"
+msgstr "Save failed"
+
+#: scripts.html
+msgid "فشل تشغيل السكريبت:"
+msgstr "Script execution failed:"
+
+#: scripts.html
+msgid "فشل في حفظ السكريبت"
+msgstr "Failed to save script"
+
+#: assistants.html
+msgid "فشل في حفظ المساعد"
+msgstr "Failed to save assistant"
+
+#: dashboard.html
+msgid "فشل في حفظ المهمة"
+msgstr "Failed to save task"
+
+#: admin/email_settings.html
+msgid "في إعدادات البريد"
+msgstr "In email settings"
+
+#: translations.html
+msgid "في مجلد"
+msgstr "In folder"
+
+#: system_settings.html
+msgid "في ملف ."
+msgstr "In . file"
+
+#: settings.html
+msgid "فيجي ("
+msgstr ""
+
+msgid "فيجي (Pacific/Fiji)"
+msgstr "Fiji (Pacific/Fiji)"
+
+#: settings.html
+msgid "فينكس ("
+msgstr ""
+
+msgid "فينكس (America/Phoenix)"
+msgstr "Phoenix (America/Phoenix)"
+
+#: settings.html
+msgid "فيينا ("
+msgstr ""
+
+msgid "فيينا (Europe/Vienna)"
+msgstr "Vienna (Europe/Vienna)"
+
+#: assistants.html
+msgid "قالب الإشعار"
+msgstr "Notification template"
+
+#: settings.html
+msgid "قطر ("
+msgstr ""
+
+msgid "قطر (Asia/Qatar)"
+msgstr "Qatar (Asia/Qatar)"
+
+#: executions.html
+msgid "قم بتشغيل سكريبت لعرض النتائج هنا"
+msgstr "Run a script to view results here"
+
+#: admin/panel.html
+msgid "قوالب الإشعارات"
+msgstr "Notification templates"
+
+#: tasks.html
+msgid "قيد الانتظار"
+msgstr "Pending"
+
+#: executions.html
+msgid "قيد التشغيل"
+msgstr "Running"
+
+#: dashboard.html
+msgid "قيد التنفيذ"
+msgstr ""
+
+#: settings.html
+msgid "كابول ("
+msgstr ""
+
+msgid "كابول (Asia/Kabul)"
+msgstr "Kabul (Asia/Kabul)"
+
+#: settings.html
+msgid "كاتماندو ("
+msgstr ""
+
+msgid "كاتماندو (Asia/Kathmandu)"
+msgstr "Kathmandu (Asia/Kathmandu)"
+
+#: settings.html
+msgid "كاراكاس ("
+msgstr ""
+
+msgid "كاراكاس (America/Caracas)"
+msgstr "Caracas (America/Caracas)"
+
+#: settings.html
+msgid "كراتشي ("
+msgstr ""
+
+msgid "كراتشي (Asia/Karachi)"
+msgstr "Karachi (Asia/Karachi)"
+
+#: assistants.html
+msgid "كل دقيقة"
+msgstr "Every minute"
+
+#: assistants.html
+msgid "كل ساعة"
+msgstr "Every hour"
+
+msgid "كلمة المرور"
+msgstr "Password"
+
+#: settings.html
+msgid "كمبالا ("
+msgstr ""
+
+msgid "كمبالا (Africa/Kampala)"
+msgstr "Kampala (Africa/Kampala)"
+
+#: settings.html
+msgid "كوالالمبور ("
+msgstr ""
+
+msgid "كوالالمبور (Asia/Kuala_Lumpur)"
+msgstr "Kuala Lumpur (Asia/Kuala_Lumpur)"
+
+#: settings.html
+msgid "كولكاتا ("
+msgstr ""
+
+msgid "كولكاتا (Asia/Kolkata)"
+msgstr "Kolkata (Asia/Kolkata)"
+
+#: settings.html
+msgid "كولومبو ("
+msgstr ""
+
+msgid "كولومبو (Asia/Colombo)"
+msgstr "Colombo (Asia/Colombo)"
+
+#: system_settings.html
+msgid "كيفية إنشاء بوت"
+msgstr "How to create a bot"
+
+#: settings.html
+msgid "كييف ("
+msgstr ""
+
+msgid "كييف (Europe/Kiev)"
+msgstr "Kiev (Europe/Kiev)"
+
+#: admin/email_settings.html
+msgid "لإرسال البريد الإلكتروني"
+msgstr "To send email"
+
+#: admin/assistant_types.html
+msgid "لا توجد أنواع مساعدين"
+msgstr "No assistant types"
+
+#: notifications.html
+msgid "لا توجد إشعارات"
+msgstr "No notifications"
+
+#: notifications.html
+msgid "لا توجد رسالة"
+msgstr "No message"
+
+#: dashboard.html
+msgid "لا توجد عمليات حديثة"
+msgstr "No recent operations"
+
+#: admin/panel.html
+msgid "لا توجد قوالب بعد"
+msgstr "No templates yet"
+
+#: translations.html
+msgid "لا توجد لغات"
+msgstr "No languages"
+
+#: tasks.html
+msgid "لا توجد مهام"
+msgstr "No tasks"
+
+#: translations.html
+msgid "لا توجد نصوص"
+msgstr "No texts"
+
+#: admin/assistant_types.html
+msgid "لا يمكن الحذف: هناك مساعدين يستخدمون هذا النوع"
+msgstr "Cannot delete: There are assistants using this type"
+
+#: admin/users.html
+msgid "لا يمكنك حذف حسابك الخاص"
+msgstr "You cannot delete your own account"
+
+#: executions.html
+msgid "لا يوجد سجل تنفيذ"
+msgstr "No execution log"
+
+#: scripts.html
+msgid "لا يوجد سكريبتات"
+msgstr "No scripts"
+
+#: scripts.html
+msgid "لا يوجد كود"
+msgstr "No code"
+
+#: dashboard.html
+msgid "لا يوجد لديك مساعدين بعد!"
+msgstr "You don't have any assistants yet!"
+
+#: executions.html
+msgid "لا يوجد مخرجات أو أخطاء"
+msgstr "No output or errors"
+
+#: assistants.html
+msgid "لا يوجد مساعدين"
+msgstr "No assistants"
+
+#: admin/users.html
+msgid "لا يوجد مستخدمين"
+msgstr "No users"
+
+#: share_execution.html
+msgid "لا يوجد ناتج"
+msgstr "No output"
+
+#: translations.html
+msgid "لاستخراج النصوص من القوالب"
+msgstr "To extract texts from templates"
+
+#: settings.html
+msgid "لاغوس ("
+msgstr ""
+
+msgid "لاغوس (Africa/Lagos)"
+msgstr "Lagos (Africa/Lagos)"
+
+#: settings.html
+msgid "لشبونة ("
+msgstr ""
+
+msgid "لشبونة (Europe/Lisbon)"
+msgstr "Lisbon (Europe/Lisbon)"
+
+#: scripts.html
+msgid "لغة البرمجة"
+msgstr "Programming language"
+
+#: system_settings.html
+msgid "لـ"
+msgstr "For"
+
+msgid "لـ Gmail استخدم App Password"
+msgstr "For Gmail use App Password"
+
+#: notifications.html
+msgid "لم يتم إرسال أي إشعارات بعد"
+msgstr "No notifications have been sent yet"
+
+#: login.html
+msgid "لم يصلك الرمز؟"
+msgstr "Didn't receive the code?"
+
+#: executions.html
+msgid "لم ينته بعد"
+msgstr "Not finished yet"
+
+#: settings.html
+msgid "لندن ("
+msgstr "London ("
+
+msgid "لندن (Europe/London)"
+msgstr "London (Europe/London)"
+
+msgid "لوحة التحكم"
+msgstr "Dashboard"
+
+#: dashboard.html
+msgid "لوحة التحكم -"
+msgstr "Dashboard -"
+
+#: base.html
+msgid "لوحة تحكم المدير"
+msgstr "Admin Dashboard"
+
+#: settings.html
+msgid "لوس أنجلوس ("
+msgstr ""
+
+msgid "لوس أنجلوس (America/Los_Angeles)"
+msgstr "Los Angeles (America/Los_Angeles)"
+
+#: settings.html
+msgid "ليما ("
+msgstr ""
+
+msgid "ليما (America/Lima)"
+msgstr "Lima (America/Lima)"
+
+#: settings.html
+msgid "مابوتو ("
+msgstr ""
+
+msgid "مابوتو (Africa/Maputo)"
+msgstr "Maputo (Africa/Maputo)"
+
+#: settings.html
+msgid "مانيلا ("
+msgstr ""
+
+msgid "مانيلا (Asia/Manila)"
+msgstr "Manila (Asia/Manila)"
+
+#: tasks.html
+msgid "متأخرة"
+msgstr "Overdue"
+
+#: translations.html
+msgid "مترجم"
+msgstr "Translated"
+
+#: notifications.html
+msgid "متصفح"
+msgstr "Browser"
+
+#: dashboard.html
+msgid "متوسطة"
+msgstr "Medium"
+
+#: scripts.html
+msgid "مثال:"
+msgstr "Example:"
+
+#: admin/panel.html
+msgid "مثال: تذكير المهام"
+msgstr "Example: Task reminder"
+
+#: assistants.html
+msgid "مثال: مساعد المهام اليومية"
+msgstr "Example: Daily tasks assistant"
+
+#: admin/panel.html
+msgid "محتوى القالب"
+msgstr "Template content"
+
+#: translations.html
+msgid "محدث"
+msgstr "Updated"
+
+#: assistants.html
+msgid "مخصص"
+msgstr "Custom"
+
+#: settings.html
+msgid "مدريد ("
+msgstr ""
+
+msgid "مدريد (Europe/Madrid)"
+msgstr "Madrid (Europe/Madrid)"
+
+#: admin/users.html
+msgid "مدير"
+msgstr "Admin"
+
+#: admin/users.html
+msgid "مدير النظام"
+msgstr "System administrator"
+
+#: assistants.html
+msgid "مرة واحدة"
+msgstr "Once"
+
+#: scripts.html
+msgid "مرتبط بمساعد"
+msgstr "Linked to assistant"
+
+#: dashboard.html
+msgid "مرحباً بك في"
+msgstr "Welcome to"
+
+#: translations.html
+msgid "مزامنة النصوص"
+msgstr "Synchronize texts"
+
+#: dashboard.html
+msgid "مساعد نشط"
+msgstr "Active assistant"
+
+#: assistants.html
+msgid "مساعدين السكريبتات"
+msgstr "Script assistants"
+
+#: assistants.html
+msgid "مساعدين المهام"
+msgstr "Task assistants"
+
+#: dashboard.html
+msgid "مساعدين نشطين"
+msgstr "Active assistants"
+
+#: admin/users.html
+msgid "مستخدم"
+msgstr "User"
+
+#: settings.html
+msgid "مسقط ("
+msgstr ""
+
+msgid "مسقط (Asia/Muscat)"
+msgstr "Muscat (Asia/Muscat)"
+
+msgid "معرف التليجرام"
+msgstr "Telegram ID"
+
+#: settings.html
+msgid "معرف التليجرام الجديد"
+msgstr "New Telegram ID"
+
+#: executions.html
+msgid "معرف التنفيذ:"
+msgstr "Execution ID:"
+
+#: dashboard.html
+msgid "معلق"
+msgstr ""
+
+msgid "معلومات الحساب"
+msgstr "Account Info"
+
+#: settings.html
+msgid "مقديشو ("
+msgstr ""
+
+msgid "مقديشو (Africa/Mogadishu)"
+msgstr "Mogadishu (Africa/Mogadishu)"
+
+#: tasks.html
+msgid "مكتملة"
+msgstr "Completed"
+
+#: settings.html
+msgid "مكسيكو سيتي ("
+msgstr ""
+
+msgid "مكسيكو سيتي (America/Mexico_City)"
+msgstr "Mexico City (America/Mexico_City)"
+
+#: admin/email_settings.html
+msgid "ملاحظات"
+msgstr "Notes"
+
+#: settings.html
+msgid "ملبورن ("
+msgstr ""
+
+msgid "ملبورن (Australia/Melbourne)"
+msgstr "Melbourne (Australia/Melbourne)"
+
+#: tasks.html
+msgid "ملغاة"
+msgstr "Cancelled"
+
+#: translations.html
+msgid "ملف ."
+msgstr ". file"
+
+#: dashboard.html
+msgid "منخفضة"
+msgstr "Low"
+
+#: notifications.html
+msgid "منذ"
+msgstr "Since"
+
+#: notifications.html
+msgid "منذ دقيقة"
+msgstr "A minute ago"
+
+#: notifications.html
+msgid "منذ دقيقتين"
+msgstr "Two minutes ago"
+
+#: notifications.html
+msgid "منذ ساعة"
+msgstr "An hour ago"
+
+#: notifications.html
+msgid "منذ ساعتين"
+msgstr "Two hours ago"
+
+#: tasks.html
+msgid "منذ لحظات"
+msgstr "A few moments ago"
+
+#: admin/assistant_types.html
+msgid "مهام"
+msgstr "Tasks"
+
+#: dashboard.html
+msgid "مهام معلقة"
+msgstr "Pending tasks"
+
+#: dashboard.html
+msgid "مهمة تحتاج إنجاز"
+msgstr "Task needs completion"
+
+#: dashboard.html
+msgid "مهمة مكتملة"
+msgstr "Completed task"
+
+#: settings.html
+msgid "موريشيوس ("
+msgstr ""
+
+msgid "موريشيوس (Indian/Mauritius)"
+msgstr "Mauritius (Indian/Mauritius)"
+
+#: settings.html
+msgid "موسكو ("
+msgstr ""
+
+msgid "موسكو (Europe/Moscow)"
+msgstr "Moscow (Europe/Moscow)"
+
+#: tasks.html
+msgid "موعد التنبيه:"
+msgstr "Alert time:"
+
+#: admin/panel.html
+msgid "ناتج التنفيذ"
+msgstr "Execution output"
+
+#: share_execution.html
+msgid "نتيجة التنفيذ -"
+msgstr "Execution Result -"
+
+#: share_execution.html
+msgid "نتيجة تنفيذ مشاركة"
+msgstr "Shared execution result"
+
+msgid "نجح"
+msgstr "Success"
+
+#: translations.html
+msgid "نص جديد من أصل"
+msgstr "New text out of"
+
+#: scripts.html
+msgid "نهائياً؟ لا يمكن التراجع!"
+msgstr "permanently? This cannot be undone!"
+
+#: executions.html
+msgid "نهاية التنفيذ:"
+msgstr "End time:"
+
+#: assistants.html
+msgid "نوع الجدولة"
+msgstr "Schedule type"
+
+#: admin/assistant_types.html
+msgid "نوع العمل المرتبط بهذا المساعد"
+msgstr "Type of work associated with this assistant"
+
+#: assistants.html
+msgid "نوع المساعد"
+msgstr "Assistant type"
+
+#: settings.html
+msgid "نيروبي ("
+msgstr ""
+
+msgid "نيروبي (Africa/Nairobi)"
+msgstr "Nairobi (Africa/Nairobi)"
+
+#: settings.html
+msgid "نيويورك ("
+msgstr "New York ("
+
+msgid "نيويورك (America/New_York)"
+msgstr "New York (America/New_York)"
+
+#: settings.html
+msgid "هافانا ("
+msgstr ""
+
+msgid "هافانا (America/Havana)"
+msgstr "Havana (America/Havana)"
+
+#: share_not_found.html
+msgid "هذا الرابط غير صالح أو تم حذفه."
+msgstr "This link is invalid or has been deleted."
+
+#: assistants.html
+msgid "هذا المساعد يعمل مع السكريبتات"
+msgstr "This assistant works with scripts"
+
+#: assistants.html
+msgid "هذا المساعد يعمل مع المهام"
+msgstr "This assistant works with tasks"
+
+#: dashboard.html
+msgid "هل أنت متأكد من تسجيل الخروج؟"
+msgstr "Are you sure you want to logout?"
+
+#: scripts.html
+msgid "هل أنت متأكد من حذف السكريبت"
+msgstr "Are you sure you want to delete the script"
+
+#: admin/panel.html
+msgid "هل أنت متأكد من حذف هذا القالب؟"
+msgstr "Are you sure you want to delete this template?"
+
+#: assistants.html
+msgid "هل أنت متأكد من حذف هذا المساعد نهائياً؟ لا يمكن التراجع!"
+msgstr "Are you sure you want to delete this assistant permanently? This cannot be undone!"
+
+#: admin/users.html
+msgid "هل أنت متأكد من حذف هذا المستخدم؟"
+msgstr "Are you sure you want to delete this user?"
+
+#: admin/assistant_types.html
+msgid "هل أنت متأكد من حذف هذا النوع؟"
+msgstr "Are you sure you want to delete this type?"
+
+#: translations.html
+msgid "هل أنت متأكد من حذف هذه اللغة وجميع ترجماتها؟"
+msgstr "Are you sure you want to delete this language and all its translations?"
+
+#: tasks.html
+msgid "هل أنت متأكد من حذف هذه المهمة نهائياً؟ لا يمكن التراجع!"
+msgstr "Are you sure you want to delete this task permanently? This cannot be undone!"
+
+#: dashboard.html
+msgid "هل أنت متأكد من حذف هذه المهمة؟ لا يمكن التراجع عن هذا الإجراء!"
+msgstr "Are you sure you want to delete this task? This action cannot be undone!"
+
+#: tasks.html
+msgid "هل تريد إلغاء هذه المهمة؟"
+msgstr "Do you want to cancel this task?"
+
+#: translations.html
+msgid "هل تريد المتابعة؟"
+msgstr "Do you want to continue?"
+
+#: scripts.html
+msgid "هل تريد تشغيل السكريبت"
+msgstr "Do you want to run the script"
+
+#: dashboard.html
+msgid "هل تريد تعليق هذه المهمة مؤقتاً؟"
+msgstr "Do you want to hold this task temporarily?"
+
+#: dashboard.html
+msgid "هل تريد تعليم هذه المهمة كمكتملة؟"
+msgstr "Do you want to mark this task as completed?"
+
+#: settings.html
+msgid "هلسنكي ("
+msgstr ""
+
+msgid "هلسنكي (Europe/Helsinki)"
+msgstr "Helsinki (Europe/Helsinki)"
+
+#: settings.html
+msgid "هونغ كونغ ("
+msgstr ""
+
+msgid "هونغ كونغ (Asia/Hong_Kong)"
+msgstr "Hong Kong (Asia/Hong_Kong)"
+
+#: settings.html
+msgid "هونولولو ("
+msgstr ""
+
+msgid "هونولولو (Pacific/Honolulu)"
+msgstr "Honolulu (Pacific/Honolulu)"
+
+#: settings.html
+msgid "وارسو ("
+msgstr ""
+
+msgid "وارسو (Europe/Warsaw)"
+msgstr "Warsaw (Europe/Warsaw)"
+
+#: dashboard.html
+msgid "وقت التذكير"
+msgstr "Reminder time"
+
+#: tasks.html
+msgid "وقت التنبيه"
+msgstr "Alert time"
+
+#: share_execution.html
+msgid "وقت التنفيذ:"
+msgstr "Execution time:"
+
+#: settings.html
+msgid "يانغون ("
+msgstr ""
+
+msgid "يانغون (Asia/Yangon)"
+msgstr "Yangon (Asia/Yangon)"
+
+#: system_settings.html
+msgid "يتم تعيينه من ملف ."
+msgstr "Set from . file"
+
+#: scripts.html
+msgid "يرجى إدخال اسم السكريبت"
+msgstr "Please enter script name"
+
+#: assistants.html
+msgid "يرجى إدخال اسم المساعد"
+msgstr "Please enter assistant name"
+
+#: admin/panel.html
+msgid "يرجى إدخال اسم ومحتوى القالب"
+msgstr "Please enter template name and content"
+
+#: settings.html
+msgid "يرجى إدخال رقم الهاتف"
+msgstr "Please enter phone number"
+
+#: system_settings.html
+msgid "يرجى إدخال عنوان البريد الإلكتروني"
+msgstr "Please enter email address"
+
+#: dashboard.html
+msgid "يرجى إدخال عنوان المهمة"
+msgstr "Please enter task title"
+
+#: settings.html
+msgid "يرجى إدخال معرف التليجرام"
+msgstr "Please enter Telegram ID"
+
+#: assistants.html
+msgid "يرجى اختيار نوع المساعد"
+msgstr "Please select assistant type"
+
+#: scripts.html
+msgid "يرجى كتابة الكود"
+msgstr "Please write the code"
+
+#: admin/panel.html
+msgid "يمكنك استخدام المتغيرات التالية"
+msgstr "You can use the following variables"
+
+#: settings.html
+msgid "يمكنك الحصول على معرفك من"
+msgstr "You can get your ID from"
+
+#: assistants.html
+msgid "يوم"
+msgstr "day"
+
+#: assistants.html
+msgid "يومياً"
+msgstr "Daily"
+
+#: executions.html
+msgid "يومين"
+msgstr "two days"
+
+msgid "⏰ تذكير بمهمة"
+msgstr "⏰ Task reminder"
+
+msgid "⏳ قيد التنفيذ"
+msgstr "⏳ Running"
+
+msgid "⏸ معلق"
+msgstr "⏸ Pending"
+
+msgid "✓ نجح"
+msgstr "✓ Success"
+
+msgid "✗ فشل"
+msgstr "✗ Failed"
+
+msgid "🔴 عالية"
+msgstr "🔴 High"
+
+msgid "🟡 متوسطة"
+msgstr "🟡 Medium"
+
+msgid "🟢 منخفضة"
+msgstr "🟢 Low"

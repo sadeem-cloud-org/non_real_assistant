@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}سجل الإشعارات - Non Real Assistant{% endblock %}
+{% block title %}{{ t('سجل الإشعارات') }} - Non Real Assistant{% endblock %}
 
-{% block page_title %}سجل الإشعارات{% endblock %}
-{% block page_subtitle %}عرض جميع الإشعارات المرسلة{% endblock %}
+{% block page_title %}{{ t('سجل الإشعارات') }}{% endblock %}
+{% block page_subtitle %}{{ t('عرض جميع الإشعارات المرسلة') }}{% endblock %}
 
 {% block page_css %}
 <style>
@@ -19,15 +19,15 @@
 {% block page_actions %}
 <div class="d-flex gap-2">
     <select class="form-select" id="channel-filter" onchange="loadNotifications()" style="width: auto;">
-        <option value="">جميع القنوات</option>
-        <option value="telegram">تيليجرام</option>
-        <option value="email">بريد إلكتروني</option>
-        <option value="browser">المتصفح</option>
+        <option value="">{{ t('جميع القنوات') }}</option>
+        <option value="telegram">{{ t('تيليجرام') }}</option>
+        <option value="email">{{ t('بريد إلكتروني') }}</option>
+        <option value="browser">{{ t('المتصفح') }}</option>
     </select>
     <select class="form-select" id="status-filter" onchange="loadNotifications()" style="width: auto;">
-        <option value="">جميع الحالات</option>
-        <option value="sent">تم الإرسال</option>
-        <option value="failed">فشل</option>
+        <option value="">{{ t('جميع الحالات') }}</option>
+        <option value="sent">{{ t('تم الإرسال') }}</option>
+        <option value="failed">{{ t('فشل') }}</option>
     </select>
 </div>
 {% endblock %}
@@ -46,7 +46,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-total">0</div>
-                        <div class="text-muted">إجمالي الإشعارات</div>
+                        <div class="text-muted">{{ t('إجمالي الإشعارات') }}</div>
                     </div>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-sent">0</div>
-                        <div class="text-muted">تم الإرسال</div>
+                        <div class="text-muted">{{ t('تم الإرسال') }}</div>
                     </div>
                 </div>
             </div>
@@ -82,7 +82,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-failed">0</div>
-                        <div class="text-muted">فشل</div>
+                        <div class="text-muted">{{ t('فشل') }}</div>
                     </div>
                 </div>
             </div>
@@ -100,7 +100,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-telegram">0</div>
-                        <div class="text-muted">تيليجرام</div>
+                        <div class="text-muted">{{ t('تيليجرام') }}</div>
                     </div>
                 </div>
             </div>
@@ -114,11 +114,11 @@
         <table class="table table-vcenter card-table">
             <thead>
                 <tr>
-                    <th>القناة</th>
-                    <th>الحالة</th>
-                    <th>المهمة / المساعد</th>
-                    <th>الرسالة</th>
-                    <th>التاريخ</th>
+                    <th>{{ t('القناة') }}</th>
+                    <th>{{ t('الحالة') }}</th>
+                    <th>{{ t('المهمة / المساعد') }}</th>
+                    <th>{{ t('الرسالة') }}</th>
+                    <th>{{ t('التاريخ') }}</th>
                     <th></th>
                 </tr>
             </thead>
@@ -126,7 +126,7 @@
                 <tr>
                     <td colspan="6" class="text-center py-4">
                         <div class="spinner-border text-muted" role="status"></div>
-                        <div class="mt-2">جاري التحميل...</div>
+                        <div class="mt-2">{{ t('جاري التحميل...') }}</div>
                     </td>
                 </tr>
             </tbody>
@@ -141,14 +141,14 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">تفاصيل الإشعار</h5>
+                <h5 class="modal-title">{{ t('تفاصيل الإشعار') }}</h5>
                 <button type="button" class="btn-close" onclick="hideModal('modal-notification')"></button>
             </div>
             <div class="modal-body" id="modal-body">
                 <!-- Content loaded dynamically -->
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn" onclick="hideModal('modal-notification')">إغلاق</button>
+                <button type="button" class="btn" onclick="hideModal('modal-notification')">{{ t('إغلاق') }}</button>
             </div>
         </div>
     </div>
@@ -157,6 +157,33 @@
 
 {% block page_js %}
 <script>
+// Translation strings
+const translations = {
+    'sent': "{{ t('تم الإرسال') }}",
+    'failed': "{{ t('فشل') }}",
+    'telegram': "{{ t('تيليجرام') }}",
+    'email': "{{ t('بريد') }}",
+    'browser': "{{ t('متصفح') }}",
+    'task': "{{ t('المهمة') }}",
+    'assistant': "{{ t('المساعد') }}",
+    'message': "{{ t('الرسالة') }}",
+    'no_message': "{{ t('لا توجد رسالة') }}",
+    'error_message': "{{ t('رسالة الخطأ') }}",
+    'date': "{{ t('التاريخ') }}",
+    'channel': "{{ t('القناة') }}",
+    'status': "{{ t('الحالة') }}",
+    'view_details': "{{ t('عرض التفاصيل') }}",
+    'no_notifications': "{{ t('لا توجد إشعارات') }}",
+    'error_loading': "{{ t('حدث خطأ في تحميل الإشعارات') }}",
+    'now': "{{ t('الآن') }}",
+    'minutes_ago': "{{ t('منذ') }}",
+    'minute': "{{ t('دقيقة') }}",
+    'minutes_two': "{{ t('دقيقتين') }}",
+    'hours_ago': "{{ t('منذ') }}",
+    'hour': "{{ t('ساعة') }}",
+    'hours_two': "{{ t('ساعتين') }}"
+};
+
 let allNotifications = [];
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -189,7 +216,7 @@ async function loadNotifications() {
             <tr>
                 <td colspan="6" class="text-center py-4">
                     <i class="ti ti-alert-circle icon text-red mb-2" style="font-size: 2rem;"></i>
-                    <div class="text-muted">حدث خطأ في تحميل الإشعارات</div>
+                    <div class="text-muted">${translations.error_loading}</div>
                 </td>
             </tr>
         `;
@@ -219,7 +246,7 @@ function displayNotifications(notifications) {
             <tr>
                 <td colspan="6" class="text-center py-4">
                     <i class="ti ti-bell-off icon text-muted mb-2" style="font-size: 2rem;"></i>
-                    <div class="text-muted">لا توجد إشعارات</div>
+                    <div class="text-muted">${translations.no_notifications}</div>
                 </td>
             </tr>
         `;
@@ -231,9 +258,9 @@ function displayNotifications(notifications) {
 
 function createNotificationRow(notification) {
     const statusClass = notification.status === 'sent' ? 'green' : 'red';
-    const statusText = notification.status === 'sent' ? 'تم الإرسال' : 'فشل';
+    const statusText = translations[notification.status] || notification.status;
     const channelIcon = getChannelIcon(notification.channel);
-    const channelName = getChannelName(notification.channel);
+    const channelName = translations[notification.channel] || notification.channel;
     const messagePreview = notification.message ? notification.message.substring(0, 50) + (notification.message.length > 50 ? '...' : '') : '-';
 
     return `
@@ -259,7 +286,7 @@ function createNotificationRow(notification) {
                 ${formatDateTime(notification.create_time)}
             </td>
             <td>
-                <button class="btn btn-ghost-primary btn-sm" onclick="viewNotification(${notification.id})" title="عرض التفاصيل">
+                <button class="btn btn-ghost-primary btn-sm" onclick="viewNotification(${notification.id})" title="${translations.view_details}">
                     <i class="ti ti-eye"></i>
                 </button>
             </td>
@@ -276,15 +303,6 @@ function getChannelIcon(channel) {
     return icons[channel] || 'ti-bell';
 }
 
-function getChannelName(channel) {
-    const names = {
-        'telegram': 'تيليجرام',
-        'email': 'بريد',
-        'browser': 'متصفح'
-    };
-    return names[channel] || channel;
-}
-
 function getChannelColor(channel) {
     const colors = {
         'telegram': 'cyan',
@@ -298,48 +316,51 @@ function viewNotification(notificationId) {
     const notification = allNotifications.find(n => n.id === notificationId);
     if (!notification) return;
 
+    const channelName = translations[notification.channel] || notification.channel;
+    const statusText = translations[notification.status] || notification.status;
+
     const modalBody = document.getElementById('modal-body');
     modalBody.innerHTML = `
         <div class="row mb-3">
             <div class="col-md-6">
-                <label class="form-label text-muted">القناة</label>
-                <div><i class="ti ${getChannelIcon(notification.channel)} me-2"></i>${getChannelName(notification.channel)}</div>
+                <label class="form-label text-muted">${translations.channel}</label>
+                <div><i class="ti ${getChannelIcon(notification.channel)} me-2"></i>${channelName}</div>
             </div>
             <div class="col-md-6">
-                <label class="form-label text-muted">الحالة</label>
+                <label class="form-label text-muted">${translations.status}</label>
                 <div>
                     <span class="badge bg-${notification.status === 'sent' ? 'green' : 'red'}-lt">
-                        ${notification.status === 'sent' ? 'تم الإرسال' : 'فشل'}
+                        ${statusText}
                     </span>
                 </div>
             </div>
         </div>
         ${notification.task_name ? `
             <div class="mb-3">
-                <label class="form-label text-muted">المهمة</label>
+                <label class="form-label text-muted">${translations.task}</label>
                 <div>${escapeHtml(notification.task_name)}</div>
             </div>
         ` : ''}
         ${notification.assistant_name ? `
             <div class="mb-3">
-                <label class="form-label text-muted">المساعد</label>
+                <label class="form-label text-muted">${translations.assistant}</label>
                 <div>${escapeHtml(notification.assistant_name)}</div>
             </div>
         ` : ''}
         <div class="mb-3">
-            <label class="form-label text-muted">الرسالة</label>
+            <label class="form-label text-muted">${translations.message}</label>
             <div class="card">
-                <div class="card-body" style="white-space: pre-wrap; direction: rtl;">${notification.message ? escapeHtml(notification.message) : 'لا توجد رسالة'}</div>
+                <div class="card-body" style="white-space: pre-wrap; direction: rtl;">${notification.message ? escapeHtml(notification.message) : translations.no_message}</div>
             </div>
         </div>
         ${notification.error_message ? `
             <div class="mb-3">
-                <label class="form-label text-muted">رسالة الخطأ</label>
+                <label class="form-label text-muted">${translations.error_message}</label>
                 <div class="alert alert-danger">${escapeHtml(notification.error_message)}</div>
             </div>
         ` : ''}
         <div class="mb-3">
-            <label class="form-label text-muted">التاريخ</label>
+            <label class="form-label text-muted">${translations.date}</label>
             <div>${formatDateTime(notification.create_time)}</div>
         </div>
     `;
@@ -379,9 +400,13 @@ function formatDateTime(dateString) {
     const now = new Date();
     const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diff < 60) return 'الآن';
-    if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
-    if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
+    if (diff < 60) return translations.now;
+    if (diff < 120) return translations.minutes_ago + ' ' + translations.minute;
+    if (diff < 180) return translations.minutes_ago + ' ' + translations.minutes_two;
+    if (diff < 3600) return translations.minutes_ago + ' ' + Math.floor(diff / 60) + ' ' + translations.minute;
+    if (diff < 7200) return translations.hours_ago + ' ' + translations.hour;
+    if (diff < 10800) return translations.hours_ago + ' ' + translations.hours_two;
+    if (diff < 86400) return translations.hours_ago + ' ' + Math.floor(diff / 3600) + ' ' + translations.hour;
 
     return date.toLocaleDateString('ar-EG', {
         year: 'numeric',

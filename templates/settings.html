@@ -19,29 +19,33 @@
             <div class="card-body">
                 <div class="mb-3">
                     <label class="form-label">{{ t('الاسم') }}</label>
-                    <input type="text" class="form-control" id="user-name" placeholder="اسمك">
+                    <input type="text" class="form-control" id="user-name" placeholder="{{ t('اسمك') }}">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">البريد الإلكتروني</label>
+                    <label class="form-label">{{ t('البريد الإلكتروني') }}</label>
                     <input type="email" class="form-control" id="user-email" placeholder="email@example.com">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">رقم الهاتف</label>
+                    <label class="form-label">{{ t('رقم الهاتف') }}</label>
                     <div class="input-group">
                         <input type="text" class="form-control" id="user-phone" readonly>
-                        <button class="btn btn-outline-secondary" type="button" onclick="showChangePhone()">تغيير</button>
+                        <button class="btn btn-outline-secondary" type="button" onclick="showChangePhone()">{{
+                            t('تغيير') }}
+                        </button>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">معرف التليجرام</label>
+                    <label class="form-label">{{ t('معرف التليجرام') }}</label>
                     <div class="input-group">
                         <input type="text" class="form-control" id="user-telegram" readonly>
-                        <button class="btn btn-outline-secondary" type="button" onclick="showChangeTelegram()">تغيير</button>
+                        <button class="btn btn-outline-secondary" type="button" onclick="showChangeTelegram()">{{
+                            t('تغيير') }}
+                        </button>
                     </div>
                 </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" onclick="saveProfile()">حفظ التغييرات</button>
+                <button class="btn btn-primary" onclick="saveProfile()">{{ t('حفظ التغييرات') }}</button>
             </div>
         </div>
     </div>
@@ -52,25 +56,180 @@
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="ti ti-settings me-2"></i>
-                    التفضيلات
+                    {{ t('التفضيلات') }}
                 </h3>
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label class="form-label">اللغة</label>
+                    <label class="form-label">{{ t('اللغة') }}</label>
                     <select class="form-select" id="user-language">
                         <option value="ar">العربية</option>
                         <option value="en">English</option>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">المنطقة الزمنية</label>
+                    <label class="form-label">{{ t('المنطقة الزمنية') }}</label>
                     <select class="form-select" id="user-timezone">
-                        <option value="Africa/Cairo">القاهرة (Africa/Cairo)</option>
-                        <option value="Asia/Riyadh">الرياض (Asia/Riyadh)</option>
-                        <option value="Asia/Dubai">دبي (Asia/Dubai)</option>
-                        <option value="Europe/London">لندن (Europe/London)</option>
-                        <option value="America/New_York">نيويورك (America/New_York)</option>
+                        <!-- Africa -->
+                        <optgroup label="{{ t('أفريقيا') }}">
+                            <option value="Africa/Abidjan">{{ t('أبيدجان (Africa/Abidjan)') }}</option>
+                            <option value="Africa/Accra">{{ t('أكرا (Africa/Accra)') }}</option>
+                            <option value="Africa/Addis_Ababa">{{ t('أديس أبابا (Africa/Addis_Ababa)') }}</option>
+                            <option value="Africa/Algiers">{{ t('الجزائر (Africa/Algiers)') }}</option>
+                            <option value="Africa/Cairo">{{ t('القاهرة (Africa/Cairo)') }}</option>
+                            <option value="Africa/Casablanca">{{ t('الدار البيضاء (Africa/Casablanca)') }}</option>
+                            <option value="Africa/Dar_es_Salaam">{{ t('دار السلام (Africa/Dar_es_Salaam)') }}</option>
+                            <option value="Africa/Djibouti">{{ t('جيبوتي (Africa/Djibouti)') }}</option>
+                            <option value="Africa/Johannesburg">{{ t('جوهانسبرج (Africa/Johannesburg)') }}</option>
+                            <option value="Africa/Kampala">{{ t('كمبالا (Africa/Kampala)') }}</option>
+                            <option value="Africa/Khartoum">{{ t('الخرطوم (Africa/Khartoum)') }}</option>
+                            <option value="Africa/Lagos">{{ t('لاغوس (Africa/Lagos)') }}</option>
+                            <option value="Africa/Maputo">{{ t('مابوتو (Africa/Maputo)') }}</option>
+                            <option value="Africa/Mogadishu">{{ t('مقديشو (Africa/Mogadishu)') }}</option>
+                            <option value="Africa/Nairobi">{{ t('نيروبي (Africa/Nairobi)') }}</option>
+                            <option value="Africa/Tripoli">{{ t('طرابلس (Africa/Tripoli)') }}</option>
+                            <option value="Africa/Tunis">{{ t('تونس (Africa/Tunis)') }}</option>
+                        </optgroup>
+
+                        <!-- America - North -->
+                        <optgroup label="{{ t('أمريكا الشمالية') }}">
+                            <option value="America/Anchorage">{{ t('أنكوراج (America/Anchorage)') }}</option>
+                            <option value="America/Chicago">{{ t('شيكاغو (America/Chicago)') }}</option>
+                            <option value="America/Denver">{{ t('دنفر (America/Denver)') }}</option>
+                            <option value="America/Los_Angeles">{{ t('لوس أنجلوس (America/Los_Angeles)') }}</option>
+                            <option value="America/Mexico_City">{{ t('مكسيكو سيتي (America/Mexico_City)') }}</option>
+                            <option value="America/New_York">{{ t('نيويورك (America/New_York)') }}</option>
+                            <option value="America/Phoenix">{{ t('فينكس (America/Phoenix)') }}</option>
+                            <option value="America/Toronto">{{ t('تورونتو (America/Toronto)') }}</option>
+                            <option value="America/Vancouver">{{ t('فانكوفر (America/Vancouver)') }}</option>
+                        </optgroup>
+
+                        <!-- America - South -->
+                        <optgroup label="{{ t('أمريكا الجنوبية') }}">
+                            <option value="America/Argentina/Buenos_Aires">{{ t('بوينس آيرس
+                                (America/Argentina/Buenos_Aires)') }}
+                            </option>
+                            <option value="America/Bogota">{{ t('بوغوتا (America/Bogota)') }}</option>
+                            <option value="America/Caracas">{{ t('كاراكاس (America/Caracas)') }}</option>
+                            <option value="America/Lima">{{ t('ليما (America/Lima)') }}</option>
+                            <option value="America/Santiago">{{ t('سانتياغو (America/Santiago)') }}</option>
+                            <option value="America/Sao_Paulo">{{ t('ساو باولو (America/Sao_Paulo)') }}</option>
+                        </optgroup>
+
+                        <!-- America - Central -->
+                        <optgroup label="{{ t('أمريكا الوسطى والكاريبي') }}">
+                            <option value="America/Costa_Rica">{{ t('سان خوسيه (America/Costa_Rica)') }}</option>
+                            <option value="America/Havana">{{ t('هافانا (America/Havana)') }}</option>
+                            <option value="America/Jamaica">{{ t('جامايكا (America/Jamaica)') }}</option>
+                            <option value="America/Panama">{{ t('بنما (America/Panama)') }}</option>
+                            <option value="America/Port-au-Prince">{{ t('بورت أو برنس (America/Port-au-Prince)') }}
+                            </option>
+                        </optgroup>
+
+                        <!-- Asia - Middle East -->
+                        <optgroup label="{{ t('الشرق الأوسط') }}">
+                            <option value="Asia/Amman">{{ t('عمّان (Asia/Amman)') }}</option>
+                            <option value="Asia/Baghdad">{{ t('بغداد (Asia/Baghdad)') }}</option>
+                            <option value="Asia/Bahrain">{{ t('البحرين (Asia/Bahrain)') }}</option>
+                            <option value="Asia/Beirut">{{ t('بيروت (Asia/Beirut)') }}</option>
+                            <option value="Asia/Damascus">{{ t('دمشق (Asia/Damascus)') }}</option>
+                            <option value="Asia/Dubai">{{ t('دبي (Asia/Dubai)') }}</option>
+                            <option value="Asia/Gaza">{{ t('غزة (Asia/Gaza)') }}</option>
+                            <option value="Asia/Jerusalem">{{ t('القدس (Asia/Jerusalem)') }}</option>
+                            <option value="Asia/Kuwait">{{ t('الكويت (Asia/Kuwait)') }}</option>
+                            <option value="Asia/Muscat">{{ t('مسقط (Asia/Muscat)') }}</option>
+                            <option value="Asia/Qatar">{{ t('قطر (Asia/Qatar)') }}</option>
+                            <option value="Asia/Riyadh">{{ t('الرياض (Asia/Riyadh)') }}</option>
+                            <option value="Asia/Tehran">{{ t('طهران (Asia/Tehran)') }}</option>
+                        </optgroup>
+
+                        <!-- Asia - Central & South -->
+                        <optgroup label="{{ t('آسيا الوسطى والجنوبية') }}">
+                            <option value="Asia/Kabul">{{ t('كابول (Asia/Kabul)') }}</option>
+                            <option value="Asia/Karachi">{{ t('كراتشي (Asia/Karachi)') }}</option>
+                            <option value="Asia/Kolkata">{{ t('كولكاتا (Asia/Kolkata)') }}</option>
+                            <option value="Asia/Colombo">{{ t('كولومبو (Asia/Colombo)') }}</option>
+                            <option value="Asia/Dhaka">{{ t('دكا (Asia/Dhaka)') }}</option>
+                            <option value="Asia/Kathmandu">{{ t('كاتماندو (Asia/Kathmandu)') }}</option>
+                            <option value="Asia/Tashkent">{{ t('طشقند (Asia/Tashkent)') }}</option>
+                        </optgroup>
+
+                        <!-- Asia - East & Southeast -->
+                        <optgroup label="{{ t('شرق وجنوب شرق آسيا') }}">
+                            <option value="Asia/Bangkok">{{ t('بانكوك (Asia/Bangkok)') }}</option>
+                            <option value="Asia/Hong_Kong">{{ t('هونغ كونغ (Asia/Hong_Kong)') }}</option>
+                            <option value="Asia/Jakarta">{{ t('جاكرتا (Asia/Jakarta)') }}</option>
+                            <option value="Asia/Kuala_Lumpur">{{ t('كوالالمبور (Asia/Kuala_Lumpur)') }}</option>
+                            <option value="Asia/Manila">{{ t('مانيلا (Asia/Manila)') }}</option>
+                            <option value="Asia/Seoul">{{ t('سيول (Asia/Seoul)') }}</option>
+                            <option value="Asia/Shanghai">{{ t('شنغهاي (Asia/Shanghai)') }}</option>
+                            <option value="Asia/Singapore">{{ t('سنغافورة (Asia/Singapore)') }}</option>
+                            <option value="Asia/Taipei">{{ t('تايبيه (Asia/Taipei)') }}</option>
+                            <option value="Asia/Tokyo">{{ t('طوكيو (Asia/Tokyo)') }}</option>
+                            <option value="Asia/Yangon">{{ t('يانغون (Asia/Yangon)') }}</option>
+                        </optgroup>
+
+                        <!-- Europe - Western -->
+                        <optgroup label="{{ t('أوروبا الغربية') }}">
+                            <option value="Europe/Dublin">{{ t('دبلن (Europe/Dublin)') }}</option>
+                            <option value="Europe/Lisbon">{{ t('لشبونة (Europe/Lisbon)') }}</option>
+                            <option value="Europe/London">{{ t('لندن (Europe/London)') }}</option>
+                        </optgroup>
+
+                        <!-- Europe - Central -->
+                        <optgroup label="{{ t('أوروبا الوسطى') }}">
+                            <option value="Europe/Amsterdam">{{ t('أمستردام (Europe/Amsterdam)') }}</option>
+                            <option value="Europe/Berlin">{{ t('برلين (Europe/Berlin)') }}</option>
+                            <option value="Europe/Brussels">{{ t('بروكسل (Europe/Brussels)') }}</option>
+                            <option value="Europe/Madrid">{{ t('مدريد (Europe/Madrid)') }}</option>
+                            <option value="Europe/Paris">{{ t('باريس (Europe/Paris)') }}</option>
+                            <option value="Europe/Rome">{{ t('روما (Europe/Rome)') }}</option>
+                            <option value="Europe/Vienna">{{ t('فيينا (Europe/Vienna)') }}</option>
+                            <option value="Europe/Zurich">{{ t('زيورخ (Europe/Zurich)') }}</option>
+                        </optgroup>
+
+                        <!-- Europe - Eastern -->
+                        <optgroup label="{{ t('أوروبا الشرقية') }}">
+                            <option value="Europe/Athens">{{ t('أثينا (Europe/Athens)') }}</option>
+                            <option value="Europe/Bucharest">{{ t('بوخارست (Europe/Bucharest)') }}</option>
+                            <option value="Europe/Helsinki">{{ t('هلسنكي (Europe/Helsinki)') }}</option>
+                            <option value="Europe/Istanbul">{{ t('إسطنبول (Europe/Istanbul)') }}</option>
+                            <option value="Europe/Kiev">{{ t('كييف (Europe/Kiev)') }}</option>
+                            <option value="Europe/Moscow">{{ t('موسكو (Europe/Moscow)') }}</option>
+                            <option value="Europe/Warsaw">{{ t('وارسو (Europe/Warsaw)') }}</option>
+                        </optgroup>
+
+                        <!-- Australia & Pacific -->
+                        <optgroup label="{{ t('أستراليا والمحيط الهادئ') }}">
+                            <option value="Australia/Adelaide">{{ t('أديليد (Australia/Adelaide)') }}</option>
+                            <option value="Australia/Brisbane">{{ t('بريسبان (Australia/Brisbane)') }}</option>
+                            <option value="Australia/Darwin">{{ t('داروين (Australia/Darwin)') }}</option>
+                            <option value="Australia/Melbourne">{{ t('ملبورن (Australia/Melbourne)') }}</option>
+                            <option value="Australia/Perth">{{ t('بيرث (Australia/Perth)') }}</option>
+                            <option value="Australia/Sydney">{{ t('سيدني (Australia/Sydney)') }}</option>
+                            <option value="Pacific/Auckland">{{ t('أوكلاند (Pacific/Auckland)') }}</option>
+                            <option value="Pacific/Fiji">{{ t('فيجي (Pacific/Fiji)') }}</option>
+                            <option value="Pacific/Guam">{{ t('غوام (Pacific/Guam)') }}</option>
+                            <option value="Pacific/Honolulu">{{ t('هونولولو (Pacific/Honolulu)') }}</option>
+                        </optgroup>
+
+                        <!-- Atlantic -->
+                        <optgroup label="{{ t('المحيط الأطلسي') }}">
+                            <option value="Atlantic/Azores">{{ t('الأزور (Atlantic/Azores)') }}</option>
+                            <option value="Atlantic/Cape_Verde">{{ t('الرأس الأخضر (Atlantic/Cape_Verde)') }}</option>
+                            <option value="Atlantic/Reykjavik">{{ t('ريكيافيك (Atlantic/Reykjavik)') }}</option>
+                        </optgroup>
+
+                        <!-- Indian Ocean -->
+                        <optgroup label="{{ t('المحيط الهندي') }}">
+                            <option value="Indian/Mauritius">{{ t('موريشيوس (Indian/Mauritius)') }}</option>
+                            <option value="Indian/Maldives">{{ t('المالديف (Indian/Maldives)') }}</option>
+                        </optgroup>
+
+                        <!-- UTC -->
+                        <optgroup label="{{ t('التوقيت العالمي المنسق') }}">
+                            <option value="UTC">{{ t('UTC') }}</option>
+                        </optgroup>
                     </select>
                 </div>
             </div>
@@ -81,24 +240,24 @@
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="ti ti-bell me-2"></i>
-                    الإشعارات
+                    {{ t('الإشعارات') }}
                 </h3>
             </div>
             <div class="card-body">
                 <div class="mb-3">
                     <label class="form-check">
                         <input class="form-check-input" type="checkbox" id="notify-browser">
-                        <span class="form-check-label">إشعارات المتصفح</span>
+                        <span class="form-check-label">{{ t('إشعارات المتصفح') }}</span>
                     </label>
-                    <small class="form-hint">إشعارات فورية في المتصفح</small>
+                    <small class="form-hint">{{ t('إشعارات فورية في المتصفح') }}</small>
                 </div>
                 <div class="alert alert-info">
                     <i class="ti ti-info-circle me-2"></i>
-                    إشعارات التليجرام والبريد الإلكتروني يتم تحديدها لكل مساعد على حدة من صفحة المساعدين
+                    {{ t('إشعارات التليجرام والبريد الإلكتروني يتم تحديدها لكل مساعد على حدة من صفحة المساعدين') }}
                 </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" onclick="savePreferences()">حفظ التفضيلات</button>
+                <button class="btn btn-primary" onclick="savePreferences()">{{ t('حفظ التفضيلات') }}</button>
             </div>
         </div>
     </div>
@@ -118,19 +277,19 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label class="form-label text-muted">تاريخ التسجيل</label>
+                            <label class="form-label text-muted">{{ t('تاريخ التسجيل') }}</label>
                             <div id="account-created"></div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label class="form-label text-muted">آخر تسجيل دخول</label>
+                            <label class="form-label text-muted">{{ t('آخر تسجيل دخول') }}</label>
                             <div id="account-last-login"></div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label class="form-label text-muted">رقم المستخدم</label>
+                            <label class="form-label text-muted">{{ t('رقم المستخدم') }}</label>
                             <div id="account-id"></div>
                         </div>
                     </div>
@@ -147,18 +306,18 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">تغيير رقم الهاتف</h5>
+                <h5 class="modal-title">{{ t('تغيير رقم الهاتف') }}</h5>
                 <button type="button" class="btn-close" onclick="hideModal('modal-change-phone')"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">رقم الهاتف الجديد</label>
+                    <label class="form-label">{{ t('رقم الهاتف الجديد') }}</label>
                     <input type="tel" class="form-control" id="new-phone" placeholder="01234567890">
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn" onclick="hideModal('modal-change-phone')">إلغاء</button>
-                <button type="button" class="btn btn-primary" onclick="changePhone()">تغيير</button>
+                <button type="button" class="btn" onclick="hideModal('modal-change-phone')">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-primary" onclick="changePhone()">{{ t('تغيير') }}</button>
             </div>
         </div>
     </div>
@@ -169,19 +328,19 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">تغيير معرف التليجرام</h5>
+                <h5 class="modal-title">{{ t('تغيير معرف التليجرام') }}</h5>
                 <button type="button" class="btn-close" onclick="hideModal('modal-change-telegram')"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">معرف التليجرام الجديد</label>
+                    <label class="form-label">{{ t('معرف التليجرام الجديد') }}</label>
                     <input type="text" class="form-control" id="new-telegram" placeholder="123456789">
-                    <small class="form-hint">يمكنك الحصول على معرفك من @userinfobot</small>
+                    <small class="form-hint">{{ t('يمكنك الحصول على معرفك من') }} @NonRealAssistantBot</small>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn" onclick="hideModal('modal-change-telegram')">إلغاء</button>
-                <button type="button" class="btn btn-primary" onclick="changeTelegram()">تغيير</button>
+                <button type="button" class="btn" onclick="hideModal('modal-change-telegram')">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-primary" onclick="changeTelegram()">{{ t('تغيير') }}</button>
             </div>
         </div>
     </div>
@@ -190,226 +349,289 @@
 
 {% block page_js %}
 <script>
-let userData = {};
-let languagesMap = {};
+    let userData = {};
+    let languagesMap = {};
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadLanguages();
-    loadUserProfile();
-});
-
-async function loadLanguages() {
-    try {
-        const response = await fetch('/api/languages');
-        const languages = await response.json();
-        languages.forEach(lang => {
-            languagesMap[lang.iso_code] = lang.id;
-        });
-    } catch (error) {
-        console.error('Error loading languages:', error);
-    }
-}
-
-function loadUserProfile() {
-    fetch('/api/user/profile')
-        .then(r => r.json())
-        .then(data => {
-            userData = data;
-            document.getElementById('user-name').value = data.name || '';
-            document.getElementById('user-email').value = data.email || '';
-            document.getElementById('user-phone').value = data.mobile || '';
-            document.getElementById('user-telegram').value = data.telegram_id || '';
-
-            // Handle language - can be object or id
-            if (data.language && data.language.iso_code) {
-                document.getElementById('user-language').value = data.language.iso_code;
-            } else {
-                document.getElementById('user-language').value = 'en';
-            }
-
-            document.getElementById('user-timezone').value = data.timezone || 'Africa/Cairo';
-            document.getElementById('notify-browser').checked = data.browser_notify;
-
-            document.getElementById('account-id').textContent = '#' + data.id;
-            document.getElementById('account-created').textContent = data.create_time ? new Date(data.create_time).toLocaleDateString('ar') : '-';
-            document.getElementById('account-last-login').textContent = '-';
-        });
-}
-
-function saveProfile() {
-    const data = {
-        name: document.getElementById('user-name').value,
-        email: document.getElementById('user-email').value
-    };
-
-    fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            showToast('تم حفظ الملف الشخصي بنجاح', 'success');
-        } else {
-            showToast('خطأ: ' + (data.error || 'فشل الحفظ'), 'danger');
-        }
+    document.addEventListener('DOMContentLoaded', function () {
+        loadLanguages();
+        loadUserProfile();
     });
-}
 
-function savePreferences() {
-    const languageCode = document.getElementById('user-language').value;
-    const languageId = languagesMap[languageCode];
-
-    if (!languageId) {
-        showToast('خطأ في تحديد اللغة', 'danger');
-        return;
-    }
-
-    const data = {
-        language_id: languageId,
-        timezone: document.getElementById('user-timezone').value,
-        browser_notify: document.getElementById('notify-browser').checked
-    };
-
-    fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    })
-    .then(r => r.json())
-    .then(response => {
-        if (response.success) {
-            showToast('تم حفظ التفضيلات بنجاح', 'success');
-            // Check if language changed
-            const oldLang = userData.language ? userData.language.iso_code : 'en';
-            if (languageCode !== oldLang) {
-                setTimeout(() => location.reload(), 500);
-            }
-        } else {
-            showToast('خطأ: ' + (response.error || 'فشل الحفظ'), 'danger');
+    async function loadLanguages() {
+        try {
+            const response = await fetch('/api/languages');
+            const languages = await response.json();
+            languages.forEach(lang => {
+                languagesMap[lang.iso_code] = lang.id;
+            });
+        } catch (error) {
+            console.error('Error loading languages:', error);
         }
-    });
-}
-
-function showChangePhone() {
-    document.getElementById('new-phone').value = '';
-    showModal('modal-change-phone');
-}
-
-function showChangeTelegram() {
-    document.getElementById('new-telegram').value = '';
-    showModal('modal-change-telegram');
-}
-
-function showModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.classList.add('show');
-    modal.style.display = 'block';
-    document.body.classList.add('modal-open');
-
-    // Add backdrop
-    let backdrop = document.querySelector('.modal-backdrop');
-    if (!backdrop) {
-        backdrop = document.createElement('div');
-        backdrop.className = 'modal-backdrop fade show';
-        document.body.appendChild(backdrop);
-    }
-}
-
-function hideModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.classList.remove('show');
-    modal.style.display = 'none';
-    document.body.classList.remove('modal-open');
-
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) backdrop.remove();
-}
-
-function changePhone() {
-    const phone = document.getElementById('new-phone').value.trim();
-    if (!phone) {
-        showToast('يرجى إدخال رقم الهاتف', 'warning');
-        return;
     }
 
-    fetch('/api/user/phone', {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({phone})
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            hideModal('modal-change-phone');
-            loadUserProfile();
-            showToast('تم تغيير رقم الهاتف بنجاح', 'success');
-        } else {
-            showToast('خطأ: ' + (data.error || 'فشل التغيير'), 'danger');
+    function loadUserProfile() {
+        fetch('/api/user/profile')
+            .then(r => r.json())
+            .then(data => {
+                userData = data;
+                document.getElementById('user-name').value = data.name || '';
+                document.getElementById('user-email').value = data.email || '';
+                document.getElementById('user-phone').value = data.mobile || '';
+                document.getElementById('user-telegram').value = data.telegram_id || '';
+
+                // Handle language - can be object or id
+                if (data.language && data.language.iso_code) {
+                    document.getElementById('user-language').value = data.language.iso_code;
+                } else {
+                    document.getElementById('user-language').value = 'en';
+                }
+
+                document.getElementById('user-timezone').value = data.timezone || 'Africa/Cairo';
+                document.getElementById('notify-browser').checked = data.browser_notify;
+
+                document.getElementById('account-id').textContent = '#' + data.id;
+                document.getElementById('account-created').textContent = data.create_time ? new Date(data.create_time).toLocaleDateString('ar') : '-';
+                document.getElementById('account-last-login').textContent = '-';
+            });
+    }
+
+    function saveProfile() {
+        const data = {
+            name: document.getElementById('user-name').value,
+            email: document.getElementById('user-email').value
+        };
+
+        fetch('/api/user/profile', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showToast("{{ t('تم حفظ الملف الشخصي بنجاح') }}", 'success');
+                } else {
+                    showToast("{{ t('خطأ:') }} " + (data.error || "{{ t('فشل الحفظ') }}"), 'danger');
+                }
+            });
+    }
+
+    function savePreferences() {
+        const languageCode = document.getElementById('user-language').value;
+        const languageId = languagesMap[languageCode];
+
+        if (!languageId) {
+            showToast("{{ t('خطأ في تحديد اللغة') }}", 'danger');
+            return;
         }
-    });
-}
 
-function changeTelegram() {
-    const telegram_id = document.getElementById('new-telegram').value.trim();
-    if (!telegram_id) {
-        showToast('يرجى إدخال معرف التليجرام', 'warning');
-        return;
+        const data = {
+            language_id: languageId,
+            timezone: document.getElementById('user-timezone').value,
+            browser_notify: document.getElementById('notify-browser').checked
+        };
+
+        fetch('/api/user/profile', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+            .then(r => r.json())
+            .then(response => {
+                if (response.success) {
+                    showToast("{{ t('تم حفظ التفضيلات بنجاح') }}", 'success');
+                    // Check if language changed
+                    const oldLang = userData.language ? userData.language.iso_code : 'en';
+                    if (languageCode !== oldLang) {
+                        setTimeout(() => location.reload(), 500);
+                    }
+                } else {
+                    showToast("{{ t('خطأ:') }} " + (response.error || "{{ t('فشل الحفظ') }}"), 'danger');
+                }
+            });
     }
 
-    fetch('/api/user/telegram', {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({telegram_id})
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            hideModal('modal-change-telegram');
-            loadUserProfile();
-            showToast('تم تغيير معرف التليجرام بنجاح', 'success');
-        } else {
-            showToast('خطأ: ' + (data.error || 'فشل التغيير'), 'danger');
+    function changePhone() {
+        const phone = document.getElementById('new-phone').value.trim();
+        if (!phone) {
+            showToast("{{ t('يرجى إدخال رقم الهاتف') }}", 'warning');
+            return;
         }
-    });
-}
 
-function showToast(message, type = 'success') {
-    const bgColors = {
-        'success': 'bg-green',
-        'danger': 'bg-red',
-        'warning': 'bg-yellow',
-        'info': 'bg-blue'
-    };
-
-    let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        container.className = 'toast-container position-fixed bottom-0 start-0 p-3';
-        container.style.zIndex = '9999';
-        document.body.appendChild(container);
+        fetch('/api/user/phone', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({phone})
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    hideModal('modal-change-phone');
+                    loadUserProfile();
+                    showToast("{{ t('تم تغيير رقم الهاتف بنجاح') }}", 'success');
+                } else {
+                    showToast("{{ t('خطأ:') }} " + (data.error || "{{ t('فشل التغيير') }}"), 'danger');
+                }
+            });
     }
 
-    const toast = document.createElement('div');
-    toast.className = `toast show align-items-center text-white ${bgColors[type] || 'bg-green'} border-0`;
-    toast.innerHTML = `
+    function changeTelegram() {
+        const telegram_id = document.getElementById('new-telegram').value.trim();
+        if (!telegram_id) {
+            showToast("{{ t('يرجى إدخال معرف التليجرام') }}", 'warning');
+            return;
+        }
+
+        fetch('/api/user/telegram', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({telegram_id})
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    hideModal('modal-change-telegram');
+                    loadUserProfile();
+                    showToast("{{ t('تم تغيير معرف التليجرام بنجاح') }}", 'success');
+                } else {
+                    showToast("{{ t('خطأ:') }} " + (data.error || "{{ t('فشل التغيير') }}"), 'danger');
+                }
+            });
+    }
+
+    function showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add('show');
+        modal.style.display = 'block';
+        document.body.classList.add('modal-open');
+
+        // Add backdrop
+        let backdrop = document.querySelector('.modal-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            document.body.appendChild(backdrop);
+        }
+    }
+
+    function showChangePhone() {
+        document.getElementById('new-phone').value = '';
+        showModal('modal-change-phone');
+    }
+
+    function showChangeTelegram() {
+        document.getElementById('new-telegram').value = '';
+        showModal('modal-change-telegram');
+    }
+
+    function showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add('show');
+        modal.style.display = 'block';
+        document.body.classList.add('modal-open');
+
+        // Add backdrop
+        let backdrop = document.querySelector('.modal-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            document.body.appendChild(backdrop);
+        }
+    }
+
+    function hideModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) backdrop.remove();
+    }
+
+    function changePhone() {
+        const phone = document.getElementById('new-phone').value.trim();
+        if (!phone) {
+            showToast("{{ t('يرجى إدخال رقم الهاتف') }}", 'warning');
+            return;
+        }
+
+        fetch('/api/user/phone', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({phone})
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    hideModal('modal-change-phone');
+                    loadUserProfile();
+                    showToast("{{ t('تم تغيير رقم الهاتف بنجاح') }}", 'success');
+                } else {
+                    showToast("{{ t('خطأ:') }} " + (data.error || "{{ t('فشل التغيير') }}"), 'danger');
+                }
+            });
+    }
+
+    function changeTelegram() {
+        const telegram_id = document.getElementById('new-telegram').value.trim();
+        if (!telegram_id) {
+            showToast("{{ t('يرجى إدخال معرف التليجرام') }}", 'warning');
+            return;
+        }
+
+        fetch('/api/user/telegram', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({telegram_id})
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    hideModal('modal-change-telegram');
+                    loadUserProfile();
+                    showToast("{{ t('تم تغيير معرف التليجرام بنجاح') }}", 'success');
+                } else {
+                    showToast("{{ t('خطأ:') }} " + (data.error || "{{ t('فشل التغيير') }}"), 'danger');
+                }
+            });
+    }
+
+    function showToast(message, type = 'success') {
+        const bgColors = {
+            'success': 'bg-green',
+            'danger': 'bg-red',
+            'warning': 'bg-yellow',
+            'info': 'bg-blue'
+        };
+
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container position-fixed bottom-0 start-0 p-3';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `toast show align-items-center text-white ${bgColors[type] || 'bg-green'} border-0`;
+        toast.innerHTML = `
         <div class="d-flex">
             <div class="toast-body">${message}</div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
         </div>
     `;
-    container.appendChild(toast);
+        container.appendChild(toast);
 
-    setTimeout(() => toast.remove(), 3000);
-}
-
-// Close modal on backdrop click
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal')) {
-        hideModal(e.target.id);
+        setTimeout(() => toast.remove(), 3000);
     }
-});
+
+    // Close modal on backdrop click
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('modal')) {
+            hideModal(e.target.id);
+        }
+    });
 </script>
 {% endblock %}

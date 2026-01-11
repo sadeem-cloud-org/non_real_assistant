@@ -1,18 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}المهام - Non Real Assistant{% endblock %}
+{% block title %}{{ t('المهام') }} - Non Real Assistant{% endblock %}
 
-{% block page_title %}المهام{% endblock %}
-{% block page_subtitle %}إدارة جميع المهام الخاصة بك{% endblock %}
+{% block page_title %}{{ t('المهام') }}{% endblock %}
+{% block page_subtitle %}{{ t('إدارة جميع المهام الخاصة بك') }}{% endblock %}
 
 {% block page_css %}
 <style>
     .task-card {
         transition: transform 0.2s, box-shadow 0.2s;
     }
+
     .task-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 </style>
 {% endblock %}
@@ -20,7 +21,7 @@
 {% block page_actions %}
 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-task">
     <i class="ti ti-plus icon"></i>
-    إضافة مهمة
+    {{ t('إضافة مهمة') }}
 </button>
 {% endblock %}
 
@@ -31,29 +32,30 @@
         <div class="row g-3">
             <!-- Status Filter -->
             <div class="col-lg-3 col-md-6">
-                <label class="form-label">الحالة</label>
+                <label class="form-label">{{ t('الحالة') }}</label>
                 <select class="form-select" id="filter-status" onchange="loadTasks()">
-                    <option value="">الكل</option>
-                    <option value="pending" selected>قيد الانتظار</option>
-                    <option value="late">متأخرة</option>
-                    <option value="completed">مكتملة</option>
+                    <option value="">{{ t('الكل') }}</option>
+                    <option value="pending" selected>{{ t('قيد الانتظار') }}</option>
+                    <option value="late">{{ t('متأخرة') }}</option>
+                    <option value="completed">{{ t('مكتملة') }}</option>
                 </select>
             </div>
 
             <!-- Assistant Filter -->
             <div class="col-lg-3 col-md-6">
-                <label class="form-label">المساعد</label>
+                <label class="form-label">{{ t('المساعد') }}</label>
                 <select class="form-select" id="filter-assistant" onchange="loadTasks()">
-                    <option value="">الكل</option>
+                    <option value="">{{ t('الكل') }}</option>
                     <!-- Will be populated from API -->
                 </select>
             </div>
 
             <!-- Search -->
             <div class="col-lg-6">
-                <label class="form-label">بحث</label>
+                <label class="form-label">{{ t('بحث') }}</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" id="search-input" placeholder="ابحث في العنوان أو الوصف..." onkeyup="searchTasks()">
+                    <input type="text" class="form-control" id="search-input"
+                           placeholder="{{ t('ابحث في العنوان أو الوصف...') }}" onkeyup="searchTasks()">
                     <button class="btn" type="button" onclick="clearSearch()">
                         <i class="ti ti-x"></i>
                     </button>
@@ -76,7 +78,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-total">0</div>
-                        <div class="text-muted">إجمالي</div>
+                        <div class="text-muted">{{ t('إجمالي') }}</div>
                     </div>
                 </div>
             </div>
@@ -94,7 +96,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-pending">0</div>
-                        <div class="text-muted">قيد الانتظار</div>
+                        <div class="text-muted">{{ t('قيد الانتظار') }}</div>
                     </div>
                 </div>
             </div>
@@ -112,7 +114,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-completed">0</div>
-                        <div class="text-muted">مكتملة</div>
+                        <div class="text-muted">{{ t('مكتملة') }}</div>
                     </div>
                 </div>
             </div>
@@ -130,7 +132,7 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium" id="stat-late">0</div>
-                        <div class="text-muted">متأخرة</div>
+                        <div class="text-muted">{{ t('متأخرة') }}</div>
                     </div>
                 </div>
             </div>
@@ -142,7 +144,7 @@
 <div class="row row-cards" id="tasks-container">
     <div class="col-12 text-center py-5">
         <div class="spinner-border text-muted" role="status"></div>
-        <div class="mt-2">جاري التحميل...</div>
+        <div class="mt-2">{{ t('جاري التحميل...') }}</div>
     </div>
 </div>
 {% endblock %}
@@ -153,40 +155,44 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal-title">إضافة مهمة جديدة</h5>
+                <h5 class="modal-title" id="modal-title">{{ t('إضافة مهمة جديدة') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label required">عنوان المهمة</label>
-                    <input type="text" class="form-control" id="task-name" placeholder="اكتب عنوان المهمة">
+                    <label class="form-label required">{{ t('عنوان المهمة') }}</label>
+                    <input type="text" class="form-control" id="task-name" placeholder="{{ t('اكتب عنوان المهمة') }}">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">الوصف</label>
-                    <textarea class="form-control" id="task-description" rows="3" placeholder="تفاصيل المهمة (اختياري)"></textarea>
+                    <label class="form-label">{{ t('الوصف') }}</label>
+                    <textarea class="form-control" id="task-description" rows="3"
+                              placeholder="{{ t('تفاصيل المهمة (اختياري)') }}"></textarea>
                 </div>
                 <div class="row">
                     <div class="col-lg-6">
                         <div class="mb-3">
-                            <label class="form-label">المساعد</label>
+                            <label class="form-label">{{ t('المساعد') }}</label>
                             <select class="form-select" id="task-assistant">
-                                <option value="">بدون مساعد</option>
+                                <option value="">{{ t('بدون مساعد') }}</option>
                                 <!-- Will be populated from API -->
                             </select>
-                            <small class="form-hint">اختر المساعد لربط المهمة به وتفعيل الإشعارات التلقائية</small>
+                            <small class="form-hint">{{ t('اختر المساعد لربط المهمة به وتفعيل الإشعارات التلقائية')
+                                }}</small>
                         </div>
                     </div>
                     <div class="col-lg-6">
                         <div class="mb-3">
-                            <label class="form-label">وقت التنبيه</label>
-                            <input type="text" class="form-control" id="task-time" placeholder="dd/mm/yyyy hh:mm" readonly>
+                            <label class="form-label">{{ t('وقت التنبيه') }}</label>
+                            <input type="text" class="form-control" id="task-time" placeholder="dd/mm/yyyy hh:mm"
+                                   readonly>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">إلغاء</button>
-                <button type="button" class="btn btn-primary" id="btn-save-task" onclick="saveTask()">حفظ</button>
+                <button type="button" class="btn me-auto" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-primary" id="btn-save-task" onclick="saveTask()">{{ t('حفظ') }}
+                </button>
             </div>
         </div>
     </div>
@@ -194,5 +200,54 @@
 {% endblock %}
 
 {% block page_js %}
+<script>
+    window.translations = {
+        'error_loading_tasks': "{{ t('حدث خطأ في تحميل المهام') }}",
+        'no_tasks': "{{ t('لا توجد مهام') }}",
+        'start_adding_task': "{{ t('ابدأ بإضافة مهمة جديدة') }}",
+        'notification_sent': "{{ t('تم إرسال الإشعار') }}",
+        'alert_time': "{{ t('موعد التنبيه:') }}",
+        'complete': "{{ t('إكمال') }}",
+        'edit': "{{ t('تعديل') }}",
+        'cancel': "{{ t('إلغاء') }}",
+        'delete_permanently': "{{ t('حذف نهائي') }}",
+        'confirm_complete_task': "{{ t('هل تريد تعليم هذه المهمة كمكتملة؟') }}",
+        'task_completed': "{{ t('تم إكمال المهمة بنجاح ✓') }}",
+        'error_updating_task': "{{ t('حدث خطأ في تحديث المهمة') }}",
+        'connection_error': "{{ t('حدث خطأ في الاتصال') }}",
+        'confirm_cancel_task': "{{ t('هل تريد إلغاء هذه المهمة؟') }}",
+        'task_cancelled': "{{ t('تم إلغاء المهمة') }}",
+        'error_occurred': "{{ t('حدث خطأ') }}",
+        'confirm_delete_task': "{{ t('هل أنت متأكد من حذف هذه المهمة نهائياً؟ لا يمكن التراجع!') }}",
+        'task_deleted': "{{ t('تم حذف المهمة ✓') }}",
+        'error_deleting_task': "{{ t('حدث خطأ في حذف المهمة') }}",
+        'task_not_found': "{{ t('المهمة غير موجودة') }}",
+        'edit_task': "{{ t('تعديل المهمة') }}",
+        'save_changes': "{{ t('حفظ التعديلات') }}",
+        'error_loading_task': "{{ t('حدث خطأ في تحميل المهمة') }}",
+        'please_enter_task_title': "{{ t('يرجى إدخال عنوان المهمة') }}",
+        'saving': "{{ t('جاري الحفظ...') }}",
+        'task_updated': "{{ t('تم تحديث المهمة بنجاح ✓') }}",
+        'task_added': "{{ t('تم إضافة المهمة بنجاح ✓') }}",
+        'error': "{{ t('حدث خطأ:') }}",
+        'failed_to_save_task': "{{ t('فشل في حفظ المهمة') }}",
+        'add_new_task': "{{ t('إضافة مهمة جديدة') }}",
+        'save': "{{ t('حفظ') }}",
+        'status_pending': "{{ t('قيد الانتظار') }}",
+        'status_overdue': "{{ t('متأخرة') }}",
+        'status_completed': "{{ t('مكتملة') }}",
+        'status_cancelled': "{{ t('ملغاة') }}",
+        'now': "{{ t('الآن') }}",
+        'moments_ago': "{{ t('منذ لحظات') }}",
+        'since': "{{ t('منذ') }}",
+        'second': "{{ t('ثانية') }}",
+        'minute': "{{ t('دقيقة') }}",
+        'minutes_two': "{{ t('دقيقتين') }}",
+        'hour': "{{ t('ساعة') }}",
+        'hours_two': "{{ t('ساعتين') }}",
+        'day': "{{ t('يوم') }}",
+        'days_two': "{{ t('يومين') }}"
+    };
+</script>
 <script src="{{ url_for('static', filename='js/tasks.js') }}"></script>
 {% endblock %}

@@ -1,5 +1,8 @@
 // Assistants Page JavaScript
 
+// Translation object
+const t = window.translations || {};
+
 let editingAssistantId = null;
 let allAssistants = [];
 let allAssistantTypes = [];
@@ -112,8 +115,8 @@ function populateAssistantTypes() {
 
     // Only 2 types: task notifications and script execution
     const typeNames = {
-        'task_notify': 'تنبيه بالمهام',
-        'script_runner': 'تشغيل سكريبتات'
+        'task_notify': t.task_notify || 'تنبيه بالمهام',
+        'script_runner': t.script_runner || 'تشغيل سكريبتات'
     };
 
     allAssistantTypes.forEach(type => {
@@ -137,9 +140,9 @@ function updateTypeHint() {
     if (selectedOption && selectedOption.dataset.relatedAction) {
         const action = selectedOption.dataset.relatedAction;
         if (action === 'task') {
-            hint.textContent = 'هذا المساعد يعمل مع المهام';
+            hint.textContent = t.works_with_tasks || 'هذا المساعد يعمل مع المهام';
         } else if (action === 'script') {
-            hint.textContent = 'هذا المساعد يعمل مع السكريبتات';
+            hint.textContent = t.works_with_scripts || 'هذا المساعد يعمل مع السكريبتات';
         }
     }
 }
@@ -161,7 +164,7 @@ function populateNotifyTemplates() {
     if (!select) return;
 
     // Keep the default option
-    select.innerHTML = '<option value="">القالب الافتراضي</option>';
+    select.innerHTML = `<option value="">${t.default_template || 'القالب الافتراضي'}</option>`;
 
     allNotifyTemplates.forEach(template => {
         const option = document.createElement('option');
@@ -194,7 +197,7 @@ async function loadAssistants() {
                     <div class="empty-icon">
                         <i class="ti ti-alert-circle icon text-red"></i>
                     </div>
-                    <p class="empty-title">حدث خطأ في تحميل المساعدين</p>
+                    <p class="empty-title">${t.error_loading_assistants || 'حدث خطأ في تحميل المساعدين'}</p>
                 </div>
             </div>
         `;
@@ -240,12 +243,12 @@ function displayAssistants(assistants) {
                     <div class="empty-img">
                         <i class="ti ti-robot icon" style="font-size: 5rem; color: var(--tblr-muted);"></i>
                     </div>
-                    <p class="empty-title">لا يوجد مساعدين</p>
-                    <p class="empty-subtitle text-muted">ابدأ بإنشاء مساعدك الافتراضي الأول</p>
+                    <p class="empty-title">${t.no_assistants || 'لا يوجد مساعدين'}</p>
+                    <p class="empty-subtitle text-muted">${t.create_first_assistant || 'ابدأ بإنشاء مساعدك الافتراضي الأول'}</p>
                     <div class="empty-action">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-assistant">
                             <i class="ti ti-plus icon"></i>
-                            إضافة مساعد
+                            ${t.add_assistant || 'إضافة مساعد'}
                         </button>
                     </div>
                 </div>
@@ -266,20 +269,20 @@ function createAssistantCard(assistant) {
     };
 
     const typeNames = {
-        'task_notify': 'تنبيه بالمهام',
-        'script_runner': 'تشغيل سكريبتات'
+        'task_notify': t.task_notify || 'تنبيه بالمهام',
+        'script_runner': t.script_runner || 'تشغيل سكريبتات'
     };
 
     const runEveryNames = {
-        'minute': 'كل دقيقة',
-        'hourly': 'كل ساعة',
-        'daily': 'يومياً',
-        'weekly': 'أسبوعياً',
-        'monthly': 'شهرياً',
-        'once': 'مرة واحدة'
+        'minute': t.every_minute || 'كل دقيقة',
+        'hourly': t.every_hour || 'كل ساعة',
+        'daily': t.daily || 'يومياً',
+        'weekly': t.weekly || 'أسبوعياً',
+        'monthly': t.monthly || 'شهرياً',
+        'once': t.once || 'مرة واحدة'
     };
 
-    const typeName = assistant.assistant_type ? (typeNames[assistant.assistant_type.name] || assistant.assistant_type.name) : 'مخصص';
+    const typeName = assistant.assistant_type ? (typeNames[assistant.assistant_type.name] || assistant.assistant_type.name) : (t.custom || 'مخصص');
     const typeIcon = assistant.assistant_type ? (typeIcons[assistant.assistant_type.name] || 'robot') : 'robot';
     const relatedAction = assistant.assistant_type ? assistant.assistant_type.related_action : 'task';
     const actionColor = relatedAction === 'task' ? 'green' : 'cyan';
@@ -300,20 +303,20 @@ function createAssistantCard(assistant) {
                     <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
                         <span class="badge bg-${actionColor}">
                             <i class="ti ti-${relatedAction === 'task' ? 'subtask' : 'code'}"></i>
-                            ${relatedAction === 'task' ? 'مهام' : 'سكريبتات'}
+                            ${relatedAction === 'task' ? (t.tasks || 'مهام') : (t.scripts || 'سكريبتات')}
                         </span>
 
                         ${assistant.telegram_notify ? `
                             <span class="badge bg-info">
                                 <i class="ti ti-brand-telegram"></i>
-                                تليجرام
+                                ${t.telegram || 'تليجرام'}
                             </span>
                         ` : ''}
 
                         ${assistant.email_notify ? `
                             <span class="badge bg-warning">
                                 <i class="ti ti-mail"></i>
-                                إيميل
+                                ${t.email || 'إيميل'}
                             </span>
                         ` : ''}
 
@@ -328,31 +331,31 @@ function createAssistantCard(assistant) {
                     <div class="d-flex justify-content-center gap-3 text-muted small mb-3">
                         <span>
                             <i class="ti ti-subtask"></i>
-                            ${assistant.tasks_count || 0} مهام
+                            ${assistant.tasks_count || 0} ${t.tasks || 'مهام'}
                         </span>
                         <span>
                             <i class="ti ti-code"></i>
-                            ${assistant.scripts_count || 0} سكريبتات
+                            ${assistant.scripts_count || 0} ${t.scripts || 'سكريبتات'}
                         </span>
                     </div>
 
                     ${assistant.create_time ? `
                         <div class="text-muted small">
                             <i class="ti ti-clock icon"></i>
-                            تم الإنشاء ${formatDateTime(assistant.create_time)}
+                            ${t.created || 'تم الإنشاء'} ${formatDateTime(assistant.create_time)}
                         </div>
                     ` : ''}
                 </div>
 
                 <div class="card-footer">
                     <div class="btn-list justify-content-center">
-                        <button class="btn btn-primary btn-sm" onclick="editAssistant(${assistant.id})" title="تعديل">
+                        <button class="btn btn-primary btn-sm" onclick="editAssistant(${assistant.id})" title="${t.edit || 'تعديل'}">
                             <i class="ti ti-edit"></i>
                         </button>
-                        <button class="btn btn-info btn-sm" onclick="viewAssistantDetails(${assistant.id})" title="التفاصيل">
+                        <button class="btn btn-info btn-sm" onclick="viewAssistantDetails(${assistant.id})" title="${t.details || 'التفاصيل'}">
                             <i class="ti ti-info-circle"></i>
                         </button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteAssistant(${assistant.id})" title="حذف">
+                        <button class="btn btn-danger btn-sm" onclick="deleteAssistant(${assistant.id})" title="${t.delete || 'حذف'}">
                             <i class="ti ti-trash"></i>
                         </button>
                     </div>
@@ -368,12 +371,12 @@ async function saveAssistant() {
     const assistantTypeId = document.getElementById('assistant-type').value;
 
     if (!name) {
-        showToast('يرجى إدخال اسم المساعد', 'warning');
+        showToast(t.please_enter_assistant_name || 'يرجى إدخال اسم المساعد', 'warning');
         return;
     }
 
     if (!assistantTypeId) {
-        showToast('يرجى اختيار نوع المساعد', 'warning');
+        showToast(t.please_select_assistant_type || 'يرجى اختيار نوع المساعد', 'warning');
         return;
     }
 
@@ -381,7 +384,7 @@ async function saveAssistant() {
     const originalText = saveBtn.textContent;
 
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>جاري الحفظ...';
+    saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${t.saving || 'جاري الحفظ...'}`;
 
     const scheduleType = document.getElementById('assistant-schedule-type').value;
     const runEvery = document.getElementById('assistant-run-every').value;
@@ -449,7 +452,7 @@ async function saveAssistant() {
         }
 
         if (response.ok) {
-            showToast(editingAssistantId ? 'تم تحديث المساعد بنجاح' : 'تم إضافة المساعد بنجاح', 'success');
+            showToast(editingAssistantId ? (t.assistant_updated || 'تم تحديث المساعد بنجاح') : (t.assistant_added || 'تم إضافة المساعد بنجاح'), 'success');
 
             const modalElement = document.getElementById('modal-assistant');
             const closeBtn = modalElement.querySelector('[data-bs-dismiss="modal"]');
@@ -463,13 +466,13 @@ async function saveAssistant() {
 
         } else {
             const error = await response.json();
-            showToast('حدث خطأ: ' + (error.message || error.error || 'فشل في حفظ المساعد'), 'danger');
+            showToast((t.error || 'حدث خطأ: ') + (error.message || error.error || t.failed_to_save || 'فشل في حفظ المساعد'), 'danger');
             saveBtn.disabled = false;
             saveBtn.textContent = originalText;
         }
     } catch (error) {
         console.error('Error saving assistant:', error);
-        showToast('حدث خطأ في الاتصال', 'danger');
+        showToast(t.connection_error || 'حدث خطأ في الاتصال', 'danger');
         saveBtn.disabled = false;
         saveBtn.textContent = originalText;
     }
@@ -481,7 +484,7 @@ async function editAssistant(assistantId) {
         const assistant = allAssistants.find(a => a.id === assistantId);
 
         if (!assistant) {
-            showToast('المساعد غير موجود', 'danger');
+            showToast(t.assistant_not_found || 'المساعد غير موجود', 'danger');
             return;
         }
 
@@ -511,8 +514,8 @@ async function editAssistant(assistantId) {
 
         // Set edit mode
         editingAssistantId = assistantId;
-        document.getElementById('modal-title').textContent = 'تعديل المساعد';
-        document.getElementById('btn-save-assistant').textContent = 'حفظ التعديلات';
+        document.getElementById('modal-title').textContent = t.edit_assistant || 'تعديل المساعد';
+        document.getElementById('btn-save-assistant').textContent = t.save_changes || 'حفظ التعديلات';
 
         // Show modal by clicking the trigger button
         const triggerBtn = document.querySelector('[data-bs-target="#modal-assistant"]');
@@ -522,13 +525,13 @@ async function editAssistant(assistantId) {
 
     } catch (error) {
         console.error('Error loading assistant:', error);
-        showToast('حدث خطأ في تحميل المساعد', 'danger');
+        showToast(t.error_loading_assistant || 'حدث خطأ في تحميل المساعد', 'danger');
     }
 }
 
 // Delete assistant
 async function deleteAssistant(assistantId) {
-    if (!confirm('هل أنت متأكد من حذف هذا المساعد نهائياً؟ لا يمكن التراجع!')) {
+    if (!confirm(t.confirm_delete_assistant || 'هل أنت متأكد من حذف هذا المساعد نهائياً؟ لا يمكن التراجع!')) {
         return;
     }
 
@@ -538,14 +541,14 @@ async function deleteAssistant(assistantId) {
         });
 
         if (response.ok) {
-            showToast('تم حذف المساعد', 'success');
+            showToast(t.assistant_deleted || 'تم حذف المساعد', 'success');
             await loadAssistants();
         } else {
-            showToast('حدث خطأ في حذف المساعد', 'danger');
+            showToast(t.error_deleting_assistant || 'حدث خطأ في حذف المساعد', 'danger');
         }
     } catch (error) {
         console.error('Error deleting assistant:', error);
-        showToast('حدث خطأ في الاتصال', 'danger');
+        showToast(t.connection_error || 'حدث خطأ في الاتصال', 'danger');
     }
 }
 
@@ -579,10 +582,10 @@ function closeAssistantModal() {
     document.getElementById('once-schedule').style.display = 'none';
 
     editingAssistantId = null;
-    document.getElementById('modal-title').textContent = 'إضافة مساعد جديد';
+    document.getElementById('modal-title').textContent = t.add_new_assistant || 'إضافة مساعد جديد';
 
     const saveBtn = document.getElementById('btn-save-assistant');
-    saveBtn.textContent = 'حفظ';
+    saveBtn.textContent = t.save || 'حفظ';
     saveBtn.disabled = false;
 }
 
@@ -597,29 +600,29 @@ function formatDateTime(dateString) {
     const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
 
     if (diff < 60) {
-        if (diff < 5) return 'الآن';
-        return `منذ ${diff} ثانية`;
+        if (diff < 5) return t.now || 'الآن';
+        return `${t.since || 'منذ'} ${diff} ${t.second || 'ثانية'}`;
     }
 
     const minutes = Math.floor(diff / 60);
     if (minutes < 60) {
-        if (minutes === 1) return 'منذ دقيقة';
-        if (minutes === 2) return 'منذ دقيقتين';
-        return `منذ ${minutes} دقيقة`;
+        if (minutes === 1) return `${t.since || 'منذ'} ${t.minute || 'دقيقة'}`;
+        if (minutes === 2) return `${t.since || 'منذ'} ${t.minutes_two || 'دقيقتين'}`;
+        return `${t.since || 'منذ'} ${minutes} ${t.minute || 'دقيقة'}`;
     }
 
     const hours = Math.floor(minutes / 60);
     if (hours < 24) {
-        if (hours === 1) return 'منذ ساعة';
-        if (hours === 2) return 'منذ ساعتين';
-        return `منذ ${hours} ساعة`;
+        if (hours === 1) return `${t.since || 'منذ'} ${t.hour || 'ساعة'}`;
+        if (hours === 2) return `${t.since || 'منذ'} ${t.hours_two || 'ساعتين'}`;
+        return `${t.since || 'منذ'} ${hours} ${t.hour || 'ساعة'}`;
     }
 
     const days = Math.floor(hours / 24);
     if (days < 7) {
-        if (days === 1) return 'منذ يوم';
-        if (days === 2) return 'منذ يومين';
-        return `منذ ${days} يوم`;
+        if (days === 1) return `${t.since || 'منذ'} ${t.day || 'يوم'}`;
+        if (days === 2) return `${t.since || 'منذ'} ${t.days_two || 'يومين'}`;
+        return `${t.since || 'منذ'} ${days} ${t.day || 'يوم'}`;
     }
 
     return date.toLocaleDateString('ar-EG');
