@@ -84,6 +84,8 @@ class ScriptExecutor:
 
             # Prepare input data as JSON
             input_json = json.dumps(input_data, ensure_ascii=False)
+            # Escape single quotes for shell
+            input_json_escaped = input_json.replace("'", "\\'")
 
             # Create the remote command based on language
             if language == 'python':
@@ -92,7 +94,7 @@ class ScriptExecutor:
 import sys
 import json
 
-input_data = json.loads('{input_json.replace("'", "\\'")}')
+input_data = json.loads('{input_json_escaped}')
 
 {script_code}
 '''
@@ -100,7 +102,7 @@ input_data = json.loads('{input_json.replace("'", "\\'")}')
 
             elif language == 'bash':
                 # Execute bash script directly
-                command = f"export INPUT_DATA='{input_json}'; {script_code}"
+                command = f"export INPUT_DATA='{input_json_escaped}'; {script_code}"
 
             elif language == 'javascript':
                 # Execute with Node.js
