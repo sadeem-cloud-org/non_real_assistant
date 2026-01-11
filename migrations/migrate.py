@@ -37,6 +37,7 @@ def migrate_database(app, db):
             print("   - assistant_types")
             print("   - assistants")
             print("   - tasks")
+            print("   - task_attachments")
             print("   - scripts")
             print("   - script_execute_logs")
 
@@ -56,6 +57,50 @@ def _handle_schema_migration(db):
 
     # Tables that need to be dropped and recreated due to schema changes
     tables_to_recreate = []
+
+    # Add new columns to tasks table for sharing feature
+    if 'tasks' in existing_tables:
+        columns = [c['name'] for c in inspector.get_columns('tasks')]
+
+        # Add share_token column if missing
+        if 'share_token' not in columns:
+            try:
+                db.session.execute(text('ALTER TABLE tasks ADD COLUMN share_token VARCHAR(64)'))
+                db.session.commit()
+                print("Added share_token column to tasks table")
+            except Exception as e:
+                print(f"Could not add share_token column: {e}")
+
+        # Add is_public column if missing
+        if 'is_public' not in columns:
+            try:
+                db.session.execute(text('ALTER TABLE tasks ADD COLUMN is_public BOOLEAN DEFAULT 0'))
+                db.session.commit()
+                print("Added is_public column to tasks table")
+            except Exception as e:
+                print(f"Could not add is_public column: {e}")
+
+    # Add new columns to script_execute_logs table for sharing feature
+    if 'script_execute_logs' in existing_tables:
+        columns = [c['name'] for c in inspector.get_columns('script_execute_logs')]
+
+        # Add share_token column if missing
+        if 'share_token' not in columns:
+            try:
+                db.session.execute(text('ALTER TABLE script_execute_logs ADD COLUMN share_token VARCHAR(64)'))
+                db.session.commit()
+                print("Added share_token column to script_execute_logs table")
+            except Exception as e:
+                print(f"Could not add share_token column: {e}")
+
+        # Add is_public column if missing
+        if 'is_public' not in columns:
+            try:
+                db.session.execute(text('ALTER TABLE script_execute_logs ADD COLUMN is_public BOOLEAN DEFAULT 0'))
+                db.session.commit()
+                print("Added is_public column to script_execute_logs table")
+            except Exception as e:
+                print(f"Could not add is_public column: {e}")
 
     # Check assistant_types table
     if 'assistant_types' in existing_tables:
