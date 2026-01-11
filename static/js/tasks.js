@@ -142,7 +142,8 @@ function updateStats() {
         total: 0,
         pending: 0,
         completed: 0,
-        late: 0
+        late: 0,
+        cancelled: 0
     };
 
     allTasks.forEach(task => {
@@ -154,6 +155,8 @@ function updateStats() {
             stats.late++;
         } else if (status === 'completed') {
             stats.completed++;
+        } else if (status === 'cancelled') {
+            stats.cancelled++;
         }
     });
 
@@ -161,11 +164,13 @@ function updateStats() {
     const pendingEl = document.getElementById('stat-pending');
     const completedEl = document.getElementById('stat-completed');
     const lateEl = document.getElementById('stat-late');
+    const cancelledEl = document.getElementById('stat-cancelled');
 
     if (totalEl) totalEl.textContent = stats.total;
     if (pendingEl) pendingEl.textContent = stats.pending;
     if (completedEl) completedEl.textContent = stats.completed;
     if (lateEl) lateEl.textContent = stats.late;
+    if (cancelledEl) cancelledEl.textContent = stats.cancelled;
 }
 
 // Display tasks
@@ -194,12 +199,14 @@ function displayTasks(tasks) {
 function createTaskCard(task) {
     const statusClass = task.status === 'pending' ? 'cyan' :
         task.status === 'overdue' ? 'orange' :
-            task.status === 'completed' ? 'green' : 'red';
+            task.status === 'completed' ? 'green' :
+                task.status === 'cancelled' ? 'secondary' : 'red';
     const statusText = getStatusText(task.status);
+    const isCancelled = task.status === 'cancelled';
 
     return `
         <div class="col-md-6 col-lg-4">
-            <div class="card task-card">
+            <div class="card task-card ${isCancelled ? 'opacity-75' : ''}">
                 <div class="card-status-top bg-${statusClass}"></div>
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
@@ -217,10 +224,10 @@ function createTaskCard(task) {
                         ` : ''}
                     </div>
 
-                    <h3 class="card-title mb-2">${escapeHtml(task.name)}</h3>
+                    <h3 class="card-title mb-2 ${isCancelled ? 'text-decoration-line-through text-muted' : ''}">${escapeHtml(task.name)}</h3>
 
                     ${task.description ? `
-                        <p class="text-muted mb-3">${escapeHtml(task.description)}</p>
+                        <p class="text-muted mb-3 ${isCancelled ? 'text-decoration-line-through' : ''}">${escapeHtml(task.description)}</p>
                     ` : ''}
 
                     <div class="text-muted small mb-3">
@@ -241,6 +248,9 @@ function createTaskCard(task) {
 
                 <div class="card-footer">
                     <div class="btn-list justify-content-center">
+                        <a href="/tasks/${task.id}" class="btn btn-info btn-sm" title="عرض">
+                            <i class="ti ti-eye"></i>
+                        </a>
                         ${task.status !== 'completed' && task.status !== 'cancelled' ? `
                             <button class="btn btn-success btn-sm" onclick="completeTask(${task.id})" title="إكمال">
                                 <i class="ti ti-check"></i>

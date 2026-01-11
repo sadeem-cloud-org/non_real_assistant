@@ -38,6 +38,7 @@ def migrate_database(app, db):
             print("   - assistants")
             print("   - tasks")
             print("   - task_attachments")
+            print("   - ssh_servers")
             print("   - scripts")
             print("   - script_execute_logs")
 
@@ -101,6 +102,17 @@ def _handle_schema_migration(db):
                 print("Added is_public column to script_execute_logs table")
             except Exception as e:
                 print(f"Could not add is_public column: {e}")
+
+    # Add ssh_server_id column to scripts table
+    if 'scripts' in existing_tables:
+        columns = [c['name'] for c in inspector.get_columns('scripts')]
+        if 'ssh_server_id' not in columns:
+            try:
+                db.session.execute(text('ALTER TABLE scripts ADD COLUMN ssh_server_id INTEGER REFERENCES ssh_servers(id)'))
+                db.session.commit()
+                print("Added ssh_server_id column to scripts table")
+            except Exception as e:
+                print(f"Could not add ssh_server_id column: {e}")
 
     # Check assistant_types table
     if 'assistant_types' in existing_tables:

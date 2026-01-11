@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Non Real Assistant{% endblock %}</title>
 
+    <!-- FOUC Prevention: Apply theme immediately -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('tablerTheme') || 'light';
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+            }
+        })();
+    </script>
+
+    <!-- Critical CSS for FOUC prevention -->
+    <style>
+        /* Hide body until styles are loaded */
+        body { opacity: 0; transition: opacity 0.15s ease-in; }
+        body.styles-loaded { opacity: 1; }
+
+        /* Critical layout styles */
+        .page { min-height: 100vh; display: flex; flex-direction: column; }
+        .navbar { position: sticky; top: 0; z-index: 1030; }
+    </style>
+
     <!-- Tabler CSS -->
     <link href="{{ url_for('static', filename='css/external/tabler/tabler.min.css') }}" rel="stylesheet"/>
     <link href="{{ url_for('static', filename='css/external/tabler/tabler-flags.min.css') }}" rel="stylesheet"/>
@@ -287,5 +308,8 @@
 <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
 
 {% block page_js %}{% endblock %}
+
+<!-- Show body after styles are loaded -->
+<script>document.body.classList.add('styles-loaded');</script>
 </body>
 </html>
