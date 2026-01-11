@@ -28,14 +28,15 @@ RUN git clone --depth 1 --branch ${BRANCH} ${REPO_URL} . && \
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Create data directory for SQLite
-RUN mkdir -p /app/data
+# Create data directory for SQLite with proper permissions
+RUN mkdir -p /app/data && chmod 777 /app/data
 
 # Make entrypoint executable
 RUN chmod +x /app/entrypoint.sh
 
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
 
 # Expose port
 EXPOSE 5000
@@ -44,7 +45,7 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:5000/ || exit 1
 
-# Use entrypoint script (runs as root initially to fix permissions)
+# Use entrypoint script
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Default command
