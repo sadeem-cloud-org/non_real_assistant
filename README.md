@@ -91,7 +91,7 @@ python telegram_bot.py
 
 ### عبر بوت التليجرام
 1. افتح البوت
-2. أرسل `/create_user`
+2. أرسل `/create_account`
 3. اتبع التعليمات
 
 ### عبر سطر الأوامر
@@ -113,7 +113,7 @@ python create_user.py create --phone 01234567890 --telegram_id YOUR_ID --is_admi
 |-------|-------|
 | `/start` | بدء المحادثة |
 | `/user_id` | عرض معرف التليجرام |
-| `/create_user` | إنشاء حساب جديد |
+| `/create_account` | إنشاء حساب جديد |
 | `/today_tasks` | عرض مهام اليوم |
 
 ---

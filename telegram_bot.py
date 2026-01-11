@@ -1,7 +1,7 @@
 """
 Telegram Bot for Non Real Assistant
 - /user_id - Show user their Telegram ID
-- /create_user - Create a new user account
+- /create_account - Create a new user account
 - /today_tasks - Show today's scheduled tasks
 """
 
@@ -50,7 +50,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 <b>الأوامر المتاحة:</b>
 /user_id - عرض معرف التليجرام الخاص بك
-/create_user - إنشاء حساب جديد في النظام
+/create_account - إنشاء حساب جديد في النظام
 /today_tasks - عرض مهام اليوم
 /cancel - إلغاء العملية الحالية
     """
@@ -101,7 +101,7 @@ async def today_tasks(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 يبدو أن معرف التليجرام الخاص بك غير مرتبط بأي حساب.
 
-استخدم /create_user لإنشاء حساب جديد.
+استخدم /create_account لإنشاء حساب جديد.
                     """,
                     parse_mode='HTML'
                 )
