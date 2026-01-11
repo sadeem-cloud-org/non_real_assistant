@@ -10,6 +10,15 @@ from app import app
 from models import db, User
 
 
+def normalize_phone(phone: str) -> str:
+    """Normalize phone number by removing + prefix and any spaces/dashes"""
+    if not phone:
+        return phone
+    # Remove +, spaces, dashes, parentheses
+    normalized = phone.replace('+', '').replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
+    return normalized
+
+
 def create_user(mobile: str, telegram_id: str, name: str = None, is_admin: bool = False):
     """Create a new user"""
     with app.app_context():
@@ -18,9 +27,12 @@ def create_user(mobile: str, telegram_id: str, name: str = None, is_admin: bool 
             print("Error: Phone and Telegram ID are required")
             return False
 
+        # Normalize phone number (remove + prefix)
+        mobile = normalize_phone(mobile)
+
         # Validate mobile format
         if not mobile.isdigit() or len(mobile) < 10:
-            print("Error: Invalid phone number format (should be digits only, minimum 10 digits)")
+            print("Error: Invalid phone number format (should be digits only after normalization, minimum 10 digits)")
             return False
 
         # Validate telegram_id format
