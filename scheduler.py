@@ -48,7 +48,10 @@ NOTIFICATION_MESSAGES = {
         'tasks_today': 'عندك {count} مهام اليوم',
         'lets_start': 'يلا نبدأ يوم منتج!',
         'default_user': 'المستخدم',
-        'personal_assistant': 'المساعد الشخصي'
+        'personal_assistant': 'المساعد الشخصي',
+        'overdue_reminder': 'تنبيه: لديك {count} مهام متأخرة',
+        'due_time': 'الوقت المحدد',
+        'and_more_tasks': 'و {count} مهام أخرى'
     },
     'en': {
         'hello': 'Hello',
@@ -63,7 +66,10 @@ NOTIFICATION_MESSAGES = {
         'tasks_today': 'You have {count} tasks today',
         'lets_start': "Let's have a productive day!",
         'default_user': 'User',
-        'personal_assistant': 'Personal Assistant'
+        'personal_assistant': 'Personal Assistant',
+        'overdue_reminder': 'Reminder: You have {count} overdue tasks',
+        'due_time': 'Due',
+        'and_more_tasks': 'and {count} more tasks'
     }
 }
 
@@ -107,6 +113,8 @@ class TaskScheduler:
 
     def _run_loop(self):
         """Main scheduler loop"""
+        last_overdue_check = 0  # Track last overdue check time (hourly)
+
         while self.running:
             try:
                 with self.app.app_context():
@@ -115,6 +123,12 @@ class TaskScheduler:
 
                     # Check for scheduled assistant scripts
                     self._check_scheduled_assistants()
+
+                    # Check for overdue tasks every hour
+                    current_time = time.time()
+                    if current_time - last_overdue_check >= 3600:  # 1 hour = 3600 seconds
+                        self._check_overdue_tasks()
+                        last_overdue_check = current_time
 
             except Exception as e:
                 print(f"❌ Scheduler error: {e}")
@@ -274,6 +288,74 @@ class TaskScheduler:
                 assistant.next_run_time = self._calculate_next_run(assistant.run_every)
 
             db.session.commit()
+
+    def _check_overdue_tasks(self):
+        """Check and send reminders for overdue tasks (runs hourly)"""
+        now = datetime.utcnow()
+
+        # Get all overdue tasks (time passed, not completed, not cancelled)
+        # Group by user to send consolidated reminders
+        overdue_tasks = Task.query.filter(
+            Task.complete_time.is_(None),
+            Task.cancel_time.is_(None),
+            Task.time.isnot(None),
+            Task.time < now
+        ).all()
+
+        if not overdue_tasks:
+            return
+
+        # Group tasks by user
+        tasks_by_user = {}
+        for task in overdue_tasks:
+            if task.create_user_id not in tasks_by_user:
+                tasks_by_user[task.create_user_id] = []
+            tasks_by_user[task.create_user_id].append(task)
+
+        # Send reminder to each user with overdue tasks
+        for user_id, tasks in tasks_by_user.items():
+            user = User.query.get(user_id)
+            if not user or not user.telegram_id:
+                continue
+
+            # Get user's language
+            lang = get_user_language(user)
+
+            # Get user display name
+            user_name = user.name or user.mobile or get_message(lang, 'default_user')
+
+            # Build message using translated strings
+            overdue_msg = get_message(lang, 'overdue_reminder', count=len(tasks))
+            due_time_label = get_message(lang, 'due_time')
+
+            message = f"⚠️ {overdue_msg}\n\n"
+            for task in tasks[:10]:  # Limit to 10 tasks
+                local_time = convert_to_user_timezone(task.time, user.timezone or 'Africa/Cairo')
+                time_str = local_time.strftime('%Y-%m-%d %H:%M') if local_time else ''
+                message += f"📝 <b>{task.name}</b>\n"
+                message += f"   {due_time_label}: {time_str}\n\n"
+            if len(tasks) > 10:
+                more_msg = get_message(lang, 'and_more_tasks', count=len(tasks) - 10)
+                message += f"... {more_msg}"
+
+            # Send notification
+            result = self.telegram_sender.send_message(user.telegram_id, message.strip())
+
+            # Log the notification
+            notification_log = NotificationLog(
+                user_id=user.id,
+                channel='telegram',
+                message=message.strip(),
+                status='sent' if result['success'] else 'failed',
+                error_message=result.get('error') if not result['success'] else None
+            )
+            db.session.add(notification_log)
+            db.session.commit()
+
+            if result['success']:
+                print(f"✅ Sent overdue tasks reminder to user #{user.id} ({len(tasks)} tasks)")
+            else:
+                print(f"❌ Failed to send overdue reminder to user #{user.id}: {result.get('error')}")
 
     def _calculate_next_run(self, run_every):
         """Calculate next run time based on run_every value"""

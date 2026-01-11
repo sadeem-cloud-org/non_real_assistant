@@ -7,6 +7,15 @@ from services.telegram_bot import TelegramOTPSender
 from config import Config
 
 
+def normalize_phone(phone: str) -> str:
+    """Normalize phone number by removing + prefix and any spaces/dashes"""
+    if not phone:
+        return phone
+    # Remove +, spaces, dashes, parentheses
+    normalized = phone.replace('+', '').replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
+    return normalized
+
+
 class AuthService:
     """Handle authentication operations"""
 
@@ -23,6 +32,8 @@ class AuthService:
         Request OTP for a mobile number
         Returns: dict with success status and message
         """
+        # Normalize phone number (remove + prefix)
+        mobile = normalize_phone(mobile)
         user = User.query.filter_by(mobile=mobile).first()
 
         if not user:
@@ -78,6 +89,8 @@ class AuthService:
         Verify OTP code for a mobile number
         Returns: dict with success status, message, and user data
         """
+        # Normalize phone number (remove + prefix)
+        mobile = normalize_phone(mobile)
         user = User.query.filter_by(mobile=mobile).first()
 
         if not user:
