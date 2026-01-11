@@ -1,15 +1,28 @@
 #!/bin/bash
 # Entrypoint script for Docker container
-# Runs migrations and seeds before starting the app
+# Runs as root to fix permissions, then drops to appuser
 
 set -e
 
 echo "=== Non Real Assistant Startup ==="
 
-# Run migrations
-echo "Running database migrations..."
-python -m migrations.migrate
+# Fix ownership of data directory (runs as root)
+echo "Setting up data directory permissions..."
+mkdir -p /app/data
+chown -R appuser:appuser /app/data
+chmod 755 /app/data
 
-# Start the application
+# Run migrations as appuser
+echo "Running database migrations..."
+gosu appuser python -m migrations.migrate
+
+# Fix database permissions after migration
+if [ -f /app/data/database.db ]; then
+    chown appuser:appuser /app/data/database.db
+    chmod 644 /app/data/database.db
+    echo "Database permissions set"
+fi
+
+# Start the application as appuser
 echo "Starting application..."
-exec "$@"
+exec gosu appuser "$@"

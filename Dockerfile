@@ -9,11 +9,12 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=app.py
 
-# Install system dependencies
+# Install system dependencies including gosu for privilege dropping
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     gcc \
+    gosu \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -36,7 +37,6 @@ RUN chmod +x /app/entrypoint.sh
 
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
 
 # Expose port
 EXPOSE 5000
@@ -45,7 +45,7 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:5000/ || exit 1
 
-# Use entrypoint script
+# Use entrypoint script (runs as root initially to fix permissions)
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Default command
