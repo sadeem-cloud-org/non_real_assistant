@@ -2,15 +2,17 @@
 Telegram Bot for Non Real Assistant
 - /user_id - Show user their Telegram ID
 - /create_account - Create a new user account
+- /create_task - Create a new task
 - /today_tasks - Show today's scheduled tasks
 """
 
-from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
     CommandHandler,
     MessageHandler,
     ConversationHandler,
+    CallbackQueryHandler,
     ContextTypes,
     filters
 )
@@ -35,8 +37,18 @@ BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 SYSTEM_URL = os.getenv('SYSTEM_URL', 'http://localhost:5000')
 API_SECRET_KEY = os.getenv('API_SECRET_KEY')
 
-# Conversation states
+# Conversation states for create_account
 MOBILE, EMAIL, NAME, CONFIRM = range(4)
+
+# Conversation states for create_task
+TASK_NAME, TASK_DESC, TASK_ASSISTANT, TASK_TIME, TASK_CONFIRM = range(10, 15)
+
+
+def normalize_phone(phone: str) -> str:
+    """Normalize phone number - remove +, spaces, dashes"""
+    if not phone:
+        return phone
+    return phone.replace('+', '').replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -51,6 +63,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 <b>الأوامر المتاحة:</b>
 /user_id - عرض معرف التليجرام الخاص بك
 /create_account - إنشاء حساب جديد في النظام
+/create_task - إنشاء مهمة جديدة
 /today_tasks - عرض مهام اليوم
 /cancel - إلغاء العملية الحالية
     """
@@ -177,9 +190,36 @@ async def today_tasks(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def create_account_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start user creation process"""
     user = update.effective_user
+    telegram_id = str(user.id)
+
+    # Check if telegram_id already has an account
+    try:
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from app import app
+        from models import User
+
+        with app.app_context():
+            existing = User.query.filter_by(telegram_id=telegram_id).first()
+            if existing:
+                await update.message.reply_text(
+                    f"""
+⚠️ <b>لديك حساب مسبقاً!</b>
+
+معرف التليجرام الخاص بك مرتبط بالفعل بحساب:
+📱 رقم الهاتف: <code>{existing.mobile}</code>
+
+يمكنك تسجيل الدخول مباشرة:
+{SYSTEM_URL}
+                    """,
+                    parse_mode='HTML'
+                )
+                return ConversationHandler.END
+    except Exception as e:
+        logger.warning(f"Could not check existing user: {e}")
 
     # Store telegram info
-    context.user_data['telegram_id'] = str(user.id)
+    context.user_data['telegram_id'] = telegram_id
     context.user_data['telegram_username'] = user.username
     context.user_data['telegram_name'] = f"{user.first_name} {user.last_name or ''}".strip()
 
@@ -188,8 +228,10 @@ async def create_account_start(update: Update, context: ContextTypes.DEFAULT_TYP
 
 سنحتاج بعض المعلومات لإنشاء حسابك.
 
-📱 <b>الخطوة 1/3:</b> أدخل رقم الهاتف
-<i>(مثال: 01234567890)</i>
+📱 <b>الخطوة 1/3:</b> أدخل رقم الهاتف بالصيغة الدولية
+<i>(مثال: +201234567890 أو 201234567890)</i>
+
+⚠️ يجب إدخال مفتاح الدولة (مثل 20 لمصر، 966 للسعودية)
 
 أرسل /cancel للإلغاء
     """
@@ -200,12 +242,24 @@ async def create_account_start(update: Update, context: ContextTypes.DEFAULT_TYP
 
 async def get_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get mobile number"""
-    mobile = update.message.text.strip()
+    mobile_input = update.message.text.strip()
 
-    # Validate mobile (digits only, at least 10 chars)
+    # Normalize phone (remove +, spaces, dashes)
+    mobile = normalize_phone(mobile_input)
+
+    # Remove leading 0 if present after country code check
+    # Phone must be at least 10 digits (country code + number)
     if not re.match(r'^\d{10,15}$', mobile):
         await update.message.reply_text(
-            "❌ رقم الهاتف غير صالح. يجب أن يكون أرقام فقط (10-15 رقم)\n\nأعد إدخال الرقم:",
+            """❌ رقم الهاتف غير صالح.
+
+يجب إدخال رقم الهاتف بالصيغة الدولية:
+• مثال مصر: <code>+201234567890</code> أو <code>201234567890</code>
+• مثال السعودية: <code>+966501234567</code> أو <code>966501234567</code>
+
+⚠️ لا تنسَ مفتاح الدولة!
+
+أعد إدخال الرقم:""",
             parse_mode='HTML'
         )
         return MOBILE
@@ -433,6 +487,282 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
+# ===== Create Task Conversation =====
+
+async def create_task_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Start task creation process"""
+    telegram_user = update.effective_user
+    telegram_id = str(telegram_user.id)
+
+    # Check if user has an account
+    try:
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from app import app
+        from models import User
+
+        with app.app_context():
+            user = User.query.filter_by(telegram_id=telegram_id).first()
+            if not user:
+                await update.message.reply_text(
+                    """
+❌ <b>لم يتم العثور على حسابك!</b>
+
+يجب إنشاء حساب أولاً باستخدام /create_user
+                    """,
+                    parse_mode='HTML'
+                )
+                return ConversationHandler.END
+
+            # Store user info
+            context.user_data['user_id'] = user.id
+            context.user_data['user_name'] = user.name or user.mobile
+
+    except Exception as e:
+        logger.error(f"Error checking user: {e}")
+        await update.message.reply_text("❌ حدث خطأ في التحقق من الحساب")
+        return ConversationHandler.END
+
+    message = """
+📝 <b>إنشاء مهمة جديدة</b>
+
+<b>الخطوة 1/4:</b> أدخل اسم المهمة
+
+أرسل /cancel للإلغاء
+    """
+
+    await update.message.reply_text(message, parse_mode='HTML')
+    return TASK_NAME
+
+
+async def get_task_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Get task name"""
+    task_name = update.message.text.strip()
+
+    if len(task_name) < 2:
+        await update.message.reply_text("❌ اسم المهمة قصير جداً. أدخل اسماً أطول:")
+        return TASK_NAME
+
+    context.user_data['task_name'] = task_name
+
+    message = """
+📋 <b>الخطوة 2/4:</b> أدخل وصف المهمة
+<i>(اختياري - أرسل "تخطي" للتخطي)</i>
+    """
+
+    await update.message.reply_text(message, parse_mode='HTML')
+    return TASK_DESC
+
+
+async def get_task_desc(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Get task description"""
+    desc_input = update.message.text.strip()
+
+    if desc_input.lower() in ['تخطي', 'skip', '-']:
+        context.user_data['task_desc'] = None
+    else:
+        context.user_data['task_desc'] = desc_input
+
+    # Get available assistants for this user
+    try:
+        from app import app
+        from models import Assistant
+
+        with app.app_context():
+            user_id = context.user_data['user_id']
+            assistants = Assistant.query.filter_by(create_user_id=user_id).all()
+
+            if not assistants:
+                # No assistants - skip to time
+                context.user_data['task_assistant_id'] = None
+                message = """
+⏰ <b>الخطوة 3/4:</b> أدخل وقت المهمة
+
+أدخل الوقت بصيغة: <code>YYYY-MM-DD HH:MM</code>
+مثال: <code>2026-01-12 14:30</code>
+
+أو أرسل "تخطي" لإنشاء مهمة بدون وقت محدد
+                """
+                await update.message.reply_text(message, parse_mode='HTML')
+                return TASK_TIME
+
+            # Build keyboard with assistants
+            keyboard = []
+            context.user_data['assistants'] = {}
+            for assistant in assistants:
+                context.user_data['assistants'][str(assistant.id)] = assistant.name
+                keyboard.append([InlineKeyboardButton(assistant.name, callback_data=f"assistant_{assistant.id}")])
+
+            keyboard.append([InlineKeyboardButton("بدون مساعد ❌", callback_data="assistant_none")])
+
+            reply_markup = InlineKeyboardMarkup(keyboard)
+
+            message = """
+🤖 <b>الخطوة 3/4:</b> اختر المساعد
+
+اختر المساعد المسؤول عن هذه المهمة:
+            """
+
+            await update.message.reply_text(message, parse_mode='HTML', reply_markup=reply_markup)
+            return TASK_ASSISTANT
+
+    except Exception as e:
+        logger.error(f"Error getting assistants: {e}")
+        context.user_data['task_assistant_id'] = None
+        message = """
+⏰ <b>الخطوة 3/4:</b> أدخل وقت المهمة
+
+أدخل الوقت بصيغة: <code>YYYY-MM-DD HH:MM</code>
+مثال: <code>2026-01-12 14:30</code>
+        """
+        await update.message.reply_text(message, parse_mode='HTML')
+        return TASK_TIME
+
+
+async def select_assistant(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle assistant selection callback"""
+    query = update.callback_query
+    await query.answer()
+
+    data = query.data
+
+    if data == "assistant_none":
+        context.user_data['task_assistant_id'] = None
+        context.user_data['task_assistant_name'] = "بدون مساعد"
+    else:
+        assistant_id = data.replace("assistant_", "")
+        context.user_data['task_assistant_id'] = int(assistant_id)
+        context.user_data['task_assistant_name'] = context.user_data['assistants'].get(assistant_id, "مساعد")
+
+    message = """
+⏰ <b>الخطوة 4/4:</b> أدخل وقت المهمة
+
+أدخل الوقت بصيغة: <code>YYYY-MM-DD HH:MM</code>
+مثال: <code>2026-01-12 14:30</code>
+
+أو أرسل "تخطي" لإنشاء مهمة بدون وقت محدد
+    """
+
+    await query.edit_message_text(message, parse_mode='HTML')
+    return TASK_TIME
+
+
+async def get_task_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Get task time"""
+    from datetime import datetime
+    import pytz
+
+    time_input = update.message.text.strip()
+
+    if time_input.lower() in ['تخطي', 'skip', '-']:
+        context.user_data['task_time'] = None
+    else:
+        # Parse time
+        try:
+            # Try different formats
+            for fmt in ['%Y-%m-%d %H:%M', '%d-%m-%Y %H:%M', '%Y/%m/%d %H:%M']:
+                try:
+                    task_time = datetime.strptime(time_input, fmt)
+                    break
+                except ValueError:
+                    continue
+            else:
+                await update.message.reply_text(
+                    """❌ صيغة الوقت غير صحيحة.
+
+استخدم الصيغة: <code>YYYY-MM-DD HH:MM</code>
+مثال: <code>2026-01-12 14:30</code>
+
+أعد إدخال الوقت:""",
+                    parse_mode='HTML'
+                )
+                return TASK_TIME
+
+            # Store as UTC (assume user input is in Cairo timezone)
+            cairo_tz = pytz.timezone('Africa/Cairo')
+            local_time = cairo_tz.localize(task_time)
+            utc_time = local_time.astimezone(pytz.UTC).replace(tzinfo=None)
+            context.user_data['task_time'] = utc_time
+            context.user_data['task_time_display'] = time_input
+
+        except Exception as e:
+            logger.error(f"Error parsing time: {e}")
+            await update.message.reply_text("❌ خطأ في معالجة الوقت. أعد المحاولة:")
+            return TASK_TIME
+
+    # Show confirmation
+    data = context.user_data
+
+    message = f"""
+✅ <b>تأكيد المهمة</b>
+
+📝 <b>الاسم:</b> {data['task_name']}
+📋 <b>الوصف:</b> {data.get('task_desc') or 'غير محدد'}
+🤖 <b>المساعد:</b> {data.get('task_assistant_name', 'بدون مساعد')}
+⏰ <b>الوقت:</b> {data.get('task_time_display') or 'غير محدد'}
+
+هل البيانات صحيحة؟
+أرسل <b>"نعم"</b> للتأكيد أو <b>"لا"</b> للإلغاء
+    """
+
+    await update.message.reply_text(message, parse_mode='HTML')
+    return TASK_CONFIRM
+
+
+async def confirm_task(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Confirm and create task"""
+    response = update.message.text.strip().lower()
+
+    if response not in ['نعم', 'yes', 'y', '1']:
+        await update.message.reply_text(
+            "❌ تم إلغاء إنشاء المهمة.",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        return ConversationHandler.END
+
+    # Create task
+    try:
+        from app import app
+        from models import db, Task
+
+        with app.app_context():
+            data = context.user_data
+
+            new_task = Task(
+                name=data['task_name'],
+                description=data.get('task_desc'),
+                create_user_id=data['user_id'],
+                assistant_id=data.get('task_assistant_id'),
+                time=data.get('task_time')
+            )
+            db.session.add(new_task)
+            db.session.commit()
+
+            task_id = new_task.id
+            task_link = f"{SYSTEM_URL}/tasks/{task_id}"
+
+            await update.message.reply_text(
+                f"""
+✅ <b>تم إنشاء المهمة بنجاح!</b>
+
+📝 <b>{data['task_name']}</b>
+
+🔗 <a href="{task_link}">فتح المهمة في المتصفح</a>
+                """,
+                parse_mode='HTML',
+                reply_markup=ReplyKeyboardRemove()
+            )
+
+    except Exception as e:
+        logger.error(f"Error creating task: {e}")
+        await update.message.reply_text(
+            f"❌ حدث خطأ في إنشاء المهمة: {str(e)}",
+            reply_markup=ReplyKeyboardRemove()
+        )
+
+    return ConversationHandler.END
+
+
 def main():
     """Start the bot"""
     if not BOT_TOKEN:
@@ -442,9 +772,12 @@ def main():
     # Create application
     application = Application.builder().token(BOT_TOKEN).build()
 
-    # Create user conversation handler
+    # Create user conversation handler (supports both create_account and create_user commands)
     create_account_handler = ConversationHandler(
-        entry_points=[CommandHandler("create_account", create_account_start)],
+        entry_points=[
+            CommandHandler("create_account", create_account_start),
+            CommandHandler("create_user", create_account_start)
+        ],
         states={
             MOBILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_mobile)],
             EMAIL: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_email)],
@@ -454,11 +787,25 @@ def main():
         fallbacks=[CommandHandler("cancel", cancel)],
     )
 
+    # Create task conversation handler
+    create_task_handler = ConversationHandler(
+        entry_points=[CommandHandler("create_task", create_task_start)],
+        states={
+            TASK_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_task_name)],
+            TASK_DESC: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_task_desc)],
+            TASK_ASSISTANT: [CallbackQueryHandler(select_assistant, pattern="^assistant_")],
+            TASK_TIME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_task_time)],
+            TASK_CONFIRM: [MessageHandler(filters.TEXT & ~filters.COMMAND, confirm_task)],
+        },
+        fallbacks=[CommandHandler("cancel", cancel)],
+    )
+
     # Add handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("user_id", show_user_id))
     application.add_handler(CommandHandler("today_tasks", today_tasks))
     application.add_handler(create_account_handler)
+    application.add_handler(create_task_handler)
     application.add_handler(CommandHandler("cancel", cancel))
 
     # Start the bot
