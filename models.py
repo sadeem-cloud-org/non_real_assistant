@@ -371,6 +371,13 @@ class Task(db.Model):
     assistant_id = db.Column(db.Integer, db.ForeignKey('assistants.id'))
     notify_sent = db.Column(db.Boolean, default=False)
 
+    # Public sharing
+    share_token = db.Column(db.String(64), unique=True)
+    is_public = db.Column(db.Boolean, default=False)
+
+    # Relationships
+    attachments = db.relationship('TaskAttachment', backref='task', lazy=True, cascade='all, delete-orphan')
+
     def __repr__(self):
         return f'<Task {self.name}>'
 
@@ -394,8 +401,20 @@ class Task(db.Model):
         self.cancel_time = datetime.utcnow()
         db.session.commit()
 
-    def to_dict(self):
-        return {
+    def generate_share_token(self):
+        """Generate a unique share token for public sharing"""
+        self.share_token = secrets.token_urlsafe(32)
+        self.is_public = True
+        return self.share_token
+
+    def get_share_url(self, base_url=''):
+        """Get the public share URL"""
+        if self.share_token:
+            return f"{base_url}/share/task/{self.share_token}"
+        return None
+
+    def to_dict(self, include_attachments=False):
+        result = {
             'id': self.id,
             'name': self.name,
             'create_time': self.create_time.isoformat() if self.create_time else None,
@@ -407,7 +426,40 @@ class Task(db.Model):
             'cancel_time': self.cancel_time.isoformat() if self.cancel_time else None,
             'assistant_id': self.assistant_id,
             'assistant_name': self.assistant.name if self.assistant else None,
-            'notify_sent': self.notify_sent
+            'notify_sent': self.notify_sent,
+            'is_public': self.is_public,
+            'share_token': self.share_token if self.is_public else None
+        }
+        if include_attachments:
+            result['attachments'] = [a.to_dict() for a in self.attachments]
+        return result
+
+
+class TaskAttachment(db.Model):
+    """Attachments for tasks"""
+    __tablename__ = 'task_attachments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    original_filename = db.Column(db.String(255), nullable=False)
+    file_size = db.Column(db.Integer)
+    mime_type = db.Column(db.String(100))
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+    uploaded_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __repr__(self):
+        return f'<TaskAttachment {self.original_filename}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'task_id': self.task_id,
+            'filename': self.filename,
+            'original_filename': self.original_filename,
+            'file_size': self.file_size,
+            'mime_type': self.mime_type,
+            'create_time': self.create_time.isoformat() if self.create_time else None
         }
 
 

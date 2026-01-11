@@ -1,0 +1,429 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ task.name }} - Non Real Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .task-description {
+        white-space: pre-wrap;
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #e6e8eb;
+    }
+    .attachment-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        border: 1px solid #e6e8eb;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s;
+    }
+    .attachment-item:hover {
+        background: #f8f9fa;
+    }
+    .attachment-item i {
+        font-size: 1.5rem;
+        margin-left: 0.75rem;
+    }
+    .share-link-box {
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    .drop-zone {
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+        border-color: #206bc4;
+        background: #f0f9ff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col-auto">
+                <a href="/tasks" class="btn btn-ghost-secondary">
+                    <i class="ti ti-arrow-right me-1"></i>
+                    {{ t('العودة للمهام') }}
+                </a>
+            </div>
+            <div class="col">
+                <h2 class="page-title">{{ task.name }}</h2>
+            </div>
+            <div class="col-auto">
+                <span class="badge fs-5
+                    {% if task.get_status() == 'completed' %}bg-success
+                    {% elif task.get_status() == 'cancelled' %}bg-secondary
+                    {% elif task.get_status() == 'overdue' %}bg-danger
+                    {% else %}bg-warning{% endif %}">
+                    {% if task.get_status() == 'completed' %}
+                        <i class="ti ti-check me-1"></i> {{ t('مكتملة') }}
+                    {% elif task.get_status() == 'cancelled' %}
+                        <i class="ti ti-x me-1"></i> {{ t('ملغية') }}
+                    {% elif task.get_status() == 'overdue' %}
+                        <i class="ti ti-alert-triangle me-1"></i> {{ t('متأخرة') }}
+                    {% else %}
+                        <i class="ti ti-clock me-1"></i> {{ t('قيد الانتظار') }}
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Task Details Card -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="ti ti-info-circle me-2"></i>{{ t('تفاصيل المهمة') }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            {% if task.time %}
+                            <div class="col-md-4 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="ti ti-calendar text-muted me-2"></i>
+                                    <div>
+                                        <small class="text-muted d-block">{{ t('موعد التنفيذ') }}</small>
+                                        <strong>{{ task.time.strftime('%Y-%m-%d %H:%M') }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div class="col-md-4 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="ti ti-clock text-muted me-2"></i>
+                                    <div>
+                                        <small class="text-muted d-block">{{ t('تاريخ الإنشاء') }}</small>
+                                        <strong>{{ task.create_time.strftime('%Y-%m-%d %H:%M') }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if task.complete_time %}
+                            <div class="col-md-4 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="ti ti-check text-success me-2"></i>
+                                    <div>
+                                        <small class="text-muted d-block">{{ t('وقت الإكمال') }}</small>
+                                        <strong>{{ task.complete_time.strftime('%Y-%m-%d %H:%M') }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if task.assistant %}
+                            <div class="col-md-4 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="ti ti-robot text-primary me-2"></i>
+                                    <div>
+                                        <small class="text-muted d-block">{{ t('المساعد') }}</small>
+                                        <strong>{{ task.assistant.name }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if task.description %}
+                        <h4 class="mb-2"><i class="ti ti-file-text me-2"></i>{{ t('الوصف') }}</h4>
+                        <div class="task-description">{{ task.description }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Attachments Card -->
+                <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title"><i class="ti ti-paperclip me-2"></i>{{ t('المرفقات') }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Upload Zone -->
+                        <div class="drop-zone mb-3" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                            <i class="ti ti-upload fs-1 text-muted mb-2"></i>
+                            <p class="mb-0">{{ t('اضغط أو اسحب الملفات هنا للرفع') }}</p>
+                            <small class="text-muted">{{ t('الحد الأقصى') }}: 10MB</small>
+                            <input type="file" id="fileInput" style="display: none;" multiple
+                                   accept=".txt,.pdf,.png,.jpg,.jpeg,.gif,.doc,.docx,.xls,.xlsx,.zip,.rar">
+                        </div>
+
+                        <!-- Attachments List -->
+                        <div id="attachmentsList">
+                            {% for attachment in task.attachments %}
+                            <div class="attachment-item" data-id="{{ attachment.id }}">
+                                <i class="ti ti-file text-primary"></i>
+                                <div class="flex-grow-1">
+                                    <a href="/uploads/tasks/{{ task.id }}/{{ attachment.filename }}"
+                                       target="_blank" class="text-decoration-none">{{ attachment.original_filename }}</a>
+                                    <small class="text-muted d-block">
+                                        {% if attachment.file_size %}
+                                            {{ (attachment.file_size / 1024)|round(1) }} KB
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <button class="btn btn-ghost-danger btn-sm" onclick="deleteAttachment({{ attachment.id }})">
+                                    <i class="ti ti-trash"></i>
+                                </button>
+                            </div>
+                            {% else %}
+                            <p class="text-muted text-center" id="noAttachments">{{ t('لا توجد مرفقات') }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Actions Card -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="ti ti-settings me-2"></i>{{ t('الإجراءات') }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if task.get_status() == 'pending' or task.get_status() == 'overdue' %}
+                        <button class="btn btn-success w-100 mb-2" onclick="markComplete()">
+                            <i class="ti ti-check me-1"></i> {{ t('تم الإنجاز') }}
+                        </button>
+                        <button class="btn btn-secondary w-100 mb-2" onclick="markCancelled()">
+                            <i class="ti ti-x me-1"></i> {{ t('إلغاء المهمة') }}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Share Card -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="ti ti-share me-2"></i>{{ t('مشاركة') }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if task.share_token %}
+                        <div class="share-link-box mb-3">
+                            <small class="text-muted d-block mb-1">{{ t('رابط المشاركة') }}:</small>
+                            <div class="input-group">
+                                <input type="text" class="form-control form-control-sm" id="shareLink"
+                                       value="{{ request.host_url }}share/task/{{ task.share_token }}" readonly>
+                                <button class="btn btn-outline-primary btn-sm" onclick="copyShareLink()">
+                                    <i class="ti ti-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-danger w-100" onclick="removeShare()">
+                            <i class="ti ti-link-off me-1"></i> {{ t('إلغاء المشاركة') }}
+                        </button>
+                        {% else %}
+                        <p class="text-muted mb-3">{{ t('شارك هذه المهمة مع الآخرين عبر رابط عام') }}</p>
+                        <button class="btn btn-primary w-100" onclick="generateShare()">
+                            <i class="ti ti-link me-1"></i> {{ t('إنشاء رابط مشاركة') }}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const taskId = {{ task.id }};
+
+// File Upload
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+});
+
+fileInput.addEventListener('change', () => {
+    handleFiles(fileInput.files);
+});
+
+function handleFiles(files) {
+    for (let file of files) {
+        uploadFile(file);
+    }
+}
+
+async function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch(`/api/tasks/${taskId}/attachments`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            addAttachmentToList(data.attachment);
+        } else {
+            alert(data.error || 'فشل رفع الملف');
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('حدث خطأ أثناء رفع الملف');
+    }
+}
+
+function addAttachmentToList(attachment) {
+    document.getElementById('noAttachments')?.remove();
+
+    const list = document.getElementById('attachmentsList');
+    const html = `
+        <div class="attachment-item" data-id="${attachment.id}">
+            <i class="ti ti-file text-primary"></i>
+            <div class="flex-grow-1">
+                <a href="/uploads/tasks/${taskId}/${attachment.filename}"
+                   target="_blank" class="text-decoration-none">${attachment.original_filename}</a>
+                <small class="text-muted d-block">${(attachment.file_size / 1024).toFixed(1)} KB</small>
+            </div>
+            <button class="btn btn-ghost-danger btn-sm" onclick="deleteAttachment(${attachment.id})">
+                <i class="ti ti-trash"></i>
+            </button>
+        </div>
+    `;
+    list.insertAdjacentHTML('beforeend', html);
+}
+
+async function deleteAttachment(attachmentId) {
+    if (!confirm('هل تريد حذف هذا المرفق؟')) return;
+
+    try {
+        const response = await fetch(`/api/tasks/${taskId}/attachments/${attachmentId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            document.querySelector(`[data-id="${attachmentId}"]`).remove();
+        } else {
+            alert(data.error || 'فشل حذف المرفق');
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        alert('حدث خطأ أثناء حذف المرفق');
+    }
+}
+
+// Share Functions
+async function generateShare() {
+    try {
+        const response = await fetch(`/api/tasks/${taskId}/share`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'فشل إنشاء رابط المشاركة');
+        }
+    } catch (error) {
+        console.error('Share error:', error);
+        alert('حدث خطأ');
+    }
+}
+
+async function removeShare() {
+    if (!confirm('هل تريد إلغاء مشاركة هذه المهمة؟')) return;
+
+    try {
+        const response = await fetch(`/api/tasks/${taskId}/unshare`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'فشل إلغاء المشاركة');
+        }
+    } catch (error) {
+        console.error('Unshare error:', error);
+        alert('حدث خطأ');
+    }
+}
+
+function copyShareLink() {
+    const input = document.getElementById('shareLink');
+    input.select();
+    document.execCommand('copy');
+    alert('تم نسخ الرابط!');
+}
+
+// Task Actions
+async function markComplete() {
+    try {
+        const response = await fetch(`/api/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'complete' })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'فشل تحديث المهمة');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('حدث خطأ');
+    }
+}
+
+async function markCancelled() {
+    if (!confirm('هل تريد إلغاء هذه المهمة؟')) return;
+
+    try {
+        const response = await fetch(`/api/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'cancel' })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'فشل إلغاء المهمة');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('حدث خطأ');
+    }
+}
+</script>
+{% endblock %}
