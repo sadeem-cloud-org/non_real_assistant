@@ -88,13 +88,27 @@
             margin-right: 0;
         }
 
-        /* Fix dropdown z-index */
+        /* Fix dropdown z-index - must be above second navbar */
+        header.navbar.navbar-expand-md {
+            z-index: 1040;
+            position: relative;
+        }
+
+        header.navbar-expand-md:not(.navbar) {
+            z-index: 1030;
+            position: relative;
+        }
+
         .navbar .dropdown-menu {
-            z-index: 1050 !important;
+            z-index: 9999 !important;
             position: absolute !important;
         }
 
         .navbar .nav-item.dropdown {
+            position: static;
+        }
+
+        .navbar-nav.flex-row {
             position: relative;
         }
     </style>
@@ -156,7 +170,7 @@
                             <div class="mt-1 small text-muted">{{ current_user.mobile if current_user and current_user.name else '' }}</div>
                         </div>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" style="min-width: 220px;">
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" style="min-width: 220px; z-index: 9999 !important;">
                         <a href="/profile" class="dropdown-item d-flex align-items-center">
                             <i class="ti ti-user icon me-2"></i>
                             Profile
