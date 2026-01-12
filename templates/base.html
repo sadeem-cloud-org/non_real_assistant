@@ -146,26 +146,26 @@
                             <div class="mt-1 small text-muted">{{ current_user.mobile if current_user and current_user.name else '' }}</div>
                         </div>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" style="min-width: 200px;">
-                        <a href="/profile" class="dropdown-item">
-                            <i class="ti ti-user me-2"></i>
-                            <span>الملف الشخصي</span>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" style="min-width: 220px;">
+                        <a href="/profile" class="dropdown-item d-flex align-items-center">
+                            <i class="ti ti-user icon me-2"></i>
+                            Profile
                         </a>
-                        <a href="/settings" class="dropdown-item">
-                            <i class="ti ti-settings me-2"></i>
-                            <span>الإعدادات</span>
+                        <a href="/settings" class="dropdown-item d-flex align-items-center">
+                            <i class="ti ti-settings icon me-2"></i>
+                            Settings
                         </a>
                         {% if current_user and current_user.is_admin %}
                         <div class="dropdown-divider"></div>
-                        <a href="/admin" class="dropdown-item">
-                            <i class="ti ti-shield me-2"></i>
-                            <span>{{ t('لوحة تحكم المدير') }}</span>
+                        <a href="/admin" class="dropdown-item d-flex align-items-center">
+                            <i class="ti ti-shield icon me-2"></i>
+                            Admin Dashboard
                         </a>
                         {% endif %}
                         <div class="dropdown-divider"></div>
-                        <a href="/logout" class="dropdown-item">
-                            <i class="ti ti-logout me-2"></i>
-                            <span>{{ t('تسجيل الخروج') }}</span>
+                        <a href="/logout" class="dropdown-item d-flex align-items-center">
+                            <i class="ti ti-logout icon me-2"></i>
+                            Logout
                         </a>
                     </div>
                 </div>
