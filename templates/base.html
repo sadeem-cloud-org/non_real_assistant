@@ -137,8 +137,9 @@
                             <span class="avatar avatar-sm">
                                 <i class="ti ti-user"></i>
                             </span>
-                        <div class="d-none d-xl-block ps-2">
-                            <div>{{ current_user.phone if current_user else '' }}</div>
+                        <div class="d-none d-md-block ps-2">
+                            <div>{{ current_user.mobile if current_user else '' }}</div>
+                            <div class="mt-1 small text-muted">{{ current_user.name if current_user and current_user.name else '' }}</div>
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
