@@ -134,29 +134,37 @@
                 <!-- User Menu -->
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
-                            <span class="avatar avatar-sm">
-                                <i class="ti ti-user"></i>
+                            {% if current_user and current_user.avatar %}
+                            <span class="avatar avatar-sm" style="background-image: url('/uploads/avatars/{{ current_user.avatar }}')"></span>
+                            {% else %}
+                            <span class="avatar avatar-sm bg-primary-lt">
+                                {{ (current_user.name[:1] if current_user and current_user.name else (current_user.mobile[-2:] if current_user else '')) | upper }}
                             </span>
+                            {% endif %}
                         <div class="d-none d-md-block ps-2">
-                            <div>{{ current_user.mobile if current_user else '' }}</div>
-                            <div class="mt-1 small text-muted">{{ current_user.name if current_user and current_user.name else '' }}</div>
+                            <div>{{ current_user.name if current_user and current_user.name else (current_user.mobile if current_user else '') }}</div>
+                            <div class="mt-1 small text-muted">{{ current_user.mobile if current_user and current_user.name else '' }}</div>
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <a href="/profile" class="dropdown-item">
+                            <i class="ti ti-user me-2"></i>
+                            الملف الشخصي
+                        </a>
                         <a href="/settings" class="dropdown-item">
-                            <i class="ti ti-settings ms-2"></i>
-                            {{ t('الإعدادات') }}
+                            <i class="ti ti-settings me-2"></i>
+                            الإعدادات
                         </a>
                         {% if current_user and current_user.is_admin %}
                         <div class="dropdown-divider"></div>
                         <a href="/admin" class="dropdown-item">
-                            <i class="ti ti-shield ms-2"></i>
+                            <i class="ti ti-shield me-2"></i>
                             {{ t('لوحة تحكم المدير') }}
                         </a>
                         {% endif %}
                         <div class="dropdown-divider"></div>
                         <a href="/logout" class="dropdown-item">
-                            <i class="ti ti-logout ms-2"></i>
+                            <i class="ti ti-logout me-2"></i>
                             {{ t('تسجيل الخروج') }}
                         </a>
                     </div>

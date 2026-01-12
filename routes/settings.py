@@ -1,9 +1,29 @@
 """Settings routes - User and System settings"""
 
-from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
+import os
+import uuid
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, current_app, send_from_directory
+from werkzeug.utils import secure_filename
 from models import db, User, SystemSetting, Language
 
 settings_bp = Blueprint('settings', __name__)
+
+# Avatar upload config
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+MAX_FILE_SIZE = 2 * 1024 * 1024  # 2MB
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# ===== Avatar File Serving =====
+
+@settings_bp.route('/uploads/avatars/<filename>')
+def serve_avatar(filename):
+    """Serve avatar files"""
+    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'avatars')
+    return send_from_directory(upload_dir, filename)
 
 
 # ===== Language Switching =====
@@ -28,6 +48,15 @@ def set_language(lang):
 
 
 # ===== User Settings Page =====
+
+@settings_bp.route('/profile')
+def user_profile():
+    """User profile page"""
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+
+    return render_template('profile.html', active_page='profile')
+
 
 @settings_bp.route('/settings')
 def user_settings():
@@ -97,6 +126,92 @@ def update_user_profile():
         'success': True,
         'user': user.to_dict()
     })
+
+
+@settings_bp.route('/api/user/avatar', methods=['POST'])
+def upload_avatar():
+    """Upload user avatar"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    if 'avatar' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['avatar']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({'error': 'Invalid file type. Allowed: PNG, JPG, JPEG, GIF, WEBP'}), 400
+
+    # Check file size
+    file.seek(0, 2)
+    size = file.tell()
+    file.seek(0)
+    if size > MAX_FILE_SIZE:
+        return jsonify({'error': 'File too large. Maximum size is 2MB'}), 400
+
+    # Generate unique filename
+    ext = file.filename.rsplit('.', 1)[1].lower()
+    filename = f"{uuid.uuid4().hex}.{ext}"
+
+    # Create upload directory if it doesn't exist
+    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'avatars')
+    os.makedirs(upload_dir, exist_ok=True)
+
+    # Delete old avatar if exists
+    if user.avatar:
+        old_path = os.path.join(upload_dir, user.avatar)
+        if os.path.exists(old_path):
+            try:
+                os.remove(old_path)
+            except Exception:
+                pass
+
+    # Save new avatar
+    filepath = os.path.join(upload_dir, filename)
+    file.save(filepath)
+
+    # Update user
+    user.avatar = filename
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'avatar': filename,
+        'url': f'/uploads/avatars/{filename}'
+    })
+
+
+@settings_bp.route('/api/user/avatar', methods=['DELETE'])
+def delete_avatar():
+    """Delete user avatar"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    if user.avatar:
+        # Delete file
+        upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'avatars')
+        filepath = os.path.join(upload_dir, user.avatar)
+        if os.path.exists(filepath):
+            try:
+                os.remove(filepath)
+            except Exception:
+                pass
+
+        # Update user
+        user.avatar = None
+        db.session.commit()
+
+    return jsonify({'success': True})
 
 
 @settings_bp.route('/api/user/mobile', methods=['PUT'])

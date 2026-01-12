@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('الملف الشخصي') }} - Non Real Assistant{% endblock %}
+
+{% block page_title %}{{ t('الملف الشخصي') }}{% endblock %}
+{% block page_subtitle %}{{ t('إدارة معلوماتك الشخصية وصورتك') }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Profile Card -->
+        <div class="card mb-4">
+            <div class="card-body text-center py-4">
+                <!-- Avatar Section -->
+                <div class="mb-4">
+                    <div class="avatar avatar-xl mb-3" id="avatar-preview" style="width: 120px; height: 120px; font-size: 48px; cursor: pointer;" onclick="document.getElementById('avatar-input').click()">
+                        {% if current_user and current_user.avatar %}
+                        <span class="avatar avatar-xl" style="width: 120px; height: 120px; background-image: url('/uploads/avatars/{{ current_user.avatar }}')"></span>
+                        {% else %}
+                        <span class="avatar avatar-xl bg-primary-lt" style="width: 120px; height: 120px; font-size: 48px;">
+                            {{ (current_user.name[:1] if current_user and current_user.name else (current_user.mobile[-2:] if current_user else '')) | upper }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <input type="file" id="avatar-input" accept="image/*" style="display: none;" onchange="uploadAvatar(this)">
+                    <div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('avatar-input').click()">
+                            <i class="ti ti-camera me-1"></i>
+                            {{ t('تغيير الصورة') }}
+                        </button>
+                        {% if current_user and current_user.avatar %}
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeAvatar()">
+                            <i class="ti ti-trash me-1"></i>
+                            {{ t('حذف') }}
+                        </button>
+                        {% endif %}
+                    </div>
+                    <small class="text-muted d-block mt-2">{{ t('الحد الأقصى للحجم: 2MB') }}</small>
+                </div>
+
+                <!-- User Info Display -->
+                <h2 class="mb-1" id="display-name">{{ current_user.name if current_user and current_user.name else current_user.mobile }}</h2>
+                <p class="text-muted mb-0" id="display-mobile">{{ current_user.mobile if current_user else '' }}</p>
+            </div>
+        </div>
+
+        <!-- Edit Profile Form -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-edit me-2"></i>
+                    {{ t('تعديل المعلومات الشخصية') }}
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">{{ t('الاسم الكامل') }}</label>
+                            <input type="text" class="form-control" id="profile-name" placeholder="{{ t('اسمك الكامل') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">{{ t('البريد الإلكتروني') }}</label>
+                            <input type="email" class="form-control" id="profile-email" placeholder="email@example.com">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">{{ t('رقم الهاتف') }}</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="profile-mobile" readonly>
+                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modal-change-phone">
+                                    {{ t('تغيير') }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">{{ t('معرف التليجرام') }}</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="profile-telegram" readonly>
+                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modal-change-telegram">
+                                    {{ t('تغيير') }}
+                                </button>
+                            </div>
+                            <small class="form-hint">{{ t('يمكنك الحصول على معرفك من') }} @NonRealAssistantBot</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <button type="button" class="btn btn-primary" onclick="saveProfile()">
+                    <i class="ti ti-device-floppy me-1"></i>
+                    {{ t('حفظ التغييرات') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Change Phone Modal -->
+<div class="modal modal-blur fade" id="modal-change-phone" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ t('تغيير رقم الهاتف') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">{{ t('رقم الهاتف الجديد') }}</label>
+                    <input type="tel" class="form-control" id="new-phone" placeholder="01234567890">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-primary" onclick="changePhone()">{{ t('تغيير') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Telegram Modal -->
+<div class="modal modal-blur fade" id="modal-change-telegram" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ t('تغيير معرف التليجرام') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">{{ t('معرف التليجرام الجديد') }}</label>
+                    <input type="text" class="form-control" id="new-telegram" placeholder="123456789">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-primary" onclick="changeTelegram()">{{ t('تغيير') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadProfile();
+});
+
+async function loadProfile() {
+    try {
+        const response = await fetch('/api/user/profile');
+        const data = await response.json();
+
+        document.getElementById('profile-name').value = data.name || '';
+        document.getElementById('profile-email').value = data.email || '';
+        document.getElementById('profile-mobile').value = data.mobile || '';
+        document.getElementById('profile-telegram').value = data.telegram_id || '';
+
+        // Update display
+        document.getElementById('display-name').textContent = data.name || data.mobile;
+        document.getElementById('display-mobile').textContent = data.mobile;
+
+        // Update avatar if available
+        updateAvatarDisplay(data.avatar);
+    } catch (error) {
+        console.error('Error loading profile:', error);
+        showToast('حدث خطأ في تحميل الملف الشخصي', 'danger');
+    }
+}
+
+function updateAvatarDisplay(avatar) {
+    const preview = document.getElementById('avatar-preview');
+    const name = document.getElementById('profile-name').value;
+    const mobile = document.getElementById('profile-mobile').value;
+
+    if (avatar) {
+        preview.innerHTML = `<span class="avatar avatar-xl" style="width: 120px; height: 120px; background-image: url('/uploads/avatars/${avatar}?t=${Date.now()}')"></span>`;
+    } else {
+        const initials = name ? name.charAt(0).toUpperCase() : mobile.slice(-2);
+        preview.innerHTML = `<span class="avatar avatar-xl bg-primary-lt" style="width: 120px; height: 120px; font-size: 48px;">${initials}</span>`;
+    }
+}
+
+async function uploadAvatar(input) {
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+
+    // Validate file size (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+        showToast('حجم الصورة يجب أن لا يتجاوز 2MB', 'warning');
+        return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        showToast('يرجى اختيار صورة صالحة', 'warning');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+        const response = await fetch('/api/user/avatar', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showToast('تم تحديث الصورة بنجاح ✓', 'success');
+            updateAvatarDisplay(data.avatar);
+            // Reload page to update navbar avatar
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.error || 'فشل رفع الصورة', 'danger');
+        }
+    } catch (error) {
+        console.error('Error uploading avatar:', error);
+        showToast('حدث خطأ في رفع الصورة', 'danger');
+    }
+
+    // Clear input
+    input.value = '';
+}
+
+async function removeAvatar() {
+    if (!confirm('هل أنت متأكد من حذف صورة الملف الشخصي؟')) return;
+
+    try {
+        const response = await fetch('/api/user/avatar', {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            showToast('تم حذف الصورة ✓', 'success');
+            updateAvatarDisplay(null);
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast('فشل حذف الصورة', 'danger');
+        }
+    } catch (error) {
+        console.error('Error removing avatar:', error);
+        showToast('حدث خطأ', 'danger');
+    }
+}
+
+async function saveProfile() {
+    const data = {
+        name: document.getElementById('profile-name').value,
+        email: document.getElementById('profile-email').value
+    };
+
+    try {
+        const response = await fetch('/api/user/profile', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showToast('تم حفظ التغييرات بنجاح ✓', 'success');
+            // Update display name
+            document.getElementById('display-name').textContent = data.name || document.getElementById('profile-mobile').value;
+            // Reload to update navbar
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(result.error || 'فشل الحفظ', 'danger');
+        }
+    } catch (error) {
+        console.error('Error saving profile:', error);
+        showToast('حدث خطأ في الاتصال', 'danger');
+    }
+}
+
+async function changePhone() {
+    const phone = document.getElementById('new-phone').value.trim();
+    if (!phone) {
+        showToast('يرجى إدخال رقم الهاتف', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/user/phone', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({phone})
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('modal-change-phone')).hide();
+            showToast('تم تغيير رقم الهاتف بنجاح ✓', 'success');
+            loadProfile();
+        } else {
+            showToast(data.error || 'فشل التغيير', 'danger');
+        }
+    } catch (error) {
+        console.error('Error changing phone:', error);
+        showToast('حدث خطأ', 'danger');
+    }
+}
+
+async function changeTelegram() {
+    const telegram_id = document.getElementById('new-telegram').value.trim();
+    if (!telegram_id) {
+        showToast('يرجى إدخال معرف التليجرام', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/user/telegram', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({telegram_id})
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('modal-change-telegram')).hide();
+            showToast('تم تغيير معرف التليجرام بنجاح ✓', 'success');
+            loadProfile();
+        } else {
+            showToast(data.error || 'فشل التغيير', 'danger');
+        }
+    } catch (error) {
+        console.error('Error changing telegram:', error);
+        showToast('حدث خطأ', 'danger');
+    }
+}
+
+function showToast(message, type = 'success') {
+    const bgColors = {
+        'success': 'bg-green',
+        'danger': 'bg-red',
+        'warning': 'bg-yellow',
+        'info': 'bg-blue'
+    };
+
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container position-fixed bottom-0 start-0 p-3';
+        container.style.zIndex = '9999';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast show align-items-center text-white ${bgColors[type] || 'bg-green'} border-0`;
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
+        </div>
+    `;
+    container.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 3000);
+}
+</script>
+{% endblock %}
