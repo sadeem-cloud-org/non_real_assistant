@@ -17,6 +17,28 @@
                 </h3>
             </div>
             <div class="card-body">
+                <!-- Avatar Upload -->
+                <div class="mb-4 text-center">
+                    <div class="d-inline-block position-relative">
+                        <div id="avatar-container">
+                            {% if current_user and current_user.avatar %}
+                            <span class="avatar avatar-xl" id="avatar-preview" style="width: 100px; height: 100px; background-image: url('/uploads/avatars/{{ current_user.avatar }}'); cursor: pointer;" onclick="document.getElementById('avatar-input').click()"></span>
+                            {% else %}
+                            <span class="avatar avatar-xl bg-primary-lt" id="avatar-preview" style="width: 100px; height: 100px; font-size: 36px; cursor: pointer;" onclick="document.getElementById('avatar-input').click()">
+                                {{ (current_user.name[:1] if current_user and current_user.name else (current_user.mobile[-2:] if current_user else '')) | upper }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <input type="file" id="avatar-input" accept="image/*" style="display: none;" onchange="uploadAvatar(this)">
+                        <button type="button" class="btn btn-icon btn-sm btn-primary position-absolute" style="bottom: 0; right: 0; border-radius: 50%;" onclick="document.getElementById('avatar-input').click()">
+                            <i class="ti ti-camera"></i>
+                        </button>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">{{ t('اضغط لتغيير الصورة (الحد الأقصى 2MB)') }}</small>
+                    </div>
+                </div>
+                <hr class="mb-3">
                 <div class="mb-3">
                     <label class="form-label">{{ t('الاسم') }}</label>
                     <input type="text" class="form-control" id="user-name" placeholder="{{ t('اسمك') }}">
@@ -392,7 +414,67 @@
                 document.getElementById('account-id').textContent = '#' + data.id;
                 document.getElementById('account-created').textContent = data.create_time ? new Date(data.create_time).toLocaleDateString('ar') : '-';
                 document.getElementById('account-last-login').textContent = '-';
+
+                // Update avatar display
+                updateAvatarDisplay(data.avatar, data.name, data.mobile);
             });
+    }
+
+    function updateAvatarDisplay(avatar, name, mobile) {
+        const container = document.getElementById('avatar-container');
+        if (!container) return;
+
+        if (avatar) {
+            container.innerHTML = `<span class="avatar avatar-xl" id="avatar-preview" style="width: 100px; height: 100px; background-image: url('/uploads/avatars/${avatar}?t=${Date.now()}'); cursor: pointer;" onclick="document.getElementById('avatar-input').click()"></span>`;
+        } else {
+            const initials = name ? name.charAt(0).toUpperCase() : (mobile ? mobile.slice(-2) : '');
+            container.innerHTML = `<span class="avatar avatar-xl bg-primary-lt" id="avatar-preview" style="width: 100px; height: 100px; font-size: 36px; cursor: pointer;" onclick="document.getElementById('avatar-input').click()">${initials}</span>`;
+        }
+    }
+
+    async function uploadAvatar(input) {
+        if (!input.files || !input.files[0]) return;
+
+        const file = input.files[0];
+
+        // Validate file size (2MB max)
+        if (file.size > 2 * 1024 * 1024) {
+            showToast("{{ t('حجم الصورة يجب أن لا يتجاوز 2MB') }}", 'warning');
+            return;
+        }
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            showToast("{{ t('يرجى اختيار صورة صالحة') }}", 'warning');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        try {
+            const response = await fetch('/api/user/avatar', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showToast("{{ t('تم تحديث الصورة بنجاح') }}", 'success');
+                updateAvatarDisplay(data.avatar, userData.name, userData.mobile);
+                // Reload to update navbar
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error || "{{ t('فشل رفع الصورة') }}", 'danger');
+            }
+        } catch (error) {
+            console.error('Error uploading avatar:', error);
+            showToast("{{ t('حدث خطأ في رفع الصورة') }}", 'danger');
+        }
+
+        // Clear input
+        input.value = '';
     }
 
     function saveProfile() {
