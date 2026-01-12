@@ -170,6 +170,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     mobile = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(100))
+    avatar = db.Column(db.String(255))  # Profile picture filename
     telegram_id = db.Column(db.String(50), unique=True)
     email = db.Column(db.String(200))
     timezone = db.Column(db.String(50), default='Africa/Cairo')
@@ -194,6 +195,7 @@ class User(db.Model):
             'id': self.id,
             'mobile': self.mobile,
             'name': self.name,
+            'avatar': self.avatar,
             'telegram_id': self.telegram_id,
             'email': self.email,
             'timezone': self.timezone,
