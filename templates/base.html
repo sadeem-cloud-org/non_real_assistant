@@ -87,6 +87,16 @@
             margin-left: 0.5rem;
             margin-right: 0;
         }
+
+        /* Fix dropdown z-index */
+        .navbar .dropdown-menu {
+            z-index: 1050 !important;
+            position: absolute !important;
+        }
+
+        .navbar .nav-item.dropdown {
+            position: relative;
+        }
     </style>
 
     {% block page_css %}{% endblock %}
