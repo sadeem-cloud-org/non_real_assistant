@@ -15,8 +15,8 @@ function setViewMode(mode) {
     document.getElementById('btn-cards-view').classList.toggle('active', mode === 'cards');
     document.getElementById('btn-list-view').classList.toggle('active', mode === 'list');
 
-    // Re-render tasks
-    displayTasks(filterTasks(allTasks));
+    // Re-render tasks with current data
+    displayTasks(allTasks);
 }
 
 // Load on page ready
@@ -388,7 +388,7 @@ function searchTasks() {
     }
 
     const filtered = allTasks.filter(task =>
-        task.title.toLowerCase().includes(searchTerm) ||
+        (task.name && task.name.toLowerCase().includes(searchTerm)) ||
         (task.description && task.description.toLowerCase().includes(searchTerm))
     );
 
