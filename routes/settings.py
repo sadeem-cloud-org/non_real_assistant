@@ -49,15 +49,6 @@ def set_language(lang):
 
 # ===== User Settings Page =====
 
-@settings_bp.route('/profile')
-def user_profile():
-    """User profile page"""
-    if 'user_id' not in session:
-        return redirect(url_for('auth.login'))
-
-    return render_template('profile.html', active_page='profile')
-
-
 @settings_bp.route('/settings')
 def user_settings():
     """User settings page"""
