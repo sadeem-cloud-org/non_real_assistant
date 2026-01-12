@@ -138,7 +138,7 @@
                                 <i class="ti ti-user"></i>
                             </span>
                         <div class="d-none d-xl-block ps-2">
-                            <div id="user-phone-header"></div>
+                            <div>{{ current_user.phone if current_user else '' }}</div>
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
