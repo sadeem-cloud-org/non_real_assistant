@@ -19,10 +19,21 @@
 {% endblock %}
 
 {% block page_actions %}
-<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-task">
-    <i class="ti ti-plus icon"></i>
-    {{ t('إضافة مهمة') }}
-</button>
+<div class="btn-list">
+    <!-- View Toggle -->
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-ghost-secondary active" id="btn-cards-view" onclick="setViewMode('cards')" title="{{ t('عرض بطاقات') }}">
+            <i class="ti ti-layout-grid"></i>
+        </button>
+        <button type="button" class="btn btn-ghost-secondary" id="btn-list-view" onclick="setViewMode('list')" title="{{ t('عرض قائمة') }}">
+            <i class="ti ti-list"></i>
+        </button>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-task">
+        <i class="ti ti-plus icon"></i>
+        {{ t('إضافة مهمة') }}
+    </button>
+</div>
 {% endblock %}
 
 {% block content %}

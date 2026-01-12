@@ -122,8 +122,8 @@ async function loadRecentExecutions() {
 
         container.innerHTML = '<div class="list-group list-group-flush">' +
             executions.map(exec => {
-                const statusClass = exec.status === 'success' ? 'success' : exec.status === 'failed' ? 'danger' : 'warning';
-                const statusText = getStatusText(exec.status);
+                const statusClass = exec.state === 'success' ? 'success' : exec.state === 'failed' ? 'danger' : 'warning';
+                const statusText = getStatusText(exec.state);
 
                 return `
                     <div class="list-group-item">
@@ -132,8 +132,8 @@ async function loadRecentExecutions() {
                                 <span class="badge badge-outline text-${statusClass}">${statusText}</span>
                             </div>
                             <div class="col text-truncate">
-                                <div class="text-reset">Action #${exec.action_id}</div>
-                                <div class="text-muted">${formatDateTime(exec.created_at)}</div>
+                                <div class="text-reset">${escapeHtml(exec.script_name) || 'سكريبت محذوف'}</div>
+                                <div class="text-muted">${formatDateTime(exec.create_time)}</div>
                             </div>
                         </div>
                     </div>
