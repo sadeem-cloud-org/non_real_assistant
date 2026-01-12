@@ -327,10 +327,9 @@ async function cancelTask(taskId) {
     }
 
     try {
-        const response = await fetch(`/api/tasks/${taskId}`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({status: 'cancelled'})
+        const response = await fetch(`/api/tasks/${taskId}/cancel`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
         });
 
         if (response.ok) {

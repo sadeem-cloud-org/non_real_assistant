@@ -139,9 +139,25 @@
                         <div id="code-editor"></div>
                     </div>
                 </div>
+
+                <!-- Output Area -->
+                <div class="mb-3" id="output-area" style="display: none;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <label class="form-label mb-0">
+                            <i class="ti ti-terminal me-1"></i>
+                            {{ t('الناتج') }}
+                        </label>
+                        <span class="badge" id="output-status"></span>
+                    </div>
+                    <pre id="output-content" class="p-3 bg-dark text-light rounded" style="direction: ltr; text-align: left; max-height: 200px; overflow-y: auto; white-space: pre-wrap;"></pre>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn me-auto" data-bs-dismiss="modal">{{ t('إلغاء') }}</button>
+                <button type="button" class="btn btn-success" id="btn-run-script" onclick="runScriptFromEditor()" style="display: none;">
+                    <i class="ti ti-player-play icon"></i>
+                    {{ t('تشغيل') }}
+                </button>
                 <button type="button" class="btn btn-primary" id="btn-save-script" onclick="saveScript()">{{ t('حفظ')
                     }}
                 </button>

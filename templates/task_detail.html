@@ -386,14 +386,13 @@ function copyShareLink() {
 // Task Actions
 async function markComplete() {
     try {
-        const response = await fetch(`/api/tasks/${taskId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'complete' })
+        const response = await fetch(`/api/tasks/${taskId}/complete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
         });
 
         const data = await response.json();
-        if (data.success) {
+        if (response.ok) {
             location.reload();
         } else {
             alert(data.error || 'فشل تحديث المهمة');
@@ -408,14 +407,13 @@ async function markCancelled() {
     if (!confirm('هل تريد إلغاء هذه المهمة؟')) return;
 
     try {
-        const response = await fetch(`/api/tasks/${taskId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'cancel' })
+        const response = await fetch(`/api/tasks/${taskId}/cancel`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
         });
 
         const data = await response.json();
-        if (data.success) {
+        if (response.ok) {
             location.reload();
         } else {
             alert(data.error || 'فشل إلغاء المهمة');

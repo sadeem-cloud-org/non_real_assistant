@@ -204,13 +204,13 @@ async function loadOverdueTasks() {
                             </div>
                             <div class="col-auto">
                                 <div class="btn-list flex-nowrap">
+                                    <a href="/tasks/${task.id}" class="btn btn-sm btn-icon btn-info" title="عرض">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
                                     <button class="btn btn-sm btn-icon btn-success" onclick="completeTask(${task.id})" title="إكمال">
                                         <i class="ti ti-check"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-icon btn-primary" onclick="editTask(${task.id})" title="تعديل">
-                                        <i class="ti ti-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-icon btn-danger" onclick="cancelTask(${task.id})" title="إلغاء">
+                                    <button class="btn btn-sm btn-icon btn-warning" onclick="cancelTask(${task.id})" title="إلغاء">
                                         <i class="ti ti-x"></i>
                                     </button>
                                     <button class="btn btn-sm btn-icon btn-danger" onclick="deleteTask(${task.id})" title="حذف">
@@ -332,10 +332,9 @@ async function cancelTask(taskId) {
     }
 
     try {
-        const response = await fetch(`/api/tasks/${taskId}`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({status: 'cancelled'})
+        const response = await fetch(`/api/tasks/${taskId}/cancel`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
         });
 
         if (response.ok) {
