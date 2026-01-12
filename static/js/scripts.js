@@ -379,6 +379,18 @@ async function editScript(scriptId) {
         document.getElementById('modal-title').textContent = 'تعديل السكريبت';
         document.getElementById('btn-save-script').textContent = 'حفظ التعديلات';
 
+        // Show run button in edit mode
+        const runBtn = document.getElementById('btn-run-script');
+        if (runBtn) {
+            runBtn.style.display = 'inline-block';
+        }
+
+        // Hide output area
+        const outputArea = document.getElementById('output-area');
+        if (outputArea) {
+            outputArea.style.display = 'none';
+        }
+
         // Show modal
         const triggerBtn = document.querySelector('[data-bs-target="#modal-script"]');
         if (triggerBtn) {
@@ -420,6 +432,63 @@ async function runScript(scriptId) {
     } catch (error) {
         console.error('Error running script:', error);
         showToast('حدث خطأ في تشغيل السكريبت', 'danger');
+    }
+}
+
+// Run script from editor (in modal)
+async function runScriptFromEditor() {
+    if (!editingScriptId) {
+        showToast('يجب حفظ السكريبت أولاً', 'warning');
+        return;
+    }
+
+    const runBtn = document.getElementById('btn-run-script');
+    const outputArea = document.getElementById('output-area');
+    const outputContent = document.getElementById('output-content');
+    const outputStatus = document.getElementById('output-status');
+
+    // Show loading state
+    runBtn.disabled = true;
+    runBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> جاري التشغيل...';
+
+    // Show output area with loading message
+    outputArea.style.display = 'block';
+    outputContent.textContent = 'جاري تشغيل السكريبت...';
+    outputStatus.className = 'badge bg-blue';
+    outputStatus.textContent = 'قيد التنفيذ';
+
+    try {
+        const response = await fetch(`/api/scripts/${editingScriptId}/run`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({})
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Show success
+            outputStatus.className = 'badge bg-green';
+            outputStatus.textContent = 'نجح';
+            outputContent.textContent = result.output || result.result || 'تم التنفيذ بنجاح';
+            showToast('تم تشغيل السكريبت بنجاح ✓', 'success');
+        } else {
+            // Show error
+            outputStatus.className = 'badge bg-red';
+            outputStatus.textContent = 'فشل';
+            outputContent.textContent = result.error || result.output || 'خطأ غير معروف';
+            showToast('فشل تشغيل السكريبت', 'danger');
+        }
+    } catch (error) {
+        console.error('Error running script:', error);
+        outputStatus.className = 'badge bg-red';
+        outputStatus.textContent = 'خطأ';
+        outputContent.textContent = 'حدث خطأ في الاتصال';
+        showToast('حدث خطأ في تشغيل السكريبت', 'danger');
+    } finally {
+        // Restore button
+        runBtn.disabled = false;
+        runBtn.innerHTML = '<i class="ti ti-player-play icon"></i> تشغيل';
     }
 }
 
@@ -495,6 +564,17 @@ function closeScriptModal() {
     const saveBtn = document.getElementById('btn-save-script');
     saveBtn.textContent = 'حفظ';
     saveBtn.disabled = false;
+
+    // Hide run button and output area
+    const runBtn = document.getElementById('btn-run-script');
+    if (runBtn) {
+        runBtn.style.display = 'none';
+    }
+
+    const outputArea = document.getElementById('output-area');
+    if (outputArea) {
+        outputArea.style.display = 'none';
+    }
 }
 
 // Utility functions
