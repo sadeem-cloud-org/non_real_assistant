@@ -2,13 +2,28 @@
 
 let editingTaskId = null;
 let allTasks = [];
+let currentViewMode = localStorage.getItem('tasksViewMode') || 'cards';
 // Translation object - will be populated from HTML template
 const t = window.translations || {};
+
+// Set view mode
+function setViewMode(mode) {
+    currentViewMode = mode;
+    localStorage.setItem('tasksViewMode', mode);
+
+    // Update button states
+    document.getElementById('btn-cards-view').classList.toggle('active', mode === 'cards');
+    document.getElementById('btn-list-view').classList.toggle('active', mode === 'list');
+
+    // Re-render tasks
+    displayTasks(filterTasks(allTasks));
+}
 
 // Load on page ready
 document.addEventListener('DOMContentLoaded', function () {
     initializeDateTimePickers();
     initializeTheme();
+    initializeViewMode();
     loadTasks();
 
     // Modal event listener
@@ -19,6 +34,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+// Initialize view mode from localStorage
+function initializeViewMode() {
+    const cardsBtn = document.getElementById('btn-cards-view');
+    const listBtn = document.getElementById('btn-list-view');
+
+    if (cardsBtn && listBtn) {
+        cardsBtn.classList.toggle('active', currentViewMode === 'cards');
+        listBtn.classList.toggle('active', currentViewMode === 'list');
+    }
+}
 
 // Initialize theme
 function initializeTheme() {
@@ -192,7 +218,85 @@ function displayTasks(tasks) {
         return;
     }
 
-    container.innerHTML = tasks.map(task => createTaskCard(task)).join('');
+    if (currentViewMode === 'list') {
+        container.innerHTML = `
+            <div class="col-12">
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table">
+                            <thead>
+                                <tr>
+                                    <th>المهمة</th>
+                                    <th>الحالة</th>
+                                    <th>المساعد</th>
+                                    <th>موعد التنبيه</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tasks.map(task => createTaskListItem(task)).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        container.innerHTML = tasks.map(task => createTaskCard(task)).join('');
+    }
+}
+
+// Create task list item (table row)
+function createTaskListItem(task) {
+    const statusClass = task.status === 'pending' ? 'cyan' :
+        task.status === 'overdue' ? 'orange' :
+            task.status === 'completed' ? 'green' :
+                task.status === 'cancelled' ? 'secondary' : 'red';
+    const statusText = getStatusText(task.status);
+    const isCancelled = task.status === 'cancelled';
+
+    return `
+        <tr class="${isCancelled ? 'opacity-75' : ''}">
+            <td>
+                <div class="${isCancelled ? 'text-decoration-line-through text-muted' : ''}">
+                    <strong>${escapeHtml(task.name)}</strong>
+                    ${task.description ? `<div class="text-muted small">${escapeHtml(task.description.substring(0, 50))}${task.description.length > 50 ? '...' : ''}</div>` : ''}
+                </div>
+            </td>
+            <td>
+                <span class="badge bg-${statusClass}-lt">${statusText}</span>
+            </td>
+            <td>
+                ${task.assistant_name ? `<span class="badge bg-blue-lt"><i class="ti ti-robot"></i> ${escapeHtml(task.assistant_name)}</span>` : '<span class="text-muted">-</span>'}
+            </td>
+            <td>
+                ${task.time ? `<span class="text-muted small">${formatDateForDisplay(task.time)}</span>` : '-'}
+            </td>
+            <td>
+                <div class="btn-list flex-nowrap">
+                    <a href="/tasks/${task.id}" class="btn btn-info btn-sm btn-icon" title="عرض">
+                        <i class="ti ti-eye"></i>
+                    </a>
+                    ${task.status !== 'completed' && task.status !== 'cancelled' ? `
+                        <button class="btn btn-success btn-sm btn-icon" onclick="completeTask(${task.id})" title="إكمال">
+                            <i class="ti ti-check"></i>
+                        </button>
+                    ` : ''}
+                    <button class="btn btn-primary btn-sm btn-icon" onclick="editTask(${task.id})" title="تعديل">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    ${task.status !== 'cancelled' && task.status !== 'completed' ? `
+                        <button class="btn btn-warning btn-sm btn-icon" onclick="cancelTask(${task.id})" title="إلغاء">
+                            <i class="ti ti-x"></i>
+                        </button>
+                    ` : ''}
+                    <button class="btn btn-danger btn-sm btn-icon" onclick="deleteTask(${task.id})" title="حذف">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `;
 }
 
 // Create task card HTML
