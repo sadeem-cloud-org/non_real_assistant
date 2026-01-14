@@ -153,7 +153,7 @@
 {% block modals %}
 <!-- Task Modal -->
 <div class="modal modal-blur fade" id="modal-task" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modal-title">{{ t('إضافة مهمة جديدة') }}</h5>
@@ -169,28 +169,9 @@
                     <textarea class="form-control" id="task-description" rows="3"
                               placeholder="{{ t('تفاصيل المهمة (اختياري)') }}"></textarea>
                 </div>
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="mb-3">
-                            <label class="form-label">{{ t('الأولوية') }}</label>
-                            <select class="form-select" id="task-priority">
-                                <option value="low">{{ t('منخفضة') }}</option>
-                                <option value="medium" selected>{{ t('متوسطة') }}</option>
-                                <option value="high">{{ t('عالية') }}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="mb-3">
-                            <label class="form-label">{{ t('تاريخ ووقت الاستحقاق') }}</label>
-                            <input type="text" class="form-control" id="task-due-date" placeholder="dd/mm/yyyy hh:mm"
-                                   readonly>
-                        </div>
-                    </div>
-                </div>
                 <div class="mb-3">
-                    <label class="form-label">{{ t('وقت التذكير') }}</label>
-                    <input type="text" class="form-control" id="task-reminder" placeholder="dd/mm/yyyy hh:mm" readonly>
+                    <label class="form-label">{{ t('تاريخ ووقت الاستحقاق') }}</label>
+                    <input type="text" class="form-control" id="task-due-date" placeholder="{{ t('اختر التاريخ والوقت') }}">
                 </div>
             </div>
             <div class="modal-footer">
