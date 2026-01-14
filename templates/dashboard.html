@@ -166,12 +166,25 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">{{ t('الوصف') }}</label>
-                    <textarea class="form-control" id="task-description" rows="3"
+                    <textarea class="form-control" id="task-description" rows="2"
                               placeholder="{{ t('تفاصيل المهمة (اختياري)') }}"></textarea>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">{{ t('تاريخ ووقت الاستحقاق') }}</label>
-                    <input type="text" class="form-control" id="task-due-date" placeholder="{{ t('اختر التاريخ والوقت') }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">{{ t('المساعد') }}</label>
+                            <select class="form-select" id="task-assistant">
+                                <option value="">{{ t('بدون مساعد') }}</option>
+                            </select>
+                            <small class="form-hint">{{ t('لتفعيل الإشعارات التلقائية') }}</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">{{ t('تاريخ ووقت الاستحقاق') }}</label>
+                            <input type="datetime-local" class="form-control" id="task-due-date">
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">

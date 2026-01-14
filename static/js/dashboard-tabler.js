@@ -1,14 +1,12 @@
 // Dashboard JavaScript with Tabler UI
 
-// Initialize Flatpickr for datetime inputs
-let dueDatePicker;
 let editingTaskId = null;
 // Translation object - will be populated from HTML template
 const t = window.translations || {};
 
 // Load dashboard data on page load
 document.addEventListener('DOMContentLoaded', function() {
-    initializeDateTimePickers();
+    loadAssistants();
     loadDashboardStats();
     loadRecentExecutions();
     loadOverdueTasks();
@@ -50,29 +48,30 @@ function initializeTheme() {
     }
 }
 
-// Initialize Flatpickr datetime pickers
-function initializeDateTimePickers() {
-    const dateTimeConfig = {
-        enableTime: true,
-        time_24hr: true,
-        dateFormat: "d/m/Y H:i",
-        altInput: true,
-        altFormat: "d/m/Y H:i",
-        minuteIncrement: 1,
-        locale: {
-            firstDayOfWeek: 6,
-            weekdays: {
-                shorthand: ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'],
-                longhand: ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
-            },
-            months: {
-                shorthand: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
-                longhand: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+// Load assistants for dropdown
+async function loadAssistants() {
+    try {
+        const response = await fetch('/api/assistants');
+        if (response.ok) {
+            const assistants = await response.json();
+            const select = document.getElementById('task-assistant');
+            if (select) {
+                // Keep the first "no assistant" option
+                select.innerHTML = '<option value="">بدون مساعد</option>';
+                // Filter only task-type assistants
+                assistants
+                    .filter(a => a.related_action === 'task')
+                    .forEach(assistant => {
+                        const option = document.createElement('option');
+                        option.value = assistant.id;
+                        option.textContent = assistant.name;
+                        select.appendChild(option);
+                    });
             }
         }
-    };
-
-    dueDatePicker = flatpickr("#task-due-date", dateTimeConfig);
+    } catch (error) {
+        console.error('Error loading assistants:', error);
+    }
 }
 
 // Load dashboard statistics
@@ -274,14 +273,21 @@ async function editTask(taskId) {
         document.getElementById('task-title').value = task.name || '';
         document.getElementById('task-description').value = task.description || '';
 
-        // Parse dates correctly - convert from UTC to local
-        if (task.time) {
-            const dueDate = parseUTCDate(task.time);
-            if (dueDate && !isNaN(dueDate.getTime())) {
-                dueDatePicker.setDate(dueDate, false);
-            }
-        } else {
-            dueDatePicker.clear();
+        // Set assistant
+        const assistantSelect = document.getElementById('task-assistant');
+        if (assistantSelect) {
+            assistantSelect.value = task.assistant_id || '';
+        }
+
+        // Set due date using native datetime-local input
+        const dueDateInput = document.getElementById('task-due-date');
+        if (dueDateInput && task.time) {
+            const dueDate = new Date(task.time);
+            // Format for datetime-local: YYYY-MM-DDTHH:MM
+            const formatted = dueDate.toISOString().slice(0, 16);
+            dueDateInput.value = formatted;
+        } else if (dueDateInput) {
+            dueDateInput.value = '';
         }
 
         // Set edit mode
@@ -379,12 +385,19 @@ async function saveTask() {
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>جاري الحفظ...';
 
-    const dueDateValue = dueDatePicker ? dueDatePicker.selectedDates[0] : null;
+    // Get due date from native datetime-local input
+    const dueDateInput = document.getElementById('task-due-date');
+    const dueDateValue = dueDateInput && dueDateInput.value ? new Date(dueDateInput.value) : null;
+
+    // Get assistant
+    const assistantSelect = document.getElementById('task-assistant');
+    const assistantId = assistantSelect && assistantSelect.value ? parseInt(assistantSelect.value) : null;
 
     const taskData = {
         name: title,
         description: document.getElementById('task-description').value.trim(),
-        time: dueDateValue ? dueDateValue.toISOString() : null
+        time: dueDateValue ? dueDateValue.toISOString() : null,
+        assistant_id: assistantId
     };
 
     try {
@@ -439,7 +452,14 @@ async function saveTask() {
 function closeAddTaskModal() {
     document.getElementById('task-title').value = '';
     document.getElementById('task-description').value = '';
-    if (dueDatePicker) dueDatePicker.clear();
+
+    // Clear native datetime input
+    const dueDateInput = document.getElementById('task-due-date');
+    if (dueDateInput) dueDateInput.value = '';
+
+    // Reset assistant selector
+    const assistantSelect = document.getElementById('task-assistant');
+    if (assistantSelect) assistantSelect.value = '';
 
     editingTaskId = null;
     document.getElementById('modal-title').textContent = 'إضافة مهمة جديدة';
