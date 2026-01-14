@@ -1,11 +1,13 @@
 // Dashboard JavaScript with Tabler UI
 
 let editingTaskId = null;
+let dueDatePicker = null; // Flatpickr instance for due date
 // Translation object - will be populated from HTML template
 const t = window.translations || {};
 
 // Load dashboard data on page load
 document.addEventListener('DOMContentLoaded', function() {
+    initializeDateTimePicker();
     loadAssistants();
     loadDashboardStats();
     loadRecentExecutions();
@@ -28,6 +30,35 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Initialize Flatpickr for date/time picker
+function initializeDateTimePicker() {
+    const dateTimeConfig = {
+        enableTime: true,
+        time_24hr: true,
+        dateFormat: "d/m/Y H:i",
+        altInput: true,
+        altFormat: "d/m/Y H:i",
+        allowInput: true,  // Allow manual input
+        minuteIncrement: 1,
+        locale: {
+            firstDayOfWeek: 6,
+            weekdays: {
+                shorthand: ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'],
+                longhand: ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
+            },
+            months: {
+                shorthand: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+                longhand: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+            }
+        }
+    };
+
+    const dueDateInput = document.getElementById('task-due-date');
+    if (dueDateInput) {
+        dueDatePicker = flatpickr(dueDateInput, dateTimeConfig);
+    }
+}
 
 // Initialize theme from URL or localStorage
 function initializeTheme() {
@@ -279,15 +310,14 @@ async function editTask(taskId) {
             assistantSelect.value = task.assistant_id || '';
         }
 
-        // Set due date using native datetime-local input
-        const dueDateInput = document.getElementById('task-due-date');
-        if (dueDateInput && task.time) {
-            const dueDate = new Date(task.time);
-            // Format for datetime-local: YYYY-MM-DDTHH:MM
-            const formatted = dueDate.toISOString().slice(0, 16);
-            dueDateInput.value = formatted;
-        } else if (dueDateInput) {
-            dueDateInput.value = '';
+        // Set due date using flatpickr
+        if (dueDatePicker && task.time) {
+            const dueDate = parseUTCDate(task.time);
+            if (dueDate && !isNaN(dueDate.getTime())) {
+                dueDatePicker.setDate(dueDate, false);
+            }
+        } else if (dueDatePicker) {
+            dueDatePicker.clear();
         }
 
         // Set edit mode
@@ -385,9 +415,10 @@ async function saveTask() {
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>جاري الحفظ...';
 
-    // Get due date from native datetime-local input
-    const dueDateInput = document.getElementById('task-due-date');
-    const dueDateValue = dueDateInput && dueDateInput.value ? new Date(dueDateInput.value) : null;
+    // Get due date from flatpickr
+    const dueDateValue = dueDatePicker && dueDatePicker.selectedDates.length > 0
+        ? dueDatePicker.selectedDates[0]
+        : null;
 
     // Get assistant
     const assistantSelect = document.getElementById('task-assistant');
@@ -453,9 +484,10 @@ function closeAddTaskModal() {
     document.getElementById('task-title').value = '';
     document.getElementById('task-description').value = '';
 
-    // Clear native datetime input
-    const dueDateInput = document.getElementById('task-due-date');
-    if (dueDateInput) dueDateInput.value = '';
+    // Clear flatpickr datetime picker
+    if (dueDatePicker) {
+        dueDatePicker.clear();
+    }
 
     // Reset assistant selector
     const assistantSelect = document.getElementById('task-assistant');
