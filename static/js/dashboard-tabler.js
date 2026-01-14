@@ -1,7 +1,7 @@
 // Dashboard JavaScript with Tabler UI
 
 // Initialize Flatpickr for datetime inputs
-let dueDatePicker, reminderPicker;
+let dueDatePicker;
 let editingTaskId = null;
 // Translation object - will be populated from HTML template
 const t = window.translations || {};
@@ -73,7 +73,6 @@ function initializeDateTimePickers() {
     };
 
     dueDatePicker = flatpickr("#task-due-date", dateTimeConfig);
-    reminderPicker = flatpickr("#task-reminder", dateTimeConfig);
 }
 
 // Load dashboard statistics
@@ -272,27 +271,17 @@ async function editTask(taskId) {
         }
 
         // Fill form
-        document.getElementById('task-title').value = task.title;
+        document.getElementById('task-title').value = task.name || '';
         document.getElementById('task-description').value = task.description || '';
-        document.getElementById('task-priority').value = task.priority;
 
         // Parse dates correctly - convert from UTC to local
-        if (task.due_date) {
-            const dueDate = parseUTCDate(task.due_date);
+        if (task.time) {
+            const dueDate = parseUTCDate(task.time);
             if (dueDate && !isNaN(dueDate.getTime())) {
                 dueDatePicker.setDate(dueDate, false);
             }
         } else {
             dueDatePicker.clear();
-        }
-
-        if (task.reminder_time) {
-            const reminderDate = parseUTCDate(task.reminder_time);
-            if (reminderDate && !isNaN(reminderDate.getTime())) {
-                reminderPicker.setDate(reminderDate, false);
-            }
-        } else {
-            reminderPicker.clear();
         }
 
         // Set edit mode
@@ -390,15 +379,12 @@ async function saveTask() {
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>جاري الحفظ...';
 
-    const dueDateValue = dueDatePicker.selectedDates[0];
-    const reminderValue = reminderPicker.selectedDates[0];
+    const dueDateValue = dueDatePicker ? dueDatePicker.selectedDates[0] : null;
 
     const taskData = {
-        title: title,
+        name: title,
         description: document.getElementById('task-description').value.trim(),
-        priority: document.getElementById('task-priority').value,
-        due_date: dueDateValue ? dueDateValue.toISOString() : null,
-        reminder_time: reminderValue ? reminderValue.toISOString() : null
+        time: dueDateValue ? dueDateValue.toISOString() : null
     };
 
     try {
@@ -453,9 +439,7 @@ async function saveTask() {
 function closeAddTaskModal() {
     document.getElementById('task-title').value = '';
     document.getElementById('task-description').value = '';
-    document.getElementById('task-priority').value = 'medium';
-    dueDatePicker.clear();
-    reminderPicker.clear();
+    if (dueDatePicker) dueDatePicker.clear();
 
     editingTaskId = null;
     document.getElementById('modal-title').textContent = 'إضافة مهمة جديدة';
