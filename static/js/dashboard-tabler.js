@@ -37,10 +37,20 @@ function initializeDateTimePicker() {
         enableTime: true,
         time_24hr: true,
         dateFormat: "d/m/Y H:i",
-        altInput: true,
-        altFormat: "d/m/Y H:i",
-        allowInput: true,  // Allow manual input
+        allowInput: true,  // Allow manual typing
+        clickOpens: true,
         minuteIncrement: 1,
+        // Parse manually typed dates
+        parseDate: (dateString, format) => {
+            // Try to parse dd/mm/yyyy HH:mm format
+            const parts = dateString.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
+            if (parts) {
+                const [, day, month, year, hour, minute] = parts;
+                return new Date(year, month - 1, day, hour, minute);
+            }
+            // Fallback to default parsing
+            return new Date(dateString);
+        },
         locale: {
             firstDayOfWeek: 6,
             weekdays: {
