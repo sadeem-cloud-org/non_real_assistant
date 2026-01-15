@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Non Real Assistant</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .lang-selector {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 10;
+        }
+        [dir="rtl"] .lang-selector {
+            left: auto;
+            right: 15px;
+        }
+        .lang-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        .lang-btn:hover {
+            background: white;
+            transform: translateY(-1px);
+        }
+        .content-box {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-section img {
+            width: 80px;
+            height: 80px;
+        }
+        .logo-section h1 {
+            margin: 15px 0 5px;
+            color: #333;
+        }
+        .logo-section p {
+            color: #666;
+            font-size: 14px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #2563eb;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section h2 span {
+            font-size: 24px;
+        }
+        .section p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .feature-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #2563eb;
+        }
+        [dir="rtl"] .feature-card {
+            border-left: none;
+            border-right: 4px solid #2563eb;
+        }
+        .feature-card h3 {
+            color: #1e40af;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .feature-card p {
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #2563eb;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+        footer a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="lang-selector">
+        <button class="lang-btn" onclick="toggleLanguage()" id="lang-toggle">
+            <span id="lang-flag">🇸🇦</span>
+            <span id="lang-name">العربية</span>
+        </button>
+    </div>
+
+    <div class="content-box">
+        <a href="/login" class="back-link" id="back-link">
+            <span>←</span> <span id="back-text">Back to Login</span>
+        </a>
+
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Non Real Assistant">
+            <h1>Non Real Assistant</h1>
+            <p id="tagline">Your Smart Personal Assistant</p>
+        </div>
+
+        <div class="section">
+            <h2><span>🤖</span> <span id="what-title">What is Non Real Assistant?</span></h2>
+            <p id="what-desc">Non Real Assistant is an intelligent personal assistant platform designed to help you manage your daily tasks, automate workflows, and stay organized. It combines the power of smart notifications with flexible task management to ensure you never miss an important deadline.</p>
+        </div>
+
+        <div class="section">
+            <h2><span>✨</span> <span id="features-title">Key Features</span></h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3><span>📋</span> <span id="f1-title">Smart Task Management</span></h3>
+                    <p id="f1-desc">Create, organize, and track tasks with intelligent reminders and priority levels.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span>🤖</span> <span id="f2-title">Virtual Assistants</span></h3>
+                    <p id="f2-desc">Create personalized assistants that work on your behalf with customizable schedules.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span>🔔</span> <span id="f3-title">Multi-Channel Notifications</span></h3>
+                    <p id="f3-desc">Get notified via Telegram, Email, or Browser notifications - never miss a deadline.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span>⚡</span> <span id="f4-title">Script Automation</span></h3>
+                    <p id="f4-desc">Execute custom scripts remotely with full logging and monitoring capabilities.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span>🌐</span> <span id="f5-title">Multilingual Support</span></h3>
+                    <p id="f5-desc">Full support for Arabic and English with RTL/LTR layouts.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><span>🔒</span> <span id="f6-title">Secure Authentication</span></h3>
+                    <p id="f6-desc">Login securely using OTP verification via Telegram.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span>🎯</span> <span id="why-title">Why Choose Non Real Assistant?</span></h2>
+            <p id="why-desc-1">Whether you're a busy professional, a developer managing multiple projects, or someone who wants to stay on top of their daily routines, Non Real Assistant provides the tools you need to work smarter.</p>
+            <p id="why-desc-2">Our platform is designed to be intuitive, powerful, and flexible - adapting to your workflow rather than forcing you to change how you work.</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 <a href="https://sadeem.cloud" target="_blank">sadeem.cloud</a></p>
+    </footer>
+
+    <script>
+        const translations = {
+            ar: {
+                title: 'حول - Non Real Assistant',
+                backText: 'العودة لتسجيل الدخول',
+                backArrow: '→',
+                tagline: 'المساعد الشخصي الذكي',
+                whatTitle: 'ما هو Non Real Assistant؟',
+                whatDesc: 'Non Real Assistant هو منصة مساعد شخصي ذكي مصممة لمساعدتك في إدارة مهامك اليومية، وأتمتة سير العمل، والبقاء منظماً. يجمع بين قوة الإشعارات الذكية وإدارة المهام المرنة لضمان عدم تفويت أي موعد نهائي مهم.',
+                featuresTitle: 'المميزات الرئيسية',
+                f1Title: 'إدارة المهام الذكية',
+                f1Desc: 'إنشاء وتنظيم وتتبع المهام مع تذكيرات ذكية ومستويات أولوية.',
+                f2Title: 'المساعدين الافتراضيين',
+                f2Desc: 'إنشاء مساعدين مخصصين يعملون نيابة عنك بجداول قابلة للتخصيص.',
+                f3Title: 'إشعارات متعددة القنوات',
+                f3Desc: 'احصل على إشعارات عبر تيليجرام أو البريد الإلكتروني أو إشعارات المتصفح.',
+                f4Title: 'أتمتة السكريبتات',
+                f4Desc: 'تنفيذ سكريبتات مخصصة عن بُعد مع إمكانيات كاملة للتسجيل والمراقبة.',
+                f5Title: 'دعم متعدد اللغات',
+                f5Desc: 'دعم كامل للغة العربية والإنجليزية مع تخطيطات RTL/LTR.',
+                f6Title: 'مصادقة آمنة',
+                f6Desc: 'تسجيل دخول آمن باستخدام التحقق عبر OTP من تيليجرام.',
+                whyTitle: 'لماذا تختار Non Real Assistant؟',
+                whyDesc1: 'سواء كنت محترفاً مشغولاً، أو مطوراً يدير مشاريع متعددة، أو شخصاً يريد متابعة روتينه اليومي، يوفر Non Real Assistant الأدوات التي تحتاجها للعمل بذكاء.',
+                whyDesc2: 'منصتنا مصممة لتكون بديهية وقوية ومرنة - تتكيف مع سير عملك بدلاً من إجبارك على تغيير طريقة عملك.',
+                toggleLang: 'English',
+                toggleFlag: '🇬🇧'
+            },
+            en: {
+                title: 'About - Non Real Assistant',
+                backText: 'Back to Login',
+                backArrow: '←',
+                tagline: 'Your Smart Personal Assistant',
+                whatTitle: 'What is Non Real Assistant?',
+                whatDesc: 'Non Real Assistant is an intelligent personal assistant platform designed to help you manage your daily tasks, automate workflows, and stay organized. It combines the power of smart notifications with flexible task management to ensure you never miss an important deadline.',
+                featuresTitle: 'Key Features',
+                f1Title: 'Smart Task Management',
+                f1Desc: 'Create, organize, and track tasks with intelligent reminders and priority levels.',
+                f2Title: 'Virtual Assistants',
+                f2Desc: 'Create personalized assistants that work on your behalf with customizable schedules.',
+                f3Title: 'Multi-Channel Notifications',
+                f3Desc: 'Get notified via Telegram, Email, or Browser notifications - never miss a deadline.',
+                f4Title: 'Script Automation',
+                f4Desc: 'Execute custom scripts remotely with full logging and monitoring capabilities.',
+                f5Title: 'Multilingual Support',
+                f5Desc: 'Full support for Arabic and English with RTL/LTR layouts.',
+                f6Title: 'Secure Authentication',
+                f6Desc: 'Login securely using OTP verification via Telegram.',
+                whyTitle: 'Why Choose Non Real Assistant?',
+                whyDesc1: 'Whether you\'re a busy professional, a developer managing multiple projects, or someone who wants to stay on top of their daily routines, Non Real Assistant provides the tools you need to work smarter.',
+                whyDesc2: 'Our platform is designed to be intuitive, powerful, and flexible - adapting to your workflow rather than forcing you to change how you work.',
+                toggleLang: 'العربية',
+                toggleFlag: '🇸🇦'
+            }
+        };
+
+        let currentLang = localStorage.getItem('app_language') || detectBrowserLanguage();
+
+        function detectBrowserLanguage() {
+            const browserLang = navigator.language || navigator.userLanguage;
+            return browserLang.startsWith('ar') ? 'ar' : 'en';
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            localStorage.setItem('app_language', currentLang);
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const t = translations[currentLang];
+            const html = document.getElementById('html-root');
+
+            html.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+            html.setAttribute('lang', currentLang);
+
+            document.title = t.title;
+            document.getElementById('back-text').textContent = t.backText;
+            document.querySelector('.back-link span:first-child').textContent = t.backArrow;
+            document.getElementById('tagline').textContent = t.tagline;
+            document.getElementById('what-title').textContent = t.whatTitle;
+            document.getElementById('what-desc').textContent = t.whatDesc;
+            document.getElementById('features-title').textContent = t.featuresTitle;
+            document.getElementById('f1-title').textContent = t.f1Title;
+            document.getElementById('f1-desc').textContent = t.f1Desc;
+            document.getElementById('f2-title').textContent = t.f2Title;
+            document.getElementById('f2-desc').textContent = t.f2Desc;
+            document.getElementById('f3-title').textContent = t.f3Title;
+            document.getElementById('f3-desc').textContent = t.f3Desc;
+            document.getElementById('f4-title').textContent = t.f4Title;
+            document.getElementById('f4-desc').textContent = t.f4Desc;
+            document.getElementById('f5-title').textContent = t.f5Title;
+            document.getElementById('f5-desc').textContent = t.f5Desc;
+            document.getElementById('f6-title').textContent = t.f6Title;
+            document.getElementById('f6-desc').textContent = t.f6Desc;
+            document.getElementById('why-title').textContent = t.whyTitle;
+            document.getElementById('why-desc-1').textContent = t.whyDesc1;
+            document.getElementById('why-desc-2').textContent = t.whyDesc2;
+
+            document.getElementById('lang-flag').textContent = t.toggleFlag;
+            document.getElementById('lang-name').textContent = t.toggleLang;
+        }
+
+        document.addEventListener('DOMContentLoaded', applyLanguage);
+    </script>
+</body>
+</html>

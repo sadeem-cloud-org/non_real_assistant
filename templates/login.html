@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Non Real Assistant</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <!-- intl-tel-input CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
@@ -154,10 +155,21 @@
             <div id="loadingOverlay" class="loading-overlay">
                 <div class="spinner"></div>
             </div>
+
+            <!-- Info Links -->
+            <div class="info-links" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+                <a href="/about" class="info-link" id="about-link" style="color: #2563eb; text-decoration: none; margin: 0 15px; font-size: 14px;">
+                    What is Non Real Assistant?
+                </a>
+                <span style="color: #ccc;">|</span>
+                <a href="/how-to-use" class="info-link" id="howto-link" style="color: #2563eb; text-decoration: none; margin: 0 15px; font-size: 14px;">
+                    How to Use
+                </a>
+            </div>
         </div>
 
         <footer>
-            <p id="footerText">Non Real Assistant &copy; 2024</p>
+            <p>&copy; 2024 <a href="https://sadeem.cloud" target="_blank" style="color: #2563eb; text-decoration: none;">sadeem.cloud</a></p>
         </footer>
     </div>
 
@@ -226,7 +238,8 @@
                 change: 'تغيير',
                 noCode: 'لم يصلك الرمز؟',
                 resend: 'إعادة الإرسال',
-                footer: 'Non Real Assistant © 2024',
+                aboutLink: 'ما هو Non Real Assistant؟',
+                howtoLink: 'كيفية الاستخدام',
                 toggleLang: 'English',
                 toggleFlag: '🇬🇧'
             },
@@ -245,7 +258,8 @@
                 change: 'Change',
                 noCode: "Didn't receive the code?",
                 resend: 'Resend',
-                footer: 'Non Real Assistant © 2024',
+                aboutLink: 'What is Non Real Assistant?',
+                howtoLink: 'How to Use',
                 toggleLang: 'العربية',
                 toggleFlag: '🇸🇦'
             }
@@ -289,7 +303,8 @@
             document.getElementById('changeBtn').textContent = t.change;
             document.getElementById('noCodeText').textContent = t.noCode;
             document.getElementById('resendBtn').textContent = t.resend;
-            document.getElementById('footerText').textContent = t.footer;
+            document.getElementById('about-link').textContent = t.aboutLink;
+            document.getElementById('howto-link').textContent = t.howtoLink;
 
             // Update toggle button
             document.getElementById('lang-flag').textContent = t.toggleFlag;
