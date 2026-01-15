@@ -88,7 +88,7 @@ async function loadAssistants() {
                 select.innerHTML = '<option value="">بدون مساعد</option>';
                 // Filter only task-type assistants
                 assistants
-                    .filter(a => a.related_action === 'task')
+                    .filter(a => a.assistant_type && a.assistant_type.related_action === 'task')
                     .forEach(assistant => {
                         const option = document.createElement('option');
                         option.value = assistant.id;
