@@ -1046,7 +1046,7 @@ msgstr "Bogota ("
 msgid "بوغوتا (America/Bogota)"
 msgstr "Bogota (America/Bogota)"
 
-msgid "بوينس آيرس("
+msgid "بوينس آيرس ("
 msgstr "Buenos Aires ("
 
 msgid "بوينس آيرس (America/Argentina/Buenos_Aires)"
