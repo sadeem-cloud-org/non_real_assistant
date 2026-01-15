@@ -1,6 +1,6 @@
 # Translation file for English
 # Language: en
-# Generated: 2026-01-07T20:12:22.975361
+# Arabic to English Translation
 
 msgid ""
 msgstr ""
@@ -76,615 +76,587 @@ msgstr "Unknown Script"
 msgid "notifications with tag:"
 msgstr "notifications with tag:"
 
-#: admin/panel.html
+msgid "، أدخل العنوان والوصف وحدد تاريخ ووقت الاستحقاق."
+msgstr ", enter the title, description and select due date and time."
+
+msgid "، اختر النوع (مهام أو سكريبت)، وقم بالتكوين."
+msgstr ", choose the type (tasks or script), and configure."
+
 msgid "، هذا تذكير من المساعد"
 msgstr ", this is a reminder from the assistant"
 
-#: dashboard.html
 msgid "آخر 7 أيام"
 msgstr "Last 7 days"
 
-#: dashboard.html
 msgid "آخر العمليات"
 msgstr "Recent operations"
 
-#: settings.html
 msgid "آخر تسجيل دخول"
 msgstr "Last login"
 
-#: settings.html
 msgid "آسيا الوسطى والجنوبية"
 msgstr "Central & South Asia"
 
-#: settings.html
 msgid "أبيدجان ("
-msgstr ""
+msgstr "Abidjan ("
 
 msgid "أبيدجان (Africa/Abidjan)"
 msgstr "Abidjan (Africa/Abidjan)"
 
-#: settings.html
+msgid "أتمتة السكريبتات"
+msgstr "Script Automation"
+
 msgid "أثينا ("
-msgstr ""
+msgstr "Athens ("
 
 msgid "أثينا (Europe/Athens)"
 msgstr "Athens (Europe/Athens)"
 
-#: translations.html
 msgid "أخطاء:"
 msgstr "Errors:"
 
-#: login.html
 msgid "أدخل الرمز المرسل إلى تيليجرام"
 msgstr "Enter the code sent to Telegram"
 
-#: login.html
 msgid "أدخل رقم هاتفك لتلقي رمز التحقق"
 msgstr "Enter your phone number to receive verification code"
 
-#: settings.html
+msgid "أدخل رقم هاتفك وتحقق باستخدام رمز"
+msgstr "Enter your phone number and verify using the code"
+
 msgid "أديس أبابا ("
-msgstr ""
+msgstr "Addis Ababa ("
 
 msgid "أديس أبابا (Africa/Addis_Ababa)"
 msgstr "Addis Ababa (Africa/Addis_Ababa)"
 
-#: settings.html
 msgid "أديليد ("
-msgstr ""
+msgstr "Adelaide ("
 
 msgid "أديليد (Australia/Adelaide)"
 msgstr "Adelaide (Australia/Adelaide)"
 
-#: assistants.html
 msgid "أسبوع"
 msgstr "Week"
 
-#: assistants.html
 msgid "أسبوعياً"
 msgstr "Weekly"
 
-#: settings.html
 msgid "أستراليا والمحيط الهادئ"
 msgstr "Australia & Pacific"
 
-#: settings.html
 msgid "أفريقيا"
 msgstr "Africa"
 
-#: settings.html
 msgid "أكرا ("
-msgstr ""
+msgstr "Accra ("
 
 msgid "أكرا (Africa/Accra)"
 msgstr "Accra (Africa/Accra)"
 
-#: settings.html
 msgid "أمريكا الجنوبية"
 msgstr "South America"
 
-#: settings.html
 msgid "أمريكا الشمالية"
 msgstr "North America"
 
-#: settings.html
 msgid "أمريكا الوسطى والكاريبي"
 msgstr "Central America & Caribbean"
 
-#: settings.html
 msgid "أمستردام ("
-msgstr ""
+msgstr "Amsterdam ("
 
 msgid "أمستردام (Europe/Amsterdam)"
 msgstr "Amsterdam (Europe/Amsterdam)"
 
-#: settings.html
 msgid "أنكوراج ("
-msgstr ""
+msgstr "Anchorage ("
 
 msgid "أنكوراج (America/Anchorage)"
 msgstr "Anchorage (America/Anchorage)"
 
-#: admin/panel.html
 msgid "أنواع المساعدين"
 msgstr "Assistant Types"
 
-#: admin/panel.html
 msgid "أهلاً"
 msgstr "Hello"
 
-#: admin/assistant_types.html
 msgid "أو"
 msgstr "Or"
 
-#: admin/email_settings.html
 msgid "أو 465 بدون"
 msgstr "Or 465 without"
 
-#: settings.html
 msgid "أوروبا الشرقية"
 msgstr "Eastern Europe"
 
-#: settings.html
 msgid "أوروبا الغربية"
 msgstr "Western Europe"
 
-#: settings.html
 msgid "أوروبا الوسطى"
 msgstr "Central Europe"
 
-#: settings.html
 msgid "أوكلاند ("
-msgstr ""
+msgstr "Auckland ("
 
 msgid "أوكلاند (Pacific/Auckland)"
 msgstr "Auckland (Pacific/Auckland)"
 
-#: dashboard.html
 msgid "أُنجزت اليوم"
 msgstr "Completed today"
 
-#: translations.html
 msgid "إجراءات"
 msgstr "Actions"
 
-#: tasks.html
 msgid "إجمالي"
 msgstr "Total"
 
-#: notifications.html
 msgid "إجمالي الإشعارات"
 msgstr "Total notifications"
 
-#: executions.html
 msgid "إجمالي التنفيذات"
 msgstr "Total executions"
 
-#: scripts.html
 msgid "إجمالي السكريبتات"
 msgstr "Total scripts"
 
-#: assistants.html
 msgid "إجمالي المساعدين"
 msgstr "Total assistants"
 
-#: admin/panel.html
 msgid "إجمالي المستخدمين"
 msgstr "Total users"
 
-#: admin/panel.html
 msgid "إحصائيات النظام"
 msgstr "System statistics"
 
-#: admin/panel.html
 msgid "إدارة أنواع المساعدين المتاحة"
 msgstr "Manage available assistant types"
 
-#: admin/assistant_types.html
 msgid "إدارة أنواع المساعدين المتاحة في النظام"
 msgstr "Manage available assistant types in the system"
 
-#: system_settings.html
 msgid "إدارة إعدادات النظام العامة"
 msgstr "Manage general system settings"
 
-#: admin/panel.html
 msgid "إدارة الأنواع"
 msgstr "Manage types"
 
 msgid "إدارة الترجمات"
 msgstr "Translation Management"
 
-#: translations.html
 msgid "إدارة الترجمات -"
 msgstr "Translation Management -"
 
-#: scripts.html
 msgid "إدارة السكريبتات البرمجية للمساعدين"
 msgstr "Manage programming scripts for assistants"
 
-#: translations.html
 msgid "إدارة اللغات والترجمات"
 msgstr "Manage languages and translations"
 
-#: admin/users.html
+msgid "إدارة المساعدين"
+msgstr "Manage Assistants"
+
 msgid "إدارة المستخدمين"
 msgstr "User Management"
 
-#: admin/panel.html
+msgid "إدارة المهام"
+msgstr "Task Management"
+
+msgid "إدارة المهام الذكية"
+msgstr "Smart Task Management"
+
+msgid "إدارة النظام"
+msgstr "System Management"
+
 msgid "إدارة النظام والمستخدمين"
 msgstr "System and user management"
 
-#: tasks.html
 msgid "إدارة جميع المهام الخاصة بك"
 msgstr "Manage all your tasks"
 
 msgid "إدارة حسابك وتفضيلاتك"
 msgstr "Manage your account and preferences"
 
-#: system_settings.html
+msgid "إدارة قوالب رسائل الإشعارات"
+msgstr "Manage notification message templates"
+
 msgid "إرسال"
 msgstr "Send"
 
-#: system_settings.html
 msgid "إرسال بريد تجريبي"
 msgstr "Send test email"
 
-#: admin/email_settings.html
 msgid "إرسال رسالة اختبار"
 msgstr "Send test message"
 
-#: login.html
 msgid "إرسال رمز التحقق"
 msgstr "Send verification code"
 
-#: settings.html
 msgid "إسطنبول ("
-msgstr ""
+msgstr "Istanbul ("
 
 msgid "إسطنبول (Europe/Istanbul)"
 msgstr "Istanbul (Europe/Istanbul)"
 
-#: assistants.html
 msgid "إشعارات البريد الإلكتروني"
 msgstr "Email notifications"
 
-#: assistants.html
 msgid "إشعارات التليجرام"
 msgstr "Telegram notifications"
 
-#: settings.html
 msgid "إشعارات التليجرام والبريد الإلكتروني يتم تحديدها لكل مساعد على حدة من صفحة المساعدين"
 msgstr "Telegram and email notifications are set individually for each assistant from the assistants page"
 
 msgid "إشعارات المتصفح"
 msgstr "Browser Notifications"
 
-#: settings.html
+msgid "إشعارات تيليجرام"
+msgstr "Telegram Notifications"
+
 msgid "إشعارات فورية في المتصفح"
 msgstr "Instant browser notifications"
 
-#: scripts.html
+msgid "إشعارات متعددة القنوات"
+msgstr "Multi-channel Notifications"
+
 msgid "إصلاح اتجاه الكود"
 msgstr "Fix code direction"
 
-#: scripts.html
 msgid "إصلاح التنسيق"
 msgstr "Fix formatting"
 
 msgid "إضافة"
 msgstr "Add"
 
-#: scripts.html
 msgid "إضافة سكريبت"
 msgstr "Add script"
 
-#: scripts.html
 msgid "إضافة سكريبت جديد"
 msgstr "Add new script"
 
-#: admin/panel.html
 msgid "إضافة قالب"
 msgstr "Add template"
 
-#: admin/panel.html
 msgid "إضافة قالب جديد"
 msgstr "Add new template"
 
-#: translations.html
 msgid "إضافة لغة"
 msgstr "Add language"
 
-#: translations.html
 msgid "إضافة لغة جديدة"
 msgstr "Add new language"
 
-#: dashboard.html
 msgid "إضافة مساعد"
 msgstr "Add assistant"
 
-#: assistants.html
 msgid "إضافة مساعد جديد"
 msgstr "Add new assistant"
 
-#: admin/users.html
 msgid "إضافة مستخدم"
 msgstr "Add user"
 
-#: admin/users.html
 msgid "إضافة مستخدم جديد"
 msgstr "Add new user"
 
-#: dashboard.html
 msgid "إضافة مهمة"
 msgstr "Add task"
 
-#: dashboard.html
 msgid "إضافة مهمة جديدة"
 msgstr "Add new task"
 
-#: admin/assistant_types.html
 msgid "إضافة نوع جديد"
 msgstr "Add new type"
 
-#: admin/assistant_types.html
 msgid "إضافة نوع مساعد جديد"
 msgstr "Add new assistant type"
 
-#: admin/panel.html
 msgid "إضافة وتعديل وحذف المستخدمين"
 msgstr "Add, edit and delete users"
 
-#: login.html
 msgid "إعادة الإرسال"
 msgstr "Resend"
 
-#: admin/email_settings.html
 msgid "إعدادات"
 msgstr "Settings"
 
-#: assistants.html
 msgid "إعدادات الإشعارات"
 msgstr "Notification settings"
 
-#: admin/panel.html
 msgid "إعدادات البريد"
 msgstr "Email settings"
 
-#: admin/email_settings.html
 msgid "إعدادات البريد الإلكتروني"
 msgstr "Email settings"
 
-#: system_settings.html
 msgid "إعدادات البريد الإلكتروني ("
 msgstr "Email settings ("
 
 msgid "إعدادات البريد الصادر"
 msgstr "Outgoing Email Settings"
 
-#: system_settings.html
 msgid "إعدادات التطبيق"
 msgstr "Application settings"
 
-#: system_settings.html
 msgid "إعدادات التليجرام"
 msgstr "Telegram settings"
 
-#: system_settings.html
 msgid "إعدادات التليجرام موجودة في ملف ."
 msgstr "Telegram settings are in the . file"
 
-#: system_settings.html
 msgid "إعدادات النظام"
 msgstr "System settings"
 
-#: system_settings.html
 msgid "إعدادات النظام -"
 msgstr "System Settings -"
 
-#: admin/email_settings.html
 msgid "إعدادات خادم"
 msgstr "Server settings"
 
-#: notifications.html
 msgid "إغلاق"
 msgstr "Close"
 
-#: dashboard.html
 msgid "إكمال"
 msgstr "Complete"
 
 msgid "إلغاء"
 msgstr "Cancel"
 
-#: dashboard.html
+msgid "إلغاء المشاركة"
+msgstr "Unshare"
+
+msgid "إلغاء المهمة"
+msgstr "Cancel Task"
+
+msgid "إنشاء أول مساعد"
+msgstr "Create First Assistant"
+
+msgid "إنشاء رابط مشاركة"
+msgstr "Create Share Link"
+
+msgid "إنشاء مساعد"
+msgstr "Create Assistant"
+
 msgid "إنشاء مساعد جديد"
 msgstr "Create new assistant"
 
-#: assistants.html
+msgid "إنشاء مساعدين مخصصين يعملون نيابة عنك بجداول قابلة للتخصيص."
+msgstr "Create custom assistants that work on your behalf with customizable schedules."
+
+msgid "إنشاء مهمة"
+msgstr "Create Task"
+
 msgid "إنشاء وإدارة المساعدين الذكية الخاصة بك"
 msgstr "Create and manage your smart assistants"
 
-#: admin/users.html
 msgid "إنشاء وتعديل وحذف المستخدمين"
 msgstr "Create, edit and delete users"
 
-#: assistants.html
+msgid "إنشاء وتنظيم وتتبع المهام مع تذكيرات ذكية ومستويات أولوية."
+msgstr "Create, organize and track tasks with smart reminders and priority levels."
+
 msgid "إيميل"
 msgstr "Email"
-
-#: tasks.html
 msgid "ابحث في العنوان أو الوصف..."
 msgstr "Search in title or description..."
 
-#: tasks.html
 msgid "ابدأ بإضافة مهمة جديدة"
 msgstr "Start by adding a new task"
 
-#: scripts.html
 msgid "ابدأ بإنشاء سكريبت جديد"
 msgstr "Start by creating a new script"
 
-#: dashboard.html
 msgid "ابدأ بإنشاء مساعد شخصي لتتمكن من تنظيم مهامك وتلقي الإشعارات التلقائية."
 msgstr "Start by creating a personal assistant to organize your tasks and receive automatic notifications."
 
-#: assistants.html
 msgid "ابدأ بإنشاء مساعدك الافتراضي الأول"
 msgstr "Start by creating your first virtual assistant"
 
-#: admin/email_settings.html
+msgid "ابق على اطلاع مع إشعارات متعددة القنوات."
+msgstr "Stay informed with multi-channel notifications."
+
+msgid "اتبع هذه الخطوات البسيطة لبدء استخدام"
+msgstr "Follow these simple steps to start using"
+
 msgid "اتركه فارغاً للإبقاء على القيمة الحالية"
 msgstr "Leave empty to keep current value"
+
+msgid "احصل على إشعارات عبر تيليجرام أو البريد الإلكتروني أو إشعارات المتصفح."
+msgstr "Get notifications via Telegram, email, or browser notifications."
+
+msgid "احصل على تنبيهات بريد إلكتروني للمهام المهمة ونتائج السكريبتات."
+msgstr "Get email alerts for important tasks and script results."
 
 msgid "اختبار"
 msgstr "Test"
 
-#: admin/email_settings.html
 msgid "اختبار الإعدادات"
 msgstr "Test settings"
 
-#: assistants.html
 msgid "اختر التاريخ والوقت"
 msgstr "Select date and time"
 
-#: assistants.html
 msgid "اختر الفترة"
 msgstr "Select period"
 
-#: scripts.html
 msgid "اختر المساعد لربط السكريبت"
 msgstr "Select assistant to link script"
 
-#: tasks.html
 msgid "اختر المساعد لربط المهمة به وتفعيل الإشعارات التلقائية"
 msgstr "Select assistant to link task and enable automatic notifications"
 
-#: translations.html
+msgid "اختر كود الدولة وأدخل رقم هاتفك"
+msgstr "Select country code and enter your phone number"
+
+msgid "اختر كيف تريد أن يتم إشعارك: تيليجرام، بريد إلكتروني، أو إشعارات المتصفح."
+msgstr "Choose how you want to be notified: Telegram, email, or browser notifications."
+
 msgid "اختر لغة"
 msgstr "Select language"
 
-#: translations.html
 msgid "اختر لغة لعرض وتحرير الترجمات الخاصة بها"
 msgstr "Select a language to view and edit its translations"
 
-#: translations.html
 msgid "اختر لغة من القائمة"
 msgstr "Select a language from the list"
 
-#: assistants.html
 msgid "اختر نوع المساعد حسب الوظيفة المطلوبة"
 msgstr "Select assistant type according to required function"
 
-#: system_settings.html
+msgid "اختيار الإشعارات"
+msgstr "Select Notifications"
+
+msgid "اذهب لصفحة السكريبتات، أنشئ سكريبت جديد مع تفاصيل اتصال"
+msgstr "Go to scripts page, create new script with connection details"
+
+msgid "اذهب لصفحة المساعدين، اضغط"
+msgstr "Go to assistants page, click"
+
+msgid "اربط مساعد من نوع المهام للحصول على تذكيرات تلقائية عند استحقاق المهمة."
+msgstr "Link a task-type assistant to get automatic reminders when task is due."
+
 msgid "استخدام"
 msgstr "Use"
 
-#: system_settings.html
 msgid "استخدم"
 msgstr "Use"
 
-#: admin/email_settings.html
 msgid "استخدم كلمة مرور التطبيقات"
 msgstr "Use app password"
 
-#: translations.html
+msgid "استخدم مساعدي السكريبتات لأتمتة صيانة الخادم والنسخ الاحتياطي أو أي مهام سطر أوامر متكررة."
+msgstr "Use script assistants to automate server maintenance, backups or any recurring command line tasks."
+
+msgid "استلم إشعارات فورية مباشرة في تطبيق تيليجرام."
+msgstr "Receive instant notifications directly in Telegram app."
+
 msgid "استيراد"
 msgstr "Import"
 
-#: translations.html
 msgid "استيراد ."
 msgstr "Import ."
 
-#: translations.html
 msgid "استيراد ملف ترجمة"
 msgstr "Import translation file"
 
-#: system_settings.html
 msgid "اسم التطبيق"
 msgstr "Application name"
 
-#: scripts.html
 msgid "اسم السكريبت"
 msgstr "Script name"
 
-#: admin/panel.html
 msgid "اسم القالب"
 msgstr "Template name"
 
-#: translations.html
 msgid "اسم اللغة"
 msgstr "Language name"
 
 msgid "اسم المرسل"
 msgstr "Sender Name"
 
-#: assistants.html
 msgid "اسم المساعد"
 msgstr "Assistant name"
 
-#: system_settings.html
 msgid "اسم المستخدم"
 msgstr "Username"
 
 msgid "اسم المستخدم / البريد"
 msgstr "Username / Email"
 
-#: admin/panel.html
 msgid "اسم المهمة"
 msgstr "Task name"
 
-#: admin/assistant_types.html
 msgid "اسم النوع"
 msgstr "Type name"
 
-#: admin/assistant_types.html
+msgid "اسم فريد للقالب"
+msgstr "Unique name for template"
+
 msgid "اسم فريد للنوع (يفضل بالإنجليزية)"
 msgstr "Unique name for type (preferably in English)"
 
-#: settings.html
 msgid "اسمك"
 msgstr "Your name"
 
-#: translations.html
+msgid "اضغط"
+msgstr "Click"
+
+msgid "اضغط أو اسحب الملفات هنا للرفع"
+msgstr "Click or drag files here to upload"
+
 msgid "اضغط على"
 msgstr "Click on"
 
-#: executions.html
+msgid "اضغط لتغيير الصورة (الحد الأقصى 2"
+msgstr "Click to change image (max 2"
+
 msgid "اضغط لتفعيل الإشعارات"
 msgstr "Click to enable notifications"
 
-#: scripts.html
-msgid "اكتب الكود هنا"
-msgstr ""
+msgid "اكتب أو اختر التاريخ"
+msgstr "Write or select date"
 
-#: dashboard.html
+msgid "اكتب الكود هنا"
+msgstr "Write code here"
+
 msgid "اكتب عنوان المهمة"
 msgstr "Write task title"
 
-#: notifications.html
 msgid "الآن"
 msgstr "Now"
 
-#: share_execution.html
 msgid "الأخطاء ("
 msgstr "Errors ("
 
-#: settings.html
+msgid "الأدوات التي تحتاجها للعمل بذكاء."
+msgstr "The tools you need to work smartly."
+
 msgid "الأزور ("
-msgstr ""
+msgstr "Azores ("
 
 msgid "الأزور (Atlantic/Azores)"
 msgstr "Azores (Atlantic/Azores)"
 
-#: dashboard.html
 msgid "الأولوية"
 msgstr "Priority"
 
-#: admin/assistant_types.html
 msgid "الإجراء المرتبط"
 msgstr "Associated action"
 
-#: admin/users.html
 msgid "الإجراءات"
 msgstr "Actions"
 
 msgid "الإشعارات"
 msgstr "Notifications"
 
-#: base.html
 msgid "الإشعارات معطلة"
 msgstr "Notifications disabled"
 
-#: executions.html
 msgid "الإشعارات مغلقة"
 msgstr "Notifications disabled"
 
-#: base.html
 msgid "الإشعارات مفعلة"
 msgstr "Notifications enabled"
 
-#: executions.html
 msgid "الإشعارات مفعّلة"
 msgstr "Notifications enabled"
 
@@ -694,985 +666,871 @@ msgstr "Settings"
 msgid "الاسم"
 msgstr "Name"
 
-#: settings.html
 msgid "البحرين ("
-msgstr ""
+msgstr "Bahrain ("
 
 msgid "البحرين (Asia/Bahrain)"
 msgstr "Bahrain (Asia/Bahrain)"
 
-#: admin/users.html
+msgid "البدء"
+msgstr "Getting Started"
+
 msgid "البريد"
 msgstr "Email"
 
 msgid "البريد الإلكتروني"
 msgstr "Email"
 
-#: admin/email_settings.html
 msgid "البريد المرسل"
 msgstr "Sender email"
 
 msgid "البريد المرسل منه"
 msgstr "From Email"
 
-#: notifications.html
 msgid "التاريخ"
 msgstr "Date"
 
-#: share_execution.html
 msgid "التاريخ:"
 msgstr "Date:"
 
-#: login.html
 msgid "التحقق من الهوية"
 msgstr "Identity verification"
 
-#: admin/panel.html
 msgid "الترجمات"
 msgstr "Translations"
 
-#: translations.html
 msgid "الترجمة"
 msgstr "Translation"
 
 msgid "التشفير"
 msgstr "Encryption"
 
-#: assistants.html
 msgid "التفاصيل"
 msgstr "Details"
 
-#: translations.html
 msgid "التفاصيل:"
 msgstr "Details:"
 
 msgid "التفضيلات"
 msgstr "Preferences"
 
-#: settings.html
 msgid "التوقيت العالمي المنسق"
 msgstr "Coordinated Universal Time"
 
-#: assistants.html
 msgid "الجدولة (اختياري)"
 msgstr "Scheduling (optional)"
 
-#: settings.html
 msgid "الجزائر ("
-msgstr ""
+msgstr "Algiers ("
 
 msgid "الجزائر (Africa/Algiers)"
 msgstr "Algiers (Africa/Algiers)"
 
-#: notifications.html
 msgid "الحالة"
 msgstr "Status"
 
-#: settings.html
+msgid "الحد الأقصى"
+msgstr "Maximum"
+
 msgid "الخرطوم ("
-msgstr ""
+msgstr "Khartoum ("
 
 msgid "الخرطوم (Africa/Khartoum)"
 msgstr "Khartoum (Africa/Khartoum)"
 
-#: settings.html
 msgid "الدار البيضاء ("
-msgstr ""
+msgstr "Casablanca ("
 
 msgid "الدار البيضاء (Africa/Casablanca)"
 msgstr "Casablanca (Africa/Casablanca)"
 
-#: executions.html
 msgid "الذهاب للسكريبتات"
 msgstr "Go to scripts"
 
-#: share_not_found.html
 msgid "الذهاب للصفحة الرئيسية"
 msgstr "Go to home page"
 
-#: settings.html
 msgid "الرأس الأخضر ("
-msgstr ""
+msgstr "Cape Verde ("
 
 msgid "الرأس الأخضر (Atlantic/Cape_Verde)"
 msgstr "Cape Verde (Atlantic/Cape_Verde)"
 
-#: share_not_found.html
 msgid "الرابط غير موجود"
 msgstr "Link not found"
 
-#: translations.html
 msgid "الرجاء إدخال اسم اللغة ورمزها"
 msgstr "Please enter language name and code"
 
-#: translations.html
 msgid "الرجاء اختيار ملف"
 msgstr "Please select a file"
 
-#: notifications.html
 msgid "الرسالة"
 msgstr "Message"
 
-#: settings.html
 msgid "الرياض ("
 msgstr "Riyadh ("
 
 msgid "الرياض (Asia/Riyadh)"
 msgstr "Riyadh (Asia/Riyadh)"
 
-#: scripts.html
 msgid "السكريبت غير موجود"
 msgstr "Script not found"
 
 msgid "السكريبتات"
 msgstr "Scripts"
 
-#: scripts.html
 msgid "السكريبتات -"
 msgstr "Scripts -"
 
-#: settings.html
 msgid "الشرق الأوسط"
 msgstr "Middle East"
 
-#: admin/users.html
 msgid "الصلاحية"
 msgstr "Permission"
 
-#: settings.html
 msgid "العربية"
 msgstr "Arabic"
 
-#: admin/users.html
 msgid "العودة"
 msgstr "Back"
 
-#: assistants.html
+msgid "العودة لتسجيل الدخول"
+msgstr "Back to login"
+
+msgid "العودة للمهام"
+msgstr "Back to tasks"
+
 msgid "القالب الافتراضي"
 msgstr "Default template"
 
-#: settings.html
 msgid "القاهرة ("
 msgstr "Cairo ("
 
 msgid "القاهرة (Africa/Cairo)"
 msgstr "Cairo (Africa/Cairo)"
 
-#: settings.html
 msgid "القدس ("
-msgstr ""
+msgstr "Jerusalem ("
 
 msgid "القدس (Asia/Jerusalem)"
 msgstr "Jerusalem (Asia/Jerusalem)"
 
-#: notifications.html
 msgid "القناة"
 msgstr "Channel"
 
-#: tasks.html
 msgid "الكل"
 msgstr "All"
 
-#: scripts.html
 msgid "الكود"
 msgstr "Code"
 
-#: settings.html
 msgid "الكويت ("
-msgstr ""
+msgstr "Kuwait ("
 
 msgid "الكويت (Asia/Kuwait)"
 msgstr "Kuwait (Asia/Kuwait)"
 
-#: translations.html
 msgid "اللغات"
 msgstr "Languages"
 
-#: translations.html
 msgid "اللغات المعالجة:"
 msgstr "Processed languages:"
 
 msgid "اللغة"
 msgstr "Language"
 
-#: system_settings.html
 msgid "اللغة الافتراضية"
 msgstr "Default language"
 
-#: share_execution.html
 msgid "اللغة:"
 msgstr "Language:"
 
-#: settings.html
 msgid "المالديف ("
-msgstr ""
+msgstr "Maldives ("
 
 msgid "المالديف (Indian/Maldives)"
 msgstr "Maldives (Indian/Maldives)"
 
-#: notifications.html
 msgid "المتصفح"
 msgstr "Browser"
 
-#: admin/panel.html
 msgid "المتغيرات المتاحة"
 msgstr "Available variables"
 
-#: settings.html
 msgid "المحيط الأطلسي"
 msgstr "Atlantic"
 
-#: settings.html
 msgid "المحيط الهندي"
 msgstr "Indian Ocean"
 
-#: admin/panel.html
 msgid "المدراء"
 msgstr "Admins"
 
-#: admin/users.html
 msgid "المدير يمكنه الوصول للوحة تحكم الإدارة"
 msgstr "Admin can access admin control panel"
 
-#: notifications.html
+msgid "المرسل إلى تيليجرام."
+msgstr "Sent to Telegram."
+
+msgid "المرفقات"
+msgstr "Attachments"
+
 msgid "المساعد"
 msgstr "Assistant"
 
-#: login.html
 msgid "المساعد الشخصي الذكي"
 msgstr "Smart Personal Assistant"
 
-#: assistants.html
 msgid "المساعد غير موجود"
 msgstr "Assistant not found"
 
 msgid "المساعدين"
 msgstr "Assistants"
 
-#: assistants.html
 msgid "المساعدين -"
 msgstr "Assistants -"
 
-#: assistants.html
 msgid "المساعدين الافتراضيين"
 msgstr "Default assistants"
 
-#: admin/panel.html
+msgid "المساعدين هم وكلاء أذكياء يساعدونك في إدارة المهام وتشغيل السكريبتات تلقائياً."
+msgstr "Assistants are smart agents that help you manage tasks and run scripts automatically."
+
 msgid "المستخدمين"
 msgstr "Users"
 
 msgid "الملف الشخصي"
 msgstr "Profile"
 
+msgid "المميزات الرئيسية"
+msgstr "Key Features"
+
 msgid "المنطقة الزمنية"
 msgstr "Timezone"
 
-#: system_settings.html
 msgid "المنطقة الزمنية الافتراضية"
 msgstr "Default timezone"
 
 msgid "المنفذ"
 msgstr "Port"
 
-#: system_settings.html
 msgid "المنفذ ("
 msgstr "Port ("
 
-#: admin/email_settings.html
 msgid "المنفذ 587 مع"
 msgstr "Port 587 with"
 
 msgid "المهام"
 msgstr "Tasks"
 
-#: tasks.html
 msgid "المهام -"
 msgstr "Tasks -"
 
-#: notifications.html
 msgid "المهمة"
 msgstr "Task"
 
-#: dashboard.html
 msgid "المهمة غير موجودة"
 msgstr "Task not found"
 
-#: share_execution.html
+msgid "الناتج"
+msgstr "Output"
+
 msgid "الناتج ("
 msgstr "Output ("
 
-#: translations.html
 msgid "النص الأصلي"
 msgstr "Original text"
 
-#: dashboard.html
 msgid "الوصف"
 msgstr "Description"
 
-#: executions.html
+msgid "الوصول للوحة التحكم"
+msgstr "Access Dashboard"
+
+msgid "انتقل إلى صفحة المساعدين وأنشئ مساعداً جديداً لمهامك."
+msgstr "Go to assistants page and create a new assistant for your tasks."
+
 msgid "انتهى الوقت"
 msgstr "Timeout"
-
-#: settings.html
 msgid "باريس ("
-msgstr ""
+msgstr "Paris ("
 
 msgid "باريس (Europe/Paris)"
 msgstr "Paris (Europe/Paris)"
 
-#: settings.html
 msgid "بانكوك ("
-msgstr ""
+msgstr "Bangkok ("
 
 msgid "بانكوك (Asia/Bangkok)"
 msgstr "Bangkok (Asia/Bangkok)"
 
-#: assistants.html
 msgid "بجدول زمني"
 msgstr "Scheduled"
 
 msgid "بحث"
 msgstr "Search"
 
-#: executions.html
 msgid "بدأ"
 msgstr "Started"
 
-#: executions.html
 msgid "بداية التنفيذ:"
 msgstr "Start time:"
 
-#: assistants.html
 msgid "بدون جدولة"
 msgstr "Without schedule"
 
-#: scripts.html
 msgid "بدون مساعد"
 msgstr "Without assistant"
 
-#: settings.html
 msgid "برلين ("
-msgstr ""
+msgstr "Berlin ("
 
 msgid "برلين (Europe/Berlin)"
 msgstr "Berlin (Europe/Berlin)"
 
-#: settings.html
 msgid "بروكسل ("
-msgstr ""
+msgstr "Brussels ("
 
 msgid "بروكسل (Europe/Brussels)"
 msgstr "Brussels (Europe/Brussels)"
 
-#: notifications.html
 msgid "بريد"
 msgstr "Email"
 
-#: notifications.html
 msgid "بريد إلكتروني"
 msgstr "Email"
 
 msgid "بريد الاختبار"
 msgstr "Test Email"
 
-#: settings.html
 msgid "بريسبان ("
-msgstr ""
+msgstr "Brisbane ("
 
 msgid "بريسبان (Australia/Brisbane)"
 msgstr "Brisbane (Australia/Brisbane)"
 
-#: settings.html
+msgid "بعد تسجيل الدخول، سترى لوحة التحكم مع إحصائيات سريعة والأنشطة الأخيرة."
+msgstr "After logging in, you'll see the dashboard with quick statistics and recent activities."
+
 msgid "بغداد ("
-msgstr ""
+msgstr "Baghdad ("
 
 msgid "بغداد (Asia/Baghdad)"
 msgstr "Baghdad (Asia/Baghdad)"
 
-#: settings.html
 msgid "بنما ("
-msgstr ""
+msgstr "Panama ("
 
 msgid "بنما (America/Panama)"
 msgstr "Panama (America/Panama)"
 
-#: base.html
 msgid "بواسطة"
 msgstr "By"
 
-#: settings.html
 msgid "بوخارست ("
-msgstr ""
+msgstr "Bucharest ("
 
 msgid "بوخارست (Europe/Bucharest)"
 msgstr "Bucharest (Europe/Bucharest)"
 
-#: settings.html
 msgid "بورت أو برنس ("
-msgstr ""
+msgstr "Port-au-Prince ("
 
 msgid "بورت أو برنس (America/Port-au-Prince)"
 msgstr "Port-au-Prince (America/Port-au-Prince)"
 
-#: settings.html
 msgid "بوغوتا ("
-msgstr ""
+msgstr "Bogota ("
 
 msgid "بوغوتا (America/Bogota)"
 msgstr "Bogota (America/Bogota)"
 
-#: settings.html
-msgid "بوينس آيرس\n                                ("
-msgstr ""
+msgid "بوينس آيرس("
+msgstr "Buenos Aires ("
 
 msgid "بوينس آيرس (America/Argentina/Buenos_Aires)"
 msgstr "Buenos Aires (America/Argentina/Buenos_Aires)"
 
-#: settings.html
 msgid "بيرث ("
-msgstr ""
+msgstr "Perth ("
 
 msgid "بيرث (Australia/Perth)"
 msgstr "Perth (Australia/Perth)"
 
-#: settings.html
 msgid "بيروت ("
-msgstr ""
+msgstr "Beirut ("
 
 msgid "بيروت (Asia/Beirut)"
 msgstr "Beirut (Asia/Beirut)"
 
-#: admin/email_settings.html
 msgid "تأكد من تفعيل"
 msgstr "Make sure to enable"
 
 msgid "تأكيد"
 msgstr "Confirm"
 
-#: admin/assistant_types.html
 msgid "تاريخ الإنشاء"
 msgstr "Creation date"
 
 msgid "تاريخ التسجيل"
 msgstr "Registration Date"
 
-#: dashboard.html
 msgid "تاريخ ووقت الاستحقاق"
 msgstr "Due date and time"
 
-#: settings.html
 msgid "تايبيه ("
-msgstr ""
+msgstr "Taipei ("
 
 msgid "تايبيه (Asia/Taipei)"
 msgstr "Taipei (Asia/Taipei)"
 
-#: translations.html
+msgid "تتبع التقدم"
+msgstr "Track Progress"
+
+msgid "تتبع جميع مهامك مع إدارة المهام الذكية."
+msgstr "Track all your tasks with smart task management."
+
+msgid "تحديد الجدول"
+msgstr "Set Schedule"
+
 msgid "تحرير الترجمة"
 msgstr "Edit translation"
 
-#: login.html
 msgid "تحقق"
 msgstr "Verify"
+
+msgid "تحقق من سجل التنفيذ والسجلات لمعرفة المخرجات وحالة كل تشغيل."
+msgstr "Check execution log and records to know outputs and status of each run."
 
 msgid "تحميل"
 msgstr "Loading"
 
-#: translations.html
 msgid "تحميل من الملفات"
 msgstr "Load from files"
 
-#: base.html
 msgid "تذكير بمهمة"
-msgstr ""
+msgstr "Task Reminder"
 
-#: translations.html
 msgid "ترجمات"
 msgstr "Translations"
 
-#: translations.html
 msgid "ترجمات جديدة:"
 msgstr "New translations:"
 
-#: translations.html
 msgid "ترجمات محدثة:"
 msgstr "Updated translations:"
 
-#: admin/panel.html
 msgid "ترجمة النظام للغات المختلفة"
 msgstr "System translation to different languages"
 
 msgid "تسجيل الخروج"
 msgstr "Logout"
 
-#: login.html
 msgid "تسجيل الدخول"
 msgstr "Login"
 
-#: login.html
 msgid "تسجيل الدخول -"
 msgstr "Login -"
 
-#: scripts.html
+msgid "تسجيل الدخول عبر تيليجرام"
+msgstr "Login via Telegram"
+
+msgid "تسجيل دخول آمن باستخدام التحقق عبر"
+msgstr "Secure login using verification via"
+
 msgid "تشغيل"
 msgstr "Run"
 
-#: assistants.html
 msgid "تشغيل تلقائي كل"
 msgstr "Auto run every"
 
-#: assistants.html
 msgid "تشغيل سكريبتات"
 msgstr "Script execution"
 
-#: assistants.html
 msgid "تشغيل في تاريخ ووقت محدد"
 msgstr "Run at specific date and time"
 
-#: assistants.html
 msgid "تشغيل مرة واحدة (وقت محدد)"
 msgstr "Run once (specific time)"
 
-#: translations.html
 msgid "تصدير ."
 msgstr "Export ."
 
 msgid "تعديل"
 msgstr "Edit"
 
-#: scripts.html
 msgid "تعديل السكريبت"
 msgstr "Edit script"
 
-#: admin/panel.html
 msgid "تعديل القالب"
 msgstr "Edit template"
 
-#: assistants.html
 msgid "تعديل المساعد"
 msgstr "Edit assistant"
 
-#: admin/users.html
 msgid "تعديل المستخدم"
 msgstr "Edit user"
 
-#: dashboard.html
 msgid "تعديل المهمة"
 msgstr "Edit task"
 
-#: admin/assistant_types.html
 msgid "تعديل نوع المساعد"
 msgstr "Edit assistant type"
 
-#: dashboard.html
 msgid "تعليق"
 msgstr "Hold"
 
-#: settings.html
+msgid "تعيين مساعد"
+msgstr "Assign Assistant"
+
 msgid "تغيير"
 msgstr "Change"
 
-#: settings.html
 msgid "تغيير رقم الهاتف"
 msgstr "Change phone number"
 
-#: settings.html
 msgid "تغيير معرف التليجرام"
 msgstr "Change Telegram ID"
 
-#: notifications.html
 msgid "تفاصيل الإشعار"
 msgstr "Notification details"
 
-#: executions.html
 msgid "تفاصيل التنفيذ"
 msgstr "Execution details"
 
-#: dashboard.html
+msgid "تفاصيل المهمة"
+msgstr "Task Details"
+
 msgid "تفاصيل المهمة (اختياري)"
 msgstr "Task details (optional)"
 
-#: base.html
 msgid "تفعيل الإشعارات"
 msgstr "Enable notifications"
 
-#: base.html
 msgid "تفعيل الوضع الليلي"
 msgstr "Enable dark mode"
 
-#: base.html
 msgid "تفعيل الوضع النهاري"
 msgstr "Enable light mode"
 
-#: assistants.html
 msgid "تكرار (كل فترة)"
 msgstr "Repeat (every period)"
 
-#: admin/panel.html
 msgid "تكوين إعدادات البريد الإلكتروني"
 msgstr "Configure email settings"
 
-#: tasks.html
 msgid "تم إرسال الإشعار"
 msgstr "Notification sent"
 
-#: system_settings.html
 msgid "تم إرسال البريد التجريبي بنجاح! تحقق من صندوق البريد."
 msgstr "Test email sent successfully! Check your inbox."
 
-#: admin/email_settings.html
 msgid "تم إرسال رسالة الاختبار بنجاح"
 msgstr "Test message sent successfully"
 
-#: scripts.html
 msgid "تم إضافة السكريبت بنجاح"
-msgstr ""
+msgstr "Script added successfully"
 
 msgid "تم إضافة السكريبت بنجاح ✓"
 msgstr "Script added successfully ✓"
 
-#: admin/panel.html
 msgid "تم إضافة القالب بنجاح"
 msgstr "Template added successfully"
 
-#: assistants.html
 msgid "تم إضافة المساعد بنجاح"
 msgstr "Assistant added successfully"
 
-#: tasks.html
 msgid "تم إضافة المهمة بنجاح"
-msgstr ""
+msgstr "Task added successfully"
 
 msgid "تم إضافة المهمة بنجاح ✓"
 msgstr "Task added successfully ✓"
 
-#: tasks.html
 msgid "تم إكمال المهمة بنجاح"
-msgstr ""
+msgstr "Task completed successfully"
 
 msgid "تم إكمال المهمة بنجاح ✓"
 msgstr "Task completed successfully ✓"
 
-#: tasks.html
 msgid "تم إلغاء المهمة"
 msgstr "Task cancelled"
 
-#: notifications.html
 msgid "تم الإرسال"
 msgstr "Sent"
 
-#: scripts.html
+msgid "تم الإنجاز"
+msgstr "Completed"
+
 msgid "تم الإنشاء"
 msgstr "Created"
 
-#: translations.html
 msgid "تم الاستيراد:"
 msgstr "Imported:"
 
-#: translations.html
 msgid "تم التخطي -"
 msgstr "Skipped -"
 
-#: scripts.html
 msgid "تم تحديث السكريبت بنجاح"
-msgstr ""
+msgstr "Script updated successfully"
 
 msgid "تم تحديث السكريبت بنجاح ✓"
 msgstr "Script updated successfully ✓"
 
-#: admin/panel.html
+msgid "تم تحديث الصورة بنجاح"
+msgstr "Image updated successfully"
+
 msgid "تم تحديث القالب بنجاح"
 msgstr "Template updated successfully"
 
-#: assistants.html
 msgid "تم تحديث المساعد بنجاح"
 msgstr "Assistant updated successfully"
 
-#: tasks.html
 msgid "تم تحديث المهمة بنجاح"
-msgstr ""
+msgstr "Task updated successfully"
 
 msgid "تم تحديث المهمة بنجاح ✓"
 msgstr "Task updated successfully ✓"
 
-#: translations.html
 msgid "تم تحميل الترجمات:"
 msgstr "Translations loaded:"
 
-#: scripts.html
 msgid "تم تشغيل السكريبت بنجاح"
-msgstr ""
+msgstr "Script ran successfully"
 
 msgid "تم تشغيل السكريبت بنجاح ✓"
 msgstr "Script ran successfully ✓"
 
-#: settings.html
 msgid "تم تغيير رقم الهاتف بنجاح"
 msgstr "Phone number changed successfully"
 
-#: settings.html
 msgid "تم تغيير معرف التليجرام بنجاح"
 msgstr "Telegram ID changed successfully"
 
-#: executions.html
 msgid "تم تفعيل الإشعارات بنجاح"
-msgstr ""
+msgstr "Notifications enabled successfully"
 
 msgid "تم تفعيل الإشعارات بنجاح ✓"
 msgstr "Notifications enabled successfully ✓"
 
-#: scripts.html
 msgid "تم حذف السكريبت"
-msgstr ""
+msgstr "Script deleted"
 
 msgid "تم حذف السكريبت ✓"
 msgstr "Script deleted ✓"
 
-#: admin/panel.html
 msgid "تم حذف القالب بنجاح"
 msgstr "Template deleted successfully"
 
-#: assistants.html
 msgid "تم حذف المساعد"
 msgstr "Assistant deleted"
 
-#: tasks.html
 msgid "تم حذف المهمة"
-msgstr ""
+msgstr "Task deleted"
 
 msgid "تم حذف المهمة ✓"
 msgstr "Task deleted ✓"
 
-#: system_settings.html
 msgid "تم حفظ إعدادات البريد الإلكتروني"
 msgstr "Email settings saved"
 
-#: system_settings.html
 msgid "تم حفظ إعدادات التطبيق"
 msgstr "Application settings saved"
 
-#: admin/email_settings.html
 msgid "تم حفظ الإعدادات بنجاح"
 msgstr "Settings saved successfully"
 
-#: settings.html
 msgid "تم حفظ التفضيلات بنجاح"
 msgstr "Preferences saved successfully"
 
-#: settings.html
 msgid "تم حفظ الملف الشخصي بنجاح"
 msgstr "Profile saved successfully"
 
-#: translations.html
+msgid "تم نسخ الرابط!"
+msgstr "Link copied!"
+
 msgid "تمت المزامنة:"
 msgstr "Synchronized:"
 
-#: share_execution.html
 msgid "تمت المشاركة عبر"
 msgstr "Shared via"
 
-#: assistants.html
 msgid "تنبيه بالمهام"
 msgstr "Task notifications"
 
-#: settings.html
+msgid "تنفيذ السكريبتات"
+msgstr "Script Execution"
+
+msgid "تنفيذ سكريبتات مخصصة عن بُعد مع إمكانيات كاملة للتسجيل والمراقبة."
+msgstr "Execute custom scripts remotely with full logging and monitoring capabilities."
+
 msgid "تورونتو ("
-msgstr ""
+msgstr "Toronto ("
 
 msgid "تورونتو (America/Toronto)"
 msgstr "Toronto (America/Toronto)"
 
-#: settings.html
 msgid "تونس ("
-msgstr ""
+msgstr "Tunis ("
 
 msgid "تونس (Africa/Tunis)"
 msgstr "Tunis (Africa/Tunis)"
 
-#: notifications.html
 msgid "تيليجرام"
 msgstr "Telegram"
 
-#: notifications.html
 msgid "ثانية"
 msgstr "second"
 
-#: admin/email_settings.html
 msgid "جاري الإرسال..."
 msgstr "Sending..."
 
-#: notifications.html
 msgid "جاري التحميل..."
 msgstr "Loading..."
 
-#: scripts.html
 msgid "جاري الحفظ..."
 msgstr "Saving..."
 
-#: scripts.html
 msgid "جاري تشغيل السكريبت..."
 msgstr "Running script..."
 
-#: settings.html
 msgid "جاكرتا ("
-msgstr ""
+msgstr "Jakarta ("
 
 msgid "جاكرتا (Asia/Jakarta)"
 msgstr "Jakarta (Asia/Jakarta)"
 
-#: settings.html
 msgid "جامايكا ("
-msgstr ""
+msgstr "Jamaica ("
 
 msgid "جامايكا (America/Jamaica)"
 msgstr "Jamaica (America/Jamaica)"
 
-#: translations.html
 msgid "جديد،"
 msgstr "New,"
 
-#: notifications.html
 msgid "جميع الحالات"
 msgstr "All statuses"
 
-#: notifications.html
 msgid "جميع القنوات"
 msgstr "All channels"
 
-#: settings.html
 msgid "جوهانسبرج ("
-msgstr ""
+msgstr "Johannesburg ("
 
 msgid "جوهانسبرج (Africa/Johannesburg)"
 msgstr "Johannesburg (Africa/Johannesburg)"
 
-#: settings.html
 msgid "جيبوتي ("
-msgstr ""
+msgstr "Djibouti ("
 
 msgid "جيبوتي (Africa/Djibouti)"
 msgstr "Djibouti (Africa/Djibouti)"
 
-#: admin/panel.html
 msgid "حالة التنفيذ"
 msgstr "Execution status"
 
-#: translations.html
+msgid "حجم الصورة يجب أن لا يتجاوز 2"
+msgstr "Image size must not exceed 2"
+
 msgid "حدث خطأ"
 msgstr "An error occurred"
 
-#: translations.html
+msgid "حدث خطأ أثناء حذف المرفق"
+msgstr "An error occurred while deleting attachment"
+
+msgid "حدث خطأ أثناء رفع الملف"
+msgstr "An error occurred while uploading file"
+
 msgid "حدث خطأ في الإضافة"
 msgstr "An error occurred while adding"
 
-#: admin/panel.html
 msgid "حدث خطأ في الاتصال"
 msgstr "A connection error occurred"
 
-#: translations.html
 msgid "حدث خطأ في الاستيراد"
 msgstr "An error occurred during import"
 
-#: translations.html
 msgid "حدث خطأ في الحذف"
 msgstr "An error occurred while deleting"
 
-#: translations.html
 msgid "حدث خطأ في الحفظ"
 msgstr "An error occurred while saving"
 
-#: translations.html
 msgid "حدث خطأ في المزامنة"
 msgstr "An error occurred during synchronization"
-
-#: dashboard.html
 msgid "حدث خطأ في تحديث المهمة"
 msgstr "An error occurred updating the task"
 
-#: notifications.html
 msgid "حدث خطأ في تحميل الإشعارات"
 msgstr "An error occurred loading notifications"
 
-#: dashboard.html
 msgid "حدث خطأ في تحميل البيانات"
 msgstr "An error occurred loading data"
 
-#: translations.html
 msgid "حدث خطأ في تحميل الترجمات"
 msgstr "An error occurred loading translations"
 
-#: translations.html
 msgid "حدث خطأ في تحميل الترجمات من الملفات"
 msgstr "An error occurred loading translations from files"
 
-#: executions.html
 msgid "حدث خطأ في تحميل السجل"
 msgstr "An error occurred loading log"
 
-#: scripts.html
 msgid "حدث خطأ في تحميل السكريبت"
-msgstr ""
+msgstr "An error occurred loading script"
 
-#: scripts.html
 msgid "حدث خطأ في تحميل السكريبتات"
 msgstr "An error occurred loading scripts"
 
-#: admin/panel.html
 msgid "حدث خطأ في تحميل القوالب"
 msgstr "An error occurred loading templates"
 
-#: assistants.html
 msgid "حدث خطأ في تحميل المساعد"
 msgstr "An error occurred loading assistant"
 
-#: assistants.html
 msgid "حدث خطأ في تحميل المساعدين"
 msgstr "An error occurred loading assistants"
 
-#: tasks.html
 msgid "حدث خطأ في تحميل المهام"
 msgstr "An error occurred loading tasks"
 
-#: dashboard.html
 msgid "حدث خطأ في تحميل المهمة"
 msgstr "An error occurred loading the task"
 
-#: scripts.html
 msgid "حدث خطأ في تشغيل السكريبت"
 msgstr "An error occurred running the script"
 
-#: dashboard.html
 msgid "حدث خطأ في تعليق المهمة"
 msgstr "An error occurred holding the task"
 
-#: executions.html
 msgid "حدث خطأ في تفعيل الإشعارات"
 msgstr "An error occurred enabling notifications"
 
-#: scripts.html
 msgid "حدث خطأ في حذف السكريبت"
 msgstr "An error occurred deleting script"
 
-#: admin/panel.html
 msgid "حدث خطأ في حذف القالب"
 msgstr "An error occurred deleting template"
 
-#: assistants.html
 msgid "حدث خطأ في حذف المساعد"
 msgstr "An error occurred deleting assistant"
 
-#: dashboard.html
 msgid "حدث خطأ في حذف المهمة"
 msgstr "An error occurred deleting the task"
 
-#: scripts.html
+msgid "حدث خطأ في رفع الصورة"
+msgstr "An error occurred uploading image"
+
 msgid "حدث خطأ:"
-msgstr ""
+msgstr "An error occurred:"
+
+msgid "حدد متى يجب أن يعمل المساعد: متكرر (كل"
+msgstr "Set when the assistant should work: recurring (every"
 
 msgid "حذف"
 msgstr "Delete"
 
-#: tasks.html
 msgid "حذف نهائي"
 msgstr "Permanently delete"
 
@@ -1682,11 +1540,9 @@ msgstr "Save"
 msgid "حفظ إعدادات البريد"
 msgstr "Save Email Settings"
 
-#: admin/email_settings.html
 msgid "حفظ الإعدادات"
 msgstr "Save settings"
 
-#: scripts.html
 msgid "حفظ التعديلات"
 msgstr "Save changes"
 
@@ -1696,7 +1552,9 @@ msgstr "Save Changes"
 msgid "حفظ التفضيلات"
 msgstr "Save Preferences"
 
-#: system_settings.html
+msgid "حول -"
+msgstr "About -"
+
 msgid "خادم"
 msgstr "Server"
 
@@ -1706,358 +1564,326 @@ msgstr "SMTP Server"
 msgid "خطأ"
 msgstr "Error"
 
-#: system_settings.html
 msgid "خطأ غير معروف"
 msgstr "Unknown error"
 
-#: settings.html
 msgid "خطأ في تحديد اللغة"
 msgstr "Error selecting language"
 
-#: settings.html
 msgid "خطأ:"
 msgstr "Error:"
 
-#: settings.html
 msgid "دار السلام ("
-msgstr ""
+msgstr "Dar es Salaam ("
 
 msgid "دار السلام (Africa/Dar_es_Salaam)"
 msgstr "Dar es Salaam (Africa/Dar_es_Salaam)"
 
-#: settings.html
 msgid "داروين ("
-msgstr ""
+msgstr "Darwin ("
 
 msgid "داروين (Australia/Darwin)"
 msgstr "Darwin (Australia/Darwin)"
 
-#: settings.html
 msgid "دبلن ("
-msgstr ""
+msgstr "Dublin ("
 
 msgid "دبلن (Europe/Dublin)"
 msgstr "Dublin (Europe/Dublin)"
 
-#: settings.html
 msgid "دبي ("
 msgstr "Dubai ("
 
 msgid "دبي (Asia/Dubai)"
 msgstr "Dubai (Asia/Dubai)"
 
-#: notifications.html
+msgid "دعم كامل للغة العربية والإنجليزية مع تخطيطات"
+msgstr "Full support for Arabic and English with layouts"
+
+msgid "دعم متعدد اللغات"
+msgstr "Multi-language Support"
+
 msgid "دقيقة"
 msgstr "Minute"
 
-#: notifications.html
 msgid "دقيقتين"
-msgstr ""
+msgstr "Two minutes"
 
-#: settings.html
 msgid "دكا ("
-msgstr ""
+msgstr "Dhaka ("
 
 msgid "دكا (Asia/Dhaka)"
 msgstr "Dhaka (Asia/Dhaka)"
 
-#: settings.html
 msgid "دمشق ("
-msgstr ""
+msgstr "Damascus ("
 
 msgid "دمشق (Asia/Damascus)"
 msgstr "Damascus (Asia/Damascus)"
 
-#: settings.html
 msgid "دنفر ("
-msgstr ""
+msgstr "Denver ("
 
 msgid "دنفر (America/Denver)"
 msgstr "Denver (America/Denver)"
 
-#: dashboard.html
-msgid "رائع! لا توجد مهام مُتأخرة"
+msgid "رائع! لا توجد مهام معلقة"
 msgstr "Great! No pending tasks"
 
-#: share_not_found.html
+msgid "رائع! لا توجد مهام مُتأخرة"
+msgstr "Great! No overdue tasks"
+
+msgid "رابط المشاركة"
+msgstr "Share Link"
+
 msgid "ربما انتهت صلاحية المشاركة."
 msgstr "The share may have expired."
 
-#: notifications.html
 msgid "رسالة الخطأ"
 msgstr "Error message"
 
-#: settings.html
 msgid "رقم المستخدم"
 msgstr "User ID"
 
 msgid "رقم الهاتف"
 msgstr "Phone Number"
 
-#: settings.html
 msgid "رقم الهاتف الجديد"
 msgstr "New phone number"
 
-#: login.html
 msgid "رمز التحقق"
 msgstr "Verification code"
 
-#: translations.html
 msgid "رمز اللغة ("
 msgstr "Language code ("
 
-#: translations.html
 msgid "رمز اللغة مثل:"
 msgstr "Language code such as:"
 
-#: admin/panel.html
 msgid "روابط سريعة"
 msgstr "Quick links"
 
-#: settings.html
 msgid "روما ("
-msgstr ""
+msgstr "Rome ("
 
 msgid "روما (Europe/Rome)"
 msgstr "Rome (Europe/Rome)"
 
-#: settings.html
 msgid "ريكيافيك ("
-msgstr ""
+msgstr "Reykjavik ("
 
 msgid "ريكيافيك (Atlantic/Reykjavik)"
 msgstr "Reykjavik (Atlantic/Reykjavik)"
 
-#: settings.html
 msgid "زيورخ ("
-msgstr ""
+msgstr "Zurich ("
 
 msgid "زيورخ (Europe/Zurich)"
 msgstr "Zurich (Europe/Zurich)"
 
-#: notifications.html
 msgid "ساعة"
 msgstr "Hour"
 
-#: notifications.html
-msgid "ساعتين"
-msgstr ""
+msgid "ساعة) أو مرة واحدة في وقت محدد."
+msgstr "hour) or once at a specific time."
 
-#: settings.html
+msgid "ساعتين"
+msgstr "Two hours"
+
 msgid "سان خوسيه ("
-msgstr ""
+msgstr "San Jose ("
 
 msgid "سان خوسيه (America/Costa_Rica)"
 msgstr "San Jose (America/Costa_Rica)"
 
-#: settings.html
 msgid "سانتياغو ("
-msgstr ""
+msgstr "Santiago ("
 
 msgid "سانتياغو (America/Santiago)"
 msgstr "Santiago (America/Santiago)"
 
-#: settings.html
 msgid "ساو باولو ("
-msgstr ""
+msgstr "Sao Paulo ("
 
 msgid "ساو باولو (America/Sao_Paulo)"
 msgstr "Sao Paulo (America/Sao_Paulo)"
 
-#: notifications.html
 msgid "سجل الإشعارات"
 msgstr "Notifications log"
 
-#: notifications.html
 msgid "سجل الإشعارات -"
 msgstr "Notifications Log -"
 
 msgid "سجل التنفيذ"
 msgstr "Execution Log"
 
-#: executions.html
 msgid "سجل التنفيذ -"
 msgstr "Execution Log -"
 
-#: executions.html
 msgid "سجل تنفيذ السكريبتات"
 msgstr "Script execution log"
 
-#: dashboard.html
 msgid "سكريبت محذوف"
 msgstr "Deleted script"
 
-#: admin/assistant_types.html
 msgid "سكريبتات"
 msgstr "Scripts"
 
-#: settings.html
 msgid "سنغافورة ("
-msgstr ""
+msgstr "Singapore ("
 
 msgid "سنغافورة (Asia/Singapore)"
 msgstr "Singapore (Asia/Singapore)"
 
-#: admin/email_settings.html
+msgid "سواء كنت محترفاً مشغولاً، أو مطوراً يدير مشاريع متعددة، أو شخصاً يريد متابعة روتينه اليومي، يوفر"
+msgstr "Whether you're a busy professional, a developer managing multiple projects, or someone who wants to track their daily routine, it provides"
+
 msgid "سيتم إرسال رسالة اختبار لهذا البريد"
 msgstr "A test message will be sent to this email"
 
-#: translations.html
 msgid "سيتم تحديث الترجمات الموجودة وإضافة الجديدة"
 msgstr "Existing translations will be updated and new ones added"
 
-#: translations.html
 msgid "سيتم تحميل الترجمات من ملفات ."
 msgstr "Translations will be loaded from . files"
 
-#: assistants.html
 msgid "سيتم تنفيذ السكريبتات المرتبطة بهذا المساعد تلقائياً"
 msgstr "Scripts linked to this assistant will be executed automatically"
 
-#: assistants.html
 msgid "سيتم تنفيذ السكريبتات مرة واحدة في الوقت المحدد"
 msgstr "Scripts will be executed once at the specified time"
 
-#: settings.html
 msgid "سيدني ("
-msgstr ""
+msgstr "Sydney ("
 
 msgid "سيدني (Australia/Sydney)"
 msgstr "Sydney (Australia/Sydney)"
 
-#: settings.html
 msgid "سيول ("
-msgstr ""
+msgstr "Seoul ("
 
 msgid "سيول (Asia/Seoul)"
 msgstr "Seoul (Asia/Seoul)"
 
-#: settings.html
+msgid "شارك هذه المهمة مع الآخرين عبر رابط عام"
+msgstr "Share this task with others via public link"
+
 msgid "شرق وجنوب شرق آسيا"
 msgstr "East & Southeast Asia"
 
-#: settings.html
+msgid "شغّل السكريبتات يدوياً في أي وقت، أو اربطها بمساعد سكريبتات للتنفيذ المجدول."
+msgstr "Run scripts manually anytime, or link them to a script assistant for scheduled execution."
+
 msgid "شنغهاي ("
-msgstr ""
+msgstr "Shanghai ("
 
 msgid "شنغهاي (Asia/Shanghai)"
 msgstr "Shanghai (Asia/Shanghai)"
 
-#: assistants.html
 msgid "شهر"
 msgstr "Month"
 
-#: assistants.html
 msgid "شهرياً"
 msgstr "Monthly"
 
-#: settings.html
 msgid "شيكاغو ("
-msgstr ""
+msgstr "Chicago ("
 
 msgid "شيكاغو (America/Chicago)"
 msgstr "Chicago (America/Chicago)"
 
-#: settings.html
 msgid "طرابلس ("
-msgstr ""
+msgstr "Tripoli ("
 
 msgid "طرابلس (Africa/Tripoli)"
 msgstr "Tripoli (Africa/Tripoli)"
 
-#: settings.html
 msgid "طشقند ("
-msgstr ""
+msgstr "Tashkent ("
 
 msgid "طشقند (Asia/Tashkent)"
 msgstr "Tashkent (Asia/Tashkent)"
 
-#: settings.html
 msgid "طهران ("
-msgstr ""
+msgstr "Tehran ("
 
 msgid "طهران (Asia/Tehran)"
 msgstr "Tehran (Asia/Tehran)"
 
-#: settings.html
 msgid "طوكيو ("
-msgstr ""
+msgstr "Tokyo ("
 
 msgid "طوكيو (Asia/Tokyo)"
 msgstr "Tokyo (Asia/Tokyo)"
 
-#: dashboard.html
 msgid "عالية"
 msgstr "High"
 
-#: notifications.html
 msgid "عرض التفاصيل"
 msgstr "View details"
 
-#: dashboard.html
 msgid "عرض الكل"
 msgstr "View all"
 
-#: notifications.html
+msgid "عرض النتائج"
+msgstr "View Results"
+
+msgid "عرض بطاقات"
+msgstr "Card View"
+
 msgid "عرض جميع الإشعارات المرسلة"
 msgstr "View all sent notifications"
 
-#: executions.html
+msgid "عرض قائمة"
+msgstr "List View"
+
 msgid "عرض نتائج تشغيل جميع السكريبتات"
 msgstr "View execution results of all scripts"
 
-#: dashboard.html
+msgid "علّم المهام كمكتملة، اعرض المهام المتأخرة، أو ألغِ المهام التي لم تعد بحاجة إليها."
+msgstr "Mark tasks as completed, view overdue tasks, or cancel tasks you no longer need."
+
 msgid "عمليات حديثة"
 msgstr "Recent operations"
 
-#: dashboard.html
 msgid "عملية تنفيذ"
 msgstr "Execution operation"
 
-#: settings.html
 msgid "عمّان ("
-msgstr ""
+msgstr "Amman ("
 
 msgid "عمّان (Asia/Amman)"
 msgstr "Amman (Asia/Amman)"
 
-#: system_settings.html
 msgid "عنوان البريد الإلكتروني"
 msgstr "Email address"
 
-#: system_settings.html
 msgid "عنوان المرسل"
 msgstr "Sender address"
 
-#: dashboard.html
 msgid "عنوان المهمة"
 msgstr "Task title"
 
-#: settings.html
 msgid "غزة ("
-msgstr ""
+msgstr "Gaza ("
 
 msgid "غزة (Asia/Gaza)"
 msgstr "Gaza (Asia/Gaza)"
 
-#: settings.html
 msgid "غوام ("
-msgstr ""
+msgstr "Guam ("
 
 msgid "غوام (Pacific/Guam)"
 msgstr "Guam (Pacific/Guam)"
 
-#: translations.html
 msgid "غير مترجم"
 msgstr "Not translated"
 
-#: share_not_found.html
 msgid "غير موجود -"
 msgstr "Not Found -"
 
-#: settings.html
 msgid "فانكوفر ("
-msgstr ""
+msgstr "Vancouver ("
 
 msgid "فانكوفر (America/Vancouver)"
 msgstr "Vancouver (America/Vancouver)"
@@ -2065,298 +1891,284 @@ msgstr "Vancouver (America/Vancouver)"
 msgid "فشل"
 msgstr "Failed"
 
-#: admin/email_settings.html
 msgid "فشل إرسال الرسالة"
 msgstr "Failed to send message"
 
-#: system_settings.html
+msgid "فشل إلغاء المشاركة"
+msgstr "Failed to unshare"
+
+msgid "فشل إلغاء المهمة"
+msgstr "Failed to cancel task"
+
+msgid "فشل إنشاء رابط المشاركة"
+msgstr "Failed to create share link"
+
 msgid "فشل الإرسال:"
 msgstr "Sending failed:"
 
-#: settings.html
 msgid "فشل التغيير"
 msgstr "Change failed"
 
-#: settings.html
 msgid "فشل الحفظ"
 msgstr "Save failed"
 
-#: scripts.html
+msgid "فشل تحديث المهمة"
+msgstr "Failed to update task"
+
 msgid "فشل تشغيل السكريبت:"
 msgstr "Script execution failed:"
 
-#: scripts.html
+msgid "فشل حذف المرفق"
+msgstr "Failed to delete attachment"
+
+msgid "فشل رفع الصورة"
+msgstr "Failed to upload image"
+
+msgid "فشل رفع الملف"
+msgstr "Failed to upload file"
+
 msgid "فشل في حفظ السكريبت"
 msgstr "Failed to save script"
 
-#: assistants.html
 msgid "فشل في حفظ المساعد"
 msgstr "Failed to save assistant"
 
-#: dashboard.html
 msgid "فشل في حفظ المهمة"
 msgstr "Failed to save task"
 
-#: admin/email_settings.html
+msgid "فعّل إشعارات المتصفح للتنبيهات الفورية عند استخدام التطبيق."
+msgstr "Enable browser notifications for instant alerts when using the app."
+
 msgid "في إعدادات البريد"
 msgstr "In email settings"
 
-#: translations.html
 msgid "في مجلد"
 msgstr "In folder"
 
-#: system_settings.html
 msgid "في ملف ."
 msgstr "In . file"
 
-#: settings.html
 msgid "فيجي ("
-msgstr ""
+msgstr "Fiji ("
 
 msgid "فيجي (Pacific/Fiji)"
 msgstr "Fiji (Pacific/Fiji)"
 
-#: settings.html
 msgid "فينكس ("
-msgstr ""
+msgstr "Phoenix ("
 
 msgid "فينكس (America/Phoenix)"
 msgstr "Phoenix (America/Phoenix)"
 
-#: settings.html
 msgid "فيينا ("
-msgstr ""
+msgstr "Vienna ("
 
 msgid "فيينا (Europe/Vienna)"
 msgstr "Vienna (Europe/Vienna)"
-
-#: assistants.html
 msgid "قالب الإشعار"
 msgstr "Notification template"
 
-#: settings.html
 msgid "قطر ("
-msgstr ""
+msgstr "Qatar ("
 
 msgid "قطر (Asia/Qatar)"
 msgstr "Qatar (Asia/Qatar)"
 
-#: executions.html
 msgid "قم بتشغيل سكريبت لعرض النتائج هنا"
 msgstr "Run a script to view results here"
 
-#: admin/panel.html
 msgid "قوالب الإشعارات"
 msgstr "Notification templates"
 
-#: tasks.html
 msgid "قيد الانتظار"
 msgstr "Pending"
 
-#: executions.html
 msgid "قيد التشغيل"
 msgstr "Running"
 
-#: dashboard.html
 msgid "قيد التنفيذ"
-msgstr ""
+msgstr "In Progress"
 
-#: settings.html
 msgid "كابول ("
-msgstr ""
+msgstr "Kabul ("
 
 msgid "كابول (Asia/Kabul)"
 msgstr "Kabul (Asia/Kabul)"
 
-#: settings.html
 msgid "كاتماندو ("
-msgstr ""
+msgstr "Kathmandu ("
 
 msgid "كاتماندو (Asia/Kathmandu)"
 msgstr "Kathmandu (Asia/Kathmandu)"
 
-#: settings.html
 msgid "كاراكاس ("
-msgstr ""
+msgstr "Caracas ("
 
 msgid "كاراكاس (America/Caracas)"
 msgstr "Caracas (America/Caracas)"
 
-#: settings.html
 msgid "كراتشي ("
-msgstr ""
+msgstr "Karachi ("
 
 msgid "كراتشي (Asia/Karachi)"
 msgstr "Karachi (Asia/Karachi)"
 
-#: assistants.html
 msgid "كل دقيقة"
 msgstr "Every minute"
 
-#: assistants.html
 msgid "كل ساعة"
 msgstr "Every hour"
 
 msgid "كلمة المرور"
 msgstr "Password"
 
-#: settings.html
 msgid "كمبالا ("
-msgstr ""
+msgstr "Kampala ("
 
 msgid "كمبالا (Africa/Kampala)"
 msgstr "Kampala (Africa/Kampala)"
 
-#: settings.html
 msgid "كوالالمبور ("
-msgstr ""
+msgstr "Kuala Lumpur ("
 
 msgid "كوالالمبور (Asia/Kuala_Lumpur)"
 msgstr "Kuala Lumpur (Asia/Kuala_Lumpur)"
 
-#: settings.html
 msgid "كولكاتا ("
-msgstr ""
+msgstr "Kolkata ("
 
 msgid "كولكاتا (Asia/Kolkata)"
 msgstr "Kolkata (Asia/Kolkata)"
 
-#: settings.html
 msgid "كولومبو ("
-msgstr ""
+msgstr "Colombo ("
 
 msgid "كولومبو (Asia/Colombo)"
 msgstr "Colombo (Asia/Colombo)"
 
-#: system_settings.html
 msgid "كيفية إنشاء بوت"
 msgstr "How to create a bot"
 
-#: settings.html
+msgid "كيفية استخدام"
+msgstr "How to Use"
+
+msgid "كيفية الاستخدام"
+msgstr "How to Use"
+
+msgid "كيفية الاستخدام -"
+msgstr "How to Use -"
+
 msgid "كييف ("
-msgstr ""
+msgstr "Kiev ("
 
 msgid "كييف (Europe/Kiev)"
 msgstr "Kiev (Europe/Kiev)"
 
-#: admin/email_settings.html
 msgid "لإرسال البريد الإلكتروني"
 msgstr "To send email"
 
-#: admin/assistant_types.html
 msgid "لا توجد أنواع مساعدين"
 msgstr "No assistant types"
 
-#: notifications.html
 msgid "لا توجد إشعارات"
 msgstr "No notifications"
 
-#: notifications.html
 msgid "لا توجد رسالة"
 msgstr "No message"
 
-#: dashboard.html
 msgid "لا توجد عمليات حديثة"
 msgstr "No recent operations"
 
-#: admin/panel.html
+msgid "لا توجد قوالب"
+msgstr "No templates"
+
 msgid "لا توجد قوالب بعد"
 msgstr "No templates yet"
 
-#: translations.html
 msgid "لا توجد لغات"
 msgstr "No languages"
 
-#: tasks.html
+msgid "لا توجد مرفقات"
+msgstr "No attachments"
+
 msgid "لا توجد مهام"
 msgstr "No tasks"
 
-#: translations.html
 msgid "لا توجد نصوص"
 msgstr "No texts"
 
-#: admin/assistant_types.html
 msgid "لا يمكن الحذف: هناك مساعدين يستخدمون هذا النوع"
 msgstr "Cannot delete: There are assistants using this type"
 
-#: admin/users.html
 msgid "لا يمكنك حذف حسابك الخاص"
 msgstr "You cannot delete your own account"
 
-#: executions.html
+msgid "لا يوجد تفاصيل إضافية"
+msgstr "No additional details"
+
 msgid "لا يوجد سجل تنفيذ"
 msgstr "No execution log"
 
-#: scripts.html
 msgid "لا يوجد سكريبتات"
 msgstr "No scripts"
 
-#: scripts.html
 msgid "لا يوجد كود"
 msgstr "No code"
 
-#: dashboard.html
 msgid "لا يوجد لديك مساعدين بعد!"
 msgstr "You don't have any assistants yet!"
 
-#: executions.html
 msgid "لا يوجد مخرجات أو أخطاء"
 msgstr "No output or errors"
 
-#: assistants.html
 msgid "لا يوجد مساعدين"
 msgstr "No assistants"
 
-#: admin/users.html
 msgid "لا يوجد مستخدمين"
 msgstr "No users"
 
-#: share_execution.html
 msgid "لا يوجد ناتج"
 msgstr "No output"
 
-#: translations.html
 msgid "لاستخراج النصوص من القوالب"
 msgstr "To extract texts from templates"
 
-#: settings.html
 msgid "لاغوس ("
-msgstr ""
+msgstr "Lagos ("
 
 msgid "لاغوس (Africa/Lagos)"
 msgstr "Lagos (Africa/Lagos)"
 
-#: settings.html
+msgid "لتفعيل الإشعارات التلقائية"
+msgstr "To enable automatic notifications"
+
 msgid "لشبونة ("
-msgstr ""
+msgstr "Lisbon ("
 
 msgid "لشبونة (Europe/Lisbon)"
 msgstr "Lisbon (Europe/Lisbon)"
 
-#: scripts.html
 msgid "لغة البرمجة"
 msgstr "Programming language"
 
-#: system_settings.html
 msgid "لـ"
 msgstr "For"
 
 msgid "لـ Gmail استخدم App Password"
 msgstr "For Gmail use App Password"
 
-#: notifications.html
 msgid "لم يتم إرسال أي إشعارات بعد"
 msgstr "No notifications have been sent yet"
 
-#: login.html
 msgid "لم يصلك الرمز؟"
 msgstr "Didn't receive the code?"
 
-#: executions.html
 msgid "لم ينته بعد"
 msgstr "Not finished yet"
 
-#: settings.html
+msgid "لماذا تختار"
+msgstr "Why Choose"
+
 msgid "لندن ("
 msgstr "London ("
 
@@ -2366,489 +2178,443 @@ msgstr "London (Europe/London)"
 msgid "لوحة التحكم"
 msgstr "Dashboard"
 
-#: dashboard.html
 msgid "لوحة التحكم -"
 msgstr "Dashboard -"
 
-#: base.html
 msgid "لوحة تحكم المدير"
 msgstr "Admin Dashboard"
 
-#: settings.html
 msgid "لوس أنجلوس ("
-msgstr ""
+msgstr "Los Angeles ("
 
 msgid "لوس أنجلوس (America/Los_Angeles)"
 msgstr "Los Angeles (America/Los_Angeles)"
 
-#: settings.html
 msgid "ليما ("
-msgstr ""
+msgstr "Lima ("
 
 msgid "ليما (America/Lima)"
 msgstr "Lima (America/Lima)"
 
-#: settings.html
+msgid "ما هو"
+msgstr "What is"
+
 msgid "مابوتو ("
-msgstr ""
+msgstr "Maputo ("
 
 msgid "مابوتو (Africa/Maputo)"
 msgstr "Maputo (Africa/Maputo)"
 
-#: settings.html
 msgid "مانيلا ("
-msgstr ""
+msgstr "Manila ("
 
 msgid "مانيلا (Asia/Manila)"
 msgstr "Manila (Asia/Manila)"
 
-#: tasks.html
 msgid "متأخرة"
 msgstr "Overdue"
 
-#: translations.html
 msgid "مترجم"
 msgstr "Translated"
 
-#: notifications.html
 msgid "متصفح"
 msgstr "Browser"
 
-#: dashboard.html
 msgid "متوسطة"
 msgstr "Medium"
 
-#: scripts.html
 msgid "مثال:"
 msgstr "Example:"
 
-#: admin/panel.html
+msgid "مثال: 25"
+msgstr "Example: 25"
+
 msgid "مثال: تذكير المهام"
 msgstr "Example: Task reminder"
 
-#: assistants.html
 msgid "مثال: مساعد المهام اليومية"
 msgstr "Example: Daily tasks assistant"
 
-#: admin/panel.html
 msgid "محتوى القالب"
 msgstr "Template content"
 
-#: translations.html
 msgid "محدث"
 msgstr "Updated"
 
-#: assistants.html
 msgid "مخصص"
 msgstr "Custom"
 
-#: settings.html
 msgid "مدريد ("
-msgstr ""
+msgstr "Madrid ("
 
 msgid "مدريد (Europe/Madrid)"
 msgstr "Madrid (Europe/Madrid)"
 
-#: admin/users.html
 msgid "مدير"
 msgstr "Admin"
 
-#: admin/users.html
 msgid "مدير النظام"
 msgstr "System administrator"
 
-#: assistants.html
 msgid "مرة واحدة"
 msgstr "Once"
 
-#: scripts.html
 msgid "مرتبط بمساعد"
 msgstr "Linked to assistant"
 
-#: dashboard.html
 msgid "مرحباً بك في"
 msgstr "Welcome to"
 
-#: translations.html
 msgid "مزامنة النصوص"
 msgstr "Synchronize texts"
 
-#: dashboard.html
 msgid "مساعد نشط"
 msgstr "Active assistant"
 
-#: assistants.html
+msgid "مساعدي المهام يذكرونك بالمهام المعلقة، بينما مساعدي السكريبتات يمكنهم تنفيذ أوامر على خوادم بعيدة."
+msgstr "Task assistants remind you of pending tasks, while script assistants can execute commands on remote servers."
+
 msgid "مساعدين السكريبتات"
 msgstr "Script assistants"
 
-#: assistants.html
 msgid "مساعدين المهام"
 msgstr "Task assistants"
 
-#: dashboard.html
 msgid "مساعدين نشطين"
 msgstr "Active assistants"
 
-#: admin/users.html
 msgid "مستخدم"
 msgstr "User"
 
-#: settings.html
 msgid "مسقط ("
-msgstr ""
+msgstr "Muscat ("
 
 msgid "مسقط (Asia/Muscat)"
 msgstr "Muscat (Asia/Muscat)"
 
+msgid "مشاركة"
+msgstr "Share"
+
+msgid "مصادقة آمنة"
+msgstr "Secure Authentication"
+
 msgid "معرف التليجرام"
 msgstr "Telegram ID"
 
-#: settings.html
 msgid "معرف التليجرام الجديد"
 msgstr "New Telegram ID"
 
-#: executions.html
 msgid "معرف التنفيذ:"
 msgstr "Execution ID:"
 
-#: dashboard.html
 msgid "معلق"
-msgstr ""
+msgstr "On Hold"
 
 msgid "معلومات الحساب"
 msgstr "Account Info"
 
-#: settings.html
 msgid "مقديشو ("
-msgstr ""
+msgstr "Mogadishu ("
 
 msgid "مقديشو (Africa/Mogadishu)"
 msgstr "Mogadishu (Africa/Mogadishu)"
 
-#: tasks.html
 msgid "مكتملة"
 msgstr "Completed"
 
-#: settings.html
 msgid "مكسيكو سيتي ("
-msgstr ""
+msgstr "Mexico City ("
 
 msgid "مكسيكو سيتي (America/Mexico_City)"
 msgstr "Mexico City (America/Mexico_City)"
 
-#: admin/email_settings.html
 msgid "ملاحظات"
 msgstr "Notes"
 
-#: settings.html
 msgid "ملبورن ("
-msgstr ""
+msgstr "Melbourne ("
 
 msgid "ملبورن (Australia/Melbourne)"
 msgstr "Melbourne (Australia/Melbourne)"
 
-#: tasks.html
 msgid "ملغاة"
 msgstr "Cancelled"
 
-#: translations.html
+msgid "ملغية"
+msgstr "Cancelled"
+
 msgid "ملف ."
 msgstr ". file"
 
-#: dashboard.html
+msgid "من تيليجرام."
+msgstr "from Telegram."
+
 msgid "منخفضة"
 msgstr "Low"
 
-#: notifications.html
 msgid "منذ"
 msgstr "Since"
 
-#: notifications.html
 msgid "منذ دقيقة"
 msgstr "A minute ago"
 
-#: notifications.html
 msgid "منذ دقيقتين"
 msgstr "Two minutes ago"
 
-#: notifications.html
 msgid "منذ ساعة"
 msgstr "An hour ago"
 
-#: notifications.html
 msgid "منذ ساعتين"
 msgstr "Two hours ago"
 
-#: tasks.html
 msgid "منذ لحظات"
 msgstr "A few moments ago"
 
-#: admin/assistant_types.html
+msgid "منصتنا مصممة لتكون بديهية وقوية ومرنة - تتكيف مع سير عملك بدلاً من إجبارك على تغيير طريقة عملك."
+msgstr "Our platform is designed to be intuitive, powerful and flexible - adapting to your workflow instead of forcing you to change how you work."
+
 msgid "مهام"
 msgstr "Tasks"
 
-#: dashboard.html
-msgid "مهام مُتأخرة"
+msgid "مهام معلقة"
 msgstr "Pending tasks"
 
-#: dashboard.html
+msgid "مهام مُتأخرة"
+msgstr "Overdue tasks"
+
 msgid "مهمة تحتاج إنجاز"
 msgstr "Task needs completion"
 
-#: dashboard.html
+msgid "مهمة مشاركة"
+msgstr "Shared Task"
+
 msgid "مهمة مكتملة"
 msgstr "Completed task"
 
-#: settings.html
 msgid "موريشيوس ("
-msgstr ""
+msgstr "Mauritius ("
 
 msgid "موريشيوس (Indian/Mauritius)"
 msgstr "Mauritius (Indian/Mauritius)"
 
-#: settings.html
 msgid "موسكو ("
-msgstr ""
+msgstr "Moscow ("
 
 msgid "موسكو (Europe/Moscow)"
 msgstr "Moscow (Europe/Moscow)"
 
-#: tasks.html
 msgid "موعد التنبيه:"
 msgstr "Alert time:"
 
-#: admin/panel.html
+msgid "موعد التنفيذ"
+msgstr "Execution time"
+
 msgid "ناتج التنفيذ"
 msgstr "Execution output"
 
-#: share_execution.html
 msgid "نتيجة التنفيذ -"
 msgstr "Execution Result -"
 
-#: share_execution.html
 msgid "نتيجة تنفيذ مشاركة"
 msgstr "Shared execution result"
 
 msgid "نجح"
 msgstr "Success"
 
-#: translations.html
 msgid "نص جديد من أصل"
 msgstr "New text out of"
 
-#: scripts.html
+msgid "نصيحة:"
+msgstr "Tip:"
+
+msgid "نفذ السكريبتات على خوادم بعيدة بشكل آمن عبر"
+msgstr "Execute scripts on remote servers securely via"
+
 msgid "نهائياً؟ لا يمكن التراجع!"
 msgstr "permanently? This cannot be undone!"
 
-#: executions.html
 msgid "نهاية التنفيذ:"
 msgstr "End time:"
 
-#: assistants.html
 msgid "نوع الجدولة"
 msgstr "Schedule type"
 
-#: admin/assistant_types.html
 msgid "نوع العمل المرتبط بهذا المساعد"
 msgstr "Type of work associated with this assistant"
 
-#: assistants.html
 msgid "نوع المساعد"
 msgstr "Assistant type"
 
-#: settings.html
 msgid "نيروبي ("
-msgstr ""
+msgstr "Nairobi ("
 
 msgid "نيروبي (Africa/Nairobi)"
 msgstr "Nairobi (Africa/Nairobi)"
 
-#: settings.html
 msgid "نيويورك ("
 msgstr "New York ("
 
 msgid "نيويورك (America/New_York)"
 msgstr "New York (America/New_York)"
 
-#: settings.html
 msgid "هافانا ("
-msgstr ""
+msgstr "Havana ("
 
 msgid "هافانا (America/Havana)"
 msgstr "Havana (America/Havana)"
 
-#: share_not_found.html
 msgid "هذا الرابط غير صالح أو تم حذفه."
 msgstr "This link is invalid or has been deleted."
 
-#: assistants.html
 msgid "هذا المساعد يعمل مع السكريبتات"
 msgstr "This assistant works with scripts"
 
-#: assistants.html
 msgid "هذا المساعد يعمل مع المهام"
 msgstr "This assistant works with tasks"
-
-#: dashboard.html
 msgid "هل أنت متأكد من تسجيل الخروج؟"
 msgstr "Are you sure you want to logout?"
 
-#: scripts.html
 msgid "هل أنت متأكد من حذف السكريبت"
 msgstr "Are you sure you want to delete the script"
 
-#: admin/panel.html
 msgid "هل أنت متأكد من حذف هذا القالب؟"
 msgstr "Are you sure you want to delete this template?"
 
-#: assistants.html
 msgid "هل أنت متأكد من حذف هذا المساعد نهائياً؟ لا يمكن التراجع!"
 msgstr "Are you sure you want to delete this assistant permanently? This cannot be undone!"
 
-#: admin/users.html
 msgid "هل أنت متأكد من حذف هذا المستخدم؟"
 msgstr "Are you sure you want to delete this user?"
 
-#: admin/assistant_types.html
 msgid "هل أنت متأكد من حذف هذا النوع؟"
 msgstr "Are you sure you want to delete this type?"
 
-#: translations.html
 msgid "هل أنت متأكد من حذف هذه اللغة وجميع ترجماتها؟"
 msgstr "Are you sure you want to delete this language and all its translations?"
 
-#: tasks.html
 msgid "هل أنت متأكد من حذف هذه المهمة نهائياً؟ لا يمكن التراجع!"
 msgstr "Are you sure you want to delete this task permanently? This cannot be undone!"
 
-#: dashboard.html
 msgid "هل أنت متأكد من حذف هذه المهمة؟ لا يمكن التراجع عن هذا الإجراء!"
 msgstr "Are you sure you want to delete this task? This action cannot be undone!"
 
-#: tasks.html
+msgid "هل تريد إلغاء مشاركة هذه المهمة؟"
+msgstr "Do you want to unshare this task?"
+
 msgid "هل تريد إلغاء هذه المهمة؟"
 msgstr "Do you want to cancel this task?"
 
-#: translations.html
 msgid "هل تريد المتابعة؟"
 msgstr "Do you want to continue?"
 
-#: scripts.html
 msgid "هل تريد تشغيل السكريبت"
 msgstr "Do you want to run the script"
 
-#: dashboard.html
 msgid "هل تريد تعليق هذه المهمة مؤقتاً؟"
 msgstr "Do you want to hold this task temporarily?"
 
-#: dashboard.html
 msgid "هل تريد تعليم هذه المهمة كمكتملة؟"
 msgstr "Do you want to mark this task as completed?"
 
-#: settings.html
+msgid "هل تريد حذف هذا المرفق؟"
+msgstr "Do you want to delete this attachment?"
+
 msgid "هلسنكي ("
-msgstr ""
+msgstr "Helsinki ("
 
 msgid "هلسنكي (Europe/Helsinki)"
 msgstr "Helsinki (Europe/Helsinki)"
 
-#: settings.html
+msgid "هو منصة مساعد شخصي ذكي مصممة لمساعدتك في إدارة مهامك اليومية، وأتمتة سير العمل، والبقاء منظماً. يجمع بين قوة الإشعارات الذكية وإدارة المهام المرنة لضمان عدم تفويت أي موعد نهائي مهم."
+msgstr "is a smart personal assistant platform designed to help you manage your daily tasks, automate workflows, and stay organized. It combines the power of smart notifications and flexible task management to ensure you never miss an important deadline."
+
 msgid "هونغ كونغ ("
-msgstr ""
+msgstr "Hong Kong ("
 
 msgid "هونغ كونغ (Asia/Hong_Kong)"
 msgstr "Hong Kong (Asia/Hong_Kong)"
 
-#: settings.html
 msgid "هونولولو ("
-msgstr ""
+msgstr "Honolulu ("
 
 msgid "هونولولو (Pacific/Honolulu)"
 msgstr "Honolulu (Pacific/Honolulu)"
 
-#: settings.html
 msgid "وارسو ("
-msgstr ""
+msgstr "Warsaw ("
 
 msgid "وارسو (Europe/Warsaw)"
 msgstr "Warsaw (Europe/Warsaw)"
 
-#: dashboard.html
+msgid "والأوامر."
+msgstr "and commands."
+
+msgid "وقت الإكمال"
+msgstr "Completion time"
+
 msgid "وقت التذكير"
 msgstr "Reminder time"
 
-#: tasks.html
 msgid "وقت التنبيه"
 msgstr "Alert time"
 
-#: share_execution.html
 msgid "وقت التنفيذ:"
 msgstr "Execution time:"
 
-#: settings.html
 msgid "يانغون ("
-msgstr ""
+msgstr "Yangon ("
 
 msgid "يانغون (Asia/Yangon)"
 msgstr "Yangon (Asia/Yangon)"
 
-#: system_settings.html
 msgid "يتم تعيينه من ملف ."
 msgstr "Set from . file"
 
-#: scripts.html
+msgid "يدوي أو تلقائي"
+msgstr "Manual or automatic"
+
 msgid "يرجى إدخال اسم السكريبت"
 msgstr "Please enter script name"
 
-#: assistants.html
 msgid "يرجى إدخال اسم المساعد"
 msgstr "Please enter assistant name"
 
-#: admin/panel.html
 msgid "يرجى إدخال اسم ومحتوى القالب"
 msgstr "Please enter template name and content"
 
-#: settings.html
 msgid "يرجى إدخال رقم الهاتف"
 msgstr "Please enter phone number"
 
-#: system_settings.html
 msgid "يرجى إدخال عنوان البريد الإلكتروني"
 msgstr "Please enter email address"
 
-#: dashboard.html
 msgid "يرجى إدخال عنوان المهمة"
 msgstr "Please enter task title"
 
-#: settings.html
 msgid "يرجى إدخال معرف التليجرام"
 msgstr "Please enter Telegram ID"
 
-#: assistants.html
+msgid "يرجى اختيار صورة صالحة"
+msgstr "Please select a valid image"
+
 msgid "يرجى اختيار نوع المساعد"
 msgstr "Please select assistant type"
 
-#: scripts.html
 msgid "يرجى كتابة الكود"
 msgstr "Please write the code"
 
-#: admin/panel.html
 msgid "يمكنك استخدام المتغيرات التالية"
 msgstr "You can use the following variables"
 
-#: settings.html
 msgid "يمكنك الحصول على معرفك من"
 msgstr "You can get your ID from"
 
-#: assistants.html
 msgid "يوم"
 msgstr "day"
 
-#: assistants.html
 msgid "يومياً"
 msgstr "Daily"
 
-#: executions.html
 msgid "يومين"
 msgstr "two days"
 
