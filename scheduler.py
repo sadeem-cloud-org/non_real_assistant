@@ -51,7 +51,8 @@ NOTIFICATION_MESSAGES = {
         'personal_assistant': 'المساعد الشخصي',
         'overdue_reminder': 'تنبيه: لديك {count} مهام متأخرة',
         'due_time': 'الوقت المحدد',
-        'and_more_tasks': 'و {count} مهام أخرى'
+        'and_more_tasks': 'و {count} مهام أخرى',
+        'open_task': 'فتح المهمة'
     },
     'en': {
         'hello': 'Hello',
@@ -69,7 +70,8 @@ NOTIFICATION_MESSAGES = {
         'personal_assistant': 'Personal Assistant',
         'overdue_reminder': 'Reminder: You have {count} overdue tasks',
         'due_time': 'Due',
-        'and_more_tasks': 'and {count} more tasks'
+        'and_more_tasks': 'and {count} more tasks',
+        'open_task': 'Open Task'
     }
 }
 
@@ -321,6 +323,10 @@ class TaskScheduler:
                 tasks_by_user[task.create_user_id] = []
             tasks_by_user[task.create_user_id].append(task)
 
+        # Get system URL for task links
+        import os
+        system_url = os.getenv('SYSTEM_URL', 'http://localhost:5000')
+
         # Send reminder to each user with overdue tasks
         for user_id, tasks in tasks_by_user.items():
             user = User.query.get(user_id)
@@ -336,13 +342,16 @@ class TaskScheduler:
             # Build message using translated strings
             overdue_msg = get_message(lang, 'overdue_reminder', count=len(tasks))
             due_time_label = get_message(lang, 'due_time')
+            open_task_label = get_message(lang, 'open_task')
 
             message = f"⚠️ {overdue_msg}\n\n"
             for task in tasks[:10]:  # Limit to 10 tasks
                 local_time = convert_to_user_timezone(task.time, user.timezone or 'Africa/Cairo')
                 time_str = local_time.strftime('%Y-%m-%d %H:%M') if local_time else ''
+                task_link = f"{system_url}/tasks/{task.id}"
                 message += f"📝 <b>{task.name}</b>\n"
-                message += f"   {due_time_label}: {time_str}\n\n"
+                message += f"   {due_time_label}: {time_str}\n"
+                message += f"   🔗 <a href=\"{task_link}\">{open_task_label}</a>\n\n"
             if len(tasks) > 10:
                 more_msg = get_message(lang, 'and_more_tasks', count=len(tasks) - 10)
                 message += f"... {more_msg}"
