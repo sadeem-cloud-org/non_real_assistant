@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Use - Non Real Assistant</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .lang-selector {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 10;
+        }
+        [dir="rtl"] .lang-selector {
+            left: auto;
+            right: 15px;
+        }
+        .lang-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        .lang-btn:hover {
+            background: white;
+            transform: translateY(-1px);
+        }
+        .content-box {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-section img {
+            width: 60px;
+            height: 60px;
+        }
+        .logo-section h1 {
+            margin: 15px 0 5px;
+            color: #333;
+            font-size: 24px;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #2563eb;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .guide-section {
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .guide-section:last-of-type {
+            border-bottom: none;
+        }
+        .guide-section h2 {
+            color: #1e40af;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+        }
+        .guide-section h2 .icon {
+            font-size: 28px;
+        }
+        .guide-section p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        .steps {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+        .step {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+        .step:last-child {
+            margin-bottom: 0;
+        }
+        .step-number {
+            background: #2563eb;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .step-content h4 {
+            color: #1e40af;
+            margin: 0 0 5px;
+            font-size: 15px;
+        }
+        .step-content p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .tip-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #f59e0b;
+        }
+        [dir="rtl"] .tip-box {
+            border-left: none;
+            border-right: 4px solid #f59e0b;
+        }
+        .tip-box p {
+            margin: 0;
+            color: #92400e;
+            font-size: 14px;
+        }
+        .tip-box strong {
+            color: #78350f;
+        }
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+        footer a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="lang-selector">
+        <button class="lang-btn" onclick="toggleLanguage()" id="lang-toggle">
+            <span id="lang-flag">🇸🇦</span>
+            <span id="lang-name">العربية</span>
+        </button>
+    </div>
+
+    <div class="content-box">
+        <a href="/login" class="back-link" id="back-link">
+            <span>←</span> <span id="back-text">Back to Login</span>
+        </a>
+
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Non Real Assistant">
+            <h1 id="page-title">How to Use Non Real Assistant</h1>
+        </div>
+
+        <!-- Getting Started -->
+        <div class="guide-section">
+            <h2><span class="icon">🚀</span> <span id="gs-title">Getting Started</span></h2>
+            <p id="gs-desc">Follow these simple steps to start using Non Real Assistant:</p>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <h4 id="gs-s1-title">Login with Telegram</h4>
+                        <p id="gs-s1-desc">Enter your phone number and verify using the OTP code sent to your Telegram.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <h4 id="gs-s2-title">Access Dashboard</h4>
+                        <p id="gs-s2-desc">After login, you'll see your dashboard with quick stats and recent activities.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <h4 id="gs-s3-title">Create Your First Assistant</h4>
+                        <p id="gs-s3-desc">Navigate to Assistants page and create a new assistant for your tasks.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assistants -->
+        <div class="guide-section">
+            <h2><span class="icon">🤖</span> <span id="ast-title">Managing Assistants</span></h2>
+            <p id="ast-desc">Assistants are smart agents that help you manage tasks and run scripts automatically.</p>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <h4 id="ast-s1-title">Create an Assistant</h4>
+                        <p id="ast-s1-desc">Go to Assistants page, click "Add Assistant", choose a type (Task or Script), and configure settings.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <h4 id="ast-s2-title">Set Schedule</h4>
+                        <p id="ast-s2-desc">Configure when the assistant should run: recurring (every X minutes/hours) or once at a specific time.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <h4 id="ast-s3-title">Choose Notifications</h4>
+                        <p id="ast-s3-desc">Select how you want to be notified: Telegram, Email, or Browser notifications.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="tip-box">
+                <p><strong id="ast-tip-title">Tip:</strong> <span id="ast-tip-desc">Task assistants remind you about pending tasks, while Script assistants can execute commands on remote servers.</span></p>
+            </div>
+        </div>
+
+        <!-- Tasks -->
+        <div class="guide-section">
+            <h2><span class="icon">📋</span> <span id="task-title">Managing Tasks</span></h2>
+            <p id="task-desc">Keep track of all your to-dos with smart task management.</p>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <h4 id="task-s1-title">Create a Task</h4>
+                        <p id="task-s1-desc">Click "Add Task", enter the title, description, and set a due date/time.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <h4 id="task-s2-title">Assign an Assistant</h4>
+                        <p id="task-s2-desc">Link a task-type assistant to get automatic reminders when the task is due.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <h4 id="task-s3-title">Track Progress</h4>
+                        <p id="task-s3-desc">Mark tasks as complete, view overdue tasks, or cancel tasks you no longer need.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <div class="guide-section">
+            <h2><span class="icon">⚡</span> <span id="script-title">Script Execution</span></h2>
+            <p id="script-desc">Execute scripts on remote servers securely via SSH.</p>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <h4 id="script-s1-title">Add a Script</h4>
+                        <p id="script-s1-desc">Go to Scripts page, create a new script with SSH connection details and commands.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <h4 id="script-s2-title">Manual or Automatic</h4>
+                        <p id="script-s2-desc">Run scripts manually anytime, or link them to a Script-type assistant for scheduled execution.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <h4 id="script-s3-title">View Results</h4>
+                        <p id="script-s3-desc">Check execution history and logs to see the output and status of each run.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="tip-box">
+                <p><strong id="script-tip-title">Tip:</strong> <span id="script-tip-desc">Use script assistants to automate server maintenance, backups, or any recurring command-line tasks.</span></p>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="guide-section">
+            <h2><span class="icon">🔔</span> <span id="notif-title">Notifications</span></h2>
+            <p id="notif-desc">Stay informed with multi-channel notifications.</p>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <h4 id="notif-s1-title">Telegram Notifications</h4>
+                        <p id="notif-s1-desc">Receive instant notifications directly in your Telegram app.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <h4 id="notif-s2-title">Email Notifications</h4>
+                        <p id="notif-s2-desc">Get email alerts for important tasks and script results.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <h4 id="notif-s3-title">Browser Notifications</h4>
+                        <p id="notif-s3-desc">Enable browser notifications for real-time alerts when using the web app.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 <a href="https://sadeem.cloud" target="_blank">sadeem.cloud</a></p>
+    </footer>
+
+    <script>
+        const translations = {
+            ar: {
+                title: 'كيفية الاستخدام - Non Real Assistant',
+                backText: 'العودة لتسجيل الدخول',
+                backArrow: '→',
+                pageTitle: 'كيفية استخدام Non Real Assistant',
+
+                gsTitle: 'البدء',
+                gsDesc: 'اتبع هذه الخطوات البسيطة لبدء استخدام Non Real Assistant:',
+                gsS1Title: 'تسجيل الدخول عبر تيليجرام',
+                gsS1Desc: 'أدخل رقم هاتفك وتحقق باستخدام رمز OTP المرسل إلى تيليجرام.',
+                gsS2Title: 'الوصول للوحة التحكم',
+                gsS2Desc: 'بعد تسجيل الدخول، سترى لوحة التحكم مع إحصائيات سريعة والأنشطة الأخيرة.',
+                gsS3Title: 'إنشاء أول مساعد',
+                gsS3Desc: 'انتقل إلى صفحة المساعدين وأنشئ مساعداً جديداً لمهامك.',
+
+                astTitle: 'إدارة المساعدين',
+                astDesc: 'المساعدين هم وكلاء أذكياء يساعدونك في إدارة المهام وتشغيل السكريبتات تلقائياً.',
+                astS1Title: 'إنشاء مساعد',
+                astS1Desc: 'اذهب لصفحة المساعدين، اضغط "إضافة مساعد"، اختر النوع (مهام أو سكريبت)، وقم بالتكوين.',
+                astS2Title: 'تحديد الجدول',
+                astS2Desc: 'حدد متى يجب أن يعمل المساعد: متكرر (كل X دقيقة/ساعة) أو مرة واحدة في وقت محدد.',
+                astS3Title: 'اختيار الإشعارات',
+                astS3Desc: 'اختر كيف تريد أن يتم إشعارك: تيليجرام، بريد إلكتروني، أو إشعارات المتصفح.',
+                astTipTitle: 'نصيحة:',
+                astTipDesc: 'مساعدي المهام يذكرونك بالمهام المعلقة، بينما مساعدي السكريبتات يمكنهم تنفيذ أوامر على خوادم بعيدة.',
+
+                taskTitle: 'إدارة المهام',
+                taskDesc: 'تتبع جميع مهامك مع إدارة المهام الذكية.',
+                taskS1Title: 'إنشاء مهمة',
+                taskS1Desc: 'اضغط "إضافة مهمة"، أدخل العنوان والوصف وحدد تاريخ ووقت الاستحقاق.',
+                taskS2Title: 'تعيين مساعد',
+                taskS2Desc: 'اربط مساعد من نوع المهام للحصول على تذكيرات تلقائية عند استحقاق المهمة.',
+                taskS3Title: 'تتبع التقدم',
+                taskS3Desc: 'علّم المهام كمكتملة، اعرض المهام المتأخرة، أو ألغِ المهام التي لم تعد بحاجة إليها.',
+
+                scriptTitle: 'تنفيذ السكريبتات',
+                scriptDesc: 'نفذ السكريبتات على خوادم بعيدة بشكل آمن عبر SSH.',
+                scriptS1Title: 'إضافة سكريبت',
+                scriptS1Desc: 'اذهب لصفحة السكريبتات، أنشئ سكريبت جديد مع تفاصيل اتصال SSH والأوامر.',
+                scriptS2Title: 'يدوي أو تلقائي',
+                scriptS2Desc: 'شغّل السكريبتات يدوياً في أي وقت، أو اربطها بمساعد سكريبتات للتنفيذ المجدول.',
+                scriptS3Title: 'عرض النتائج',
+                scriptS3Desc: 'تحقق من سجل التنفيذ والسجلات لمعرفة المخرجات وحالة كل تشغيل.',
+                scriptTipTitle: 'نصيحة:',
+                scriptTipDesc: 'استخدم مساعدي السكريبتات لأتمتة صيانة الخادم والنسخ الاحتياطي أو أي مهام سطر أوامر متكررة.',
+
+                notifTitle: 'الإشعارات',
+                notifDesc: 'ابق على اطلاع مع إشعارات متعددة القنوات.',
+                notifS1Title: 'إشعارات تيليجرام',
+                notifS1Desc: 'استلم إشعارات فورية مباشرة في تطبيق تيليجرام.',
+                notifS2Title: 'إشعارات البريد الإلكتروني',
+                notifS2Desc: 'احصل على تنبيهات بريد إلكتروني للمهام المهمة ونتائج السكريبتات.',
+                notifS3Title: 'إشعارات المتصفح',
+                notifS3Desc: 'فعّل إشعارات المتصفح للتنبيهات الفورية عند استخدام التطبيق.',
+
+                toggleLang: 'English',
+                toggleFlag: '🇬🇧'
+            },
+            en: {
+                title: 'How to Use - Non Real Assistant',
+                backText: 'Back to Login',
+                backArrow: '←',
+                pageTitle: 'How to Use Non Real Assistant',
+
+                gsTitle: 'Getting Started',
+                gsDesc: 'Follow these simple steps to start using Non Real Assistant:',
+                gsS1Title: 'Login with Telegram',
+                gsS1Desc: 'Enter your phone number and verify using the OTP code sent to your Telegram.',
+                gsS2Title: 'Access Dashboard',
+                gsS2Desc: 'After login, you\'ll see your dashboard with quick stats and recent activities.',
+                gsS3Title: 'Create Your First Assistant',
+                gsS3Desc: 'Navigate to Assistants page and create a new assistant for your tasks.',
+
+                astTitle: 'Managing Assistants',
+                astDesc: 'Assistants are smart agents that help you manage tasks and run scripts automatically.',
+                astS1Title: 'Create an Assistant',
+                astS1Desc: 'Go to Assistants page, click "Add Assistant", choose a type (Task or Script), and configure settings.',
+                astS2Title: 'Set Schedule',
+                astS2Desc: 'Configure when the assistant should run: recurring (every X minutes/hours) or once at a specific time.',
+                astS3Title: 'Choose Notifications',
+                astS3Desc: 'Select how you want to be notified: Telegram, Email, or Browser notifications.',
+                astTipTitle: 'Tip:',
+                astTipDesc: 'Task assistants remind you about pending tasks, while Script assistants can execute commands on remote servers.',
+
+                taskTitle: 'Managing Tasks',
+                taskDesc: 'Keep track of all your to-dos with smart task management.',
+                taskS1Title: 'Create a Task',
+                taskS1Desc: 'Click "Add Task", enter the title, description, and set a due date/time.',
+                taskS2Title: 'Assign an Assistant',
+                taskS2Desc: 'Link a task-type assistant to get automatic reminders when the task is due.',
+                taskS3Title: 'Track Progress',
+                taskS3Desc: 'Mark tasks as complete, view overdue tasks, or cancel tasks you no longer need.',
+
+                scriptTitle: 'Script Execution',
+                scriptDesc: 'Execute scripts on remote servers securely via SSH.',
+                scriptS1Title: 'Add a Script',
+                scriptS1Desc: 'Go to Scripts page, create a new script with SSH connection details and commands.',
+                scriptS2Title: 'Manual or Automatic',
+                scriptS2Desc: 'Run scripts manually anytime, or link them to a Script-type assistant for scheduled execution.',
+                scriptS3Title: 'View Results',
+                scriptS3Desc: 'Check execution history and logs to see the output and status of each run.',
+                scriptTipTitle: 'Tip:',
+                scriptTipDesc: 'Use script assistants to automate server maintenance, backups, or any recurring command-line tasks.',
+
+                notifTitle: 'Notifications',
+                notifDesc: 'Stay informed with multi-channel notifications.',
+                notifS1Title: 'Telegram Notifications',
+                notifS1Desc: 'Receive instant notifications directly in your Telegram app.',
+                notifS2Title: 'Email Notifications',
+                notifS2Desc: 'Get email alerts for important tasks and script results.',
+                notifS3Title: 'Browser Notifications',
+                notifS3Desc: 'Enable browser notifications for real-time alerts when using the web app.',
+
+                toggleLang: 'العربية',
+                toggleFlag: '🇸🇦'
+            }
+        };
+
+        let currentLang = localStorage.getItem('app_language') || detectBrowserLanguage();
+
+        function detectBrowserLanguage() {
+            const browserLang = navigator.language || navigator.userLanguage;
+            return browserLang.startsWith('ar') ? 'ar' : 'en';
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            localStorage.setItem('app_language', currentLang);
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const t = translations[currentLang];
+            const html = document.getElementById('html-root');
+
+            html.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+            html.setAttribute('lang', currentLang);
+
+            document.title = t.title;
+            document.getElementById('back-text').textContent = t.backText;
+            document.querySelector('.back-link span:first-child').textContent = t.backArrow;
+            document.getElementById('page-title').textContent = t.pageTitle;
+
+            // Getting Started
+            document.getElementById('gs-title').textContent = t.gsTitle;
+            document.getElementById('gs-desc').textContent = t.gsDesc;
+            document.getElementById('gs-s1-title').textContent = t.gsS1Title;
+            document.getElementById('gs-s1-desc').textContent = t.gsS1Desc;
+            document.getElementById('gs-s2-title').textContent = t.gsS2Title;
+            document.getElementById('gs-s2-desc').textContent = t.gsS2Desc;
+            document.getElementById('gs-s3-title').textContent = t.gsS3Title;
+            document.getElementById('gs-s3-desc').textContent = t.gsS3Desc;
+
+            // Assistants
+            document.getElementById('ast-title').textContent = t.astTitle;
+            document.getElementById('ast-desc').textContent = t.astDesc;
+            document.getElementById('ast-s1-title').textContent = t.astS1Title;
+            document.getElementById('ast-s1-desc').textContent = t.astS1Desc;
+            document.getElementById('ast-s2-title').textContent = t.astS2Title;
+            document.getElementById('ast-s2-desc').textContent = t.astS2Desc;
+            document.getElementById('ast-s3-title').textContent = t.astS3Title;
+            document.getElementById('ast-s3-desc').textContent = t.astS3Desc;
+            document.getElementById('ast-tip-title').textContent = t.astTipTitle;
+            document.getElementById('ast-tip-desc').textContent = t.astTipDesc;
+
+            // Tasks
+            document.getElementById('task-title').textContent = t.taskTitle;
+            document.getElementById('task-desc').textContent = t.taskDesc;
+            document.getElementById('task-s1-title').textContent = t.taskS1Title;
+            document.getElementById('task-s1-desc').textContent = t.taskS1Desc;
+            document.getElementById('task-s2-title').textContent = t.taskS2Title;
+            document.getElementById('task-s2-desc').textContent = t.taskS2Desc;
+            document.getElementById('task-s3-title').textContent = t.taskS3Title;
+            document.getElementById('task-s3-desc').textContent = t.taskS3Desc;
+
+            // Scripts
+            document.getElementById('script-title').textContent = t.scriptTitle;
+            document.getElementById('script-desc').textContent = t.scriptDesc;
+            document.getElementById('script-s1-title').textContent = t.scriptS1Title;
+            document.getElementById('script-s1-desc').textContent = t.scriptS1Desc;
+            document.getElementById('script-s2-title').textContent = t.scriptS2Title;
+            document.getElementById('script-s2-desc').textContent = t.scriptS2Desc;
+            document.getElementById('script-s3-title').textContent = t.scriptS3Title;
+            document.getElementById('script-s3-desc').textContent = t.scriptS3Desc;
+            document.getElementById('script-tip-title').textContent = t.scriptTipTitle;
+            document.getElementById('script-tip-desc').textContent = t.scriptTipDesc;
+
+            // Notifications
+            document.getElementById('notif-title').textContent = t.notifTitle;
+            document.getElementById('notif-desc').textContent = t.notifDesc;
+            document.getElementById('notif-s1-title').textContent = t.notifS1Title;
+            document.getElementById('notif-s1-desc').textContent = t.notifS1Desc;
+            document.getElementById('notif-s2-title').textContent = t.notifS2Title;
+            document.getElementById('notif-s2-desc').textContent = t.notifS2Desc;
+            document.getElementById('notif-s3-title').textContent = t.notifS3Title;
+            document.getElementById('notif-s3-desc').textContent = t.notifS3Desc;
+
+            document.getElementById('lang-flag').textContent = t.toggleFlag;
+            document.getElementById('lang-name').textContent = t.toggleLang;
+        }
+
+        document.addEventListener('DOMContentLoaded', applyLanguage);
+    </script>
+</body>
+</html>

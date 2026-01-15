@@ -33,21 +33,19 @@ function initializeDateTimePicker() {
     const dateTimeConfig = {
         enableTime: true,
         time_24hr: true,
-        dateFormat: "Y-m-d H:i",
-        altInput: true,
-        altFormat: "d/m/Y H:i",
+        dateFormat: "d/m/Y H:i",
         allowInput: true,
+        clickOpens: true,
+        minuteIncrement: 1,
         minDate: "today",
-        locale: {
-            firstDayOfWeek: 6,
-            weekdays: {
-                shorthand: ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'],
-                longhand: ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
-            },
-            months: {
-                shorthand: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
-                longhand: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+        // Parse manually typed dates
+        parseDate: (dateString, format) => {
+            const parts = dateString.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
+            if (parts) {
+                const [, day, month, year, hour, minute] = parts;
+                return new Date(year, month - 1, day, hour, minute);
             }
+            return new Date(dateString);
         }
     };
 

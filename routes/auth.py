@@ -26,6 +26,18 @@ def login():
     return render_template('login.html')
 
 
+@auth_bp.route('/about')
+def about():
+    """About page - What is Non Real Assistant"""
+    return render_template('about.html')
+
+
+@auth_bp.route('/how-to-use')
+def how_to_use():
+    """How to use page"""
+    return render_template('how-to-use.html')
+
+
 @auth_bp.route('/logout')
 def logout():
     """Logout user"""
