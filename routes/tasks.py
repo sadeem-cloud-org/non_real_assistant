@@ -16,6 +16,15 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def get_task_upload_dir(task_id):
+    """Get the task attachments upload directory - uses /app/data in Docker, otherwise uploads/"""
+    # Check if we're in Docker (data directory exists at /app/data)
+    if os.path.exists('/app/data'):
+        return os.path.join('/app/data/uploads', 'tasks', str(task_id))
+    # Fallback to uploads/ for local development
+    return os.path.join(current_app.root_path, 'uploads', 'tasks', str(task_id))
+
+
 @tasks_bp.route('/tasks')
 def tasks():
     """Tasks page"""
@@ -117,7 +126,7 @@ def upload_attachment(task_id):
         return jsonify({'error': 'File too large (max 10MB)'}), 400
 
     # Create uploads directory if not exists
-    upload_dir = os.path.join(current_app.root_path, 'uploads', 'tasks', str(task_id))
+    upload_dir = get_task_upload_dir(task_id)
     os.makedirs(upload_dir, exist_ok=True)
 
     # Generate unique filename
@@ -165,7 +174,7 @@ def delete_attachment(task_id, attachment_id):
         return jsonify({'error': 'Attachment not found'}), 404
 
     # Delete file from disk
-    upload_dir = os.path.join(current_app.root_path, 'uploads', 'tasks', str(task_id))
+    upload_dir = get_task_upload_dir(task_id)
     filepath = os.path.join(upload_dir, attachment.filename)
     if os.path.exists(filepath):
         os.remove(filepath)
@@ -194,5 +203,5 @@ def serve_attachment(task_id, filename):
     if not is_authorized:
         return jsonify({'error': 'Unauthorized'}), 401
 
-    upload_dir = os.path.join(current_app.root_path, 'uploads', 'tasks', str(task_id))
+    upload_dir = get_task_upload_dir(task_id)
     return send_from_directory(upload_dir, filename)
