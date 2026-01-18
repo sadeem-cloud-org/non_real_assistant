@@ -65,6 +65,13 @@
                         </button>
                     </div>
                 </div>
+                <div class="mb-3" id="whatsapp-number-profile-section" style="display: none;">
+                    <label class="form-label">{{ t('رقم الواتساب') }}</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="user-whatsapp" dir="ltr" placeholder="201234567890">
+                    </div>
+                    <small class="form-hint">{{ t('Enter your WhatsApp number with country code (e.g., 201234567890)') }}</small>
+                </div>
             </div>
             <div class="card-footer">
                 <button class="btn btn-primary" onclick="saveProfile()">{{ t('حفظ التغييرات') }}</button>
@@ -266,15 +273,6 @@
                 </h3>
             </div>
             <div class="card-body">
-                <!-- WhatsApp Number -->
-                <div class="mb-3" id="whatsapp-number-section" style="display: none;">
-                    <label class="form-label">{{ t('WhatsApp Number') }}</label>
-                    <input type="text" class="form-control" id="user-whatsapp" dir="ltr" placeholder="201234567890">
-                    <small class="form-hint">{{ t('Enter your WhatsApp number with country code (e.g., 201234567890)') }}</small>
-                </div>
-
-                <hr class="my-3">
-
                 <!-- Notification Channels -->
                 <div class="mb-3">
                     <label class="form-check">
@@ -425,7 +423,7 @@
             const data = await response.json();
             wahaAvailable = data.available;
             if (wahaAvailable) {
-                document.getElementById('whatsapp-number-section').style.display = 'block';
+                document.getElementById('whatsapp-number-profile-section').style.display = 'block';
                 document.getElementById('whatsapp-notify-section').style.display = 'block';
             }
         } catch (error) {
@@ -540,7 +538,8 @@
     function saveProfile() {
         const data = {
             name: document.getElementById('user-name').value,
-            email: document.getElementById('user-email').value
+            email: document.getElementById('user-email').value,
+            whatsapp_number: document.getElementById('user-whatsapp').value.trim()
         };
 
         fetch('/api/user/profile', {
@@ -567,14 +566,32 @@
             return;
         }
 
+        const emailNotify = document.getElementById('notify-email').checked;
+        const whatsappNotify = document.getElementById('notify-whatsapp').checked;
+        const userEmail = document.getElementById('user-email').value.trim();
+        const whatsappNumber = document.getElementById('user-whatsapp').value.trim();
+
+        // Validation: Email required if email notifications enabled
+        if (emailNotify && !userEmail) {
+            showToast("{{ t('Email is required when email notifications are enabled') }}", 'warning');
+            document.getElementById('user-email').focus();
+            return;
+        }
+
+        // Validation: WhatsApp number required if WhatsApp notifications enabled
+        if (whatsappNotify && !whatsappNumber) {
+            showToast("{{ t('WhatsApp number is required when WhatsApp notifications are enabled') }}", 'warning');
+            document.getElementById('user-whatsapp').focus();
+            return;
+        }
+
         const data = {
             language_id: languageId,
             timezone: document.getElementById('user-timezone').value,
-            whatsapp_number: document.getElementById('user-whatsapp').value.trim(),
             browser_notify: document.getElementById('notify-browser').checked,
             telegram_notify: document.getElementById('notify-telegram').checked,
-            email_notify: document.getElementById('notify-email').checked,
-            whatsapp_notify: document.getElementById('notify-whatsapp').checked
+            email_notify: emailNotify,
+            whatsapp_notify: whatsappNotify
         };
 
         fetch('/api/user/profile', {

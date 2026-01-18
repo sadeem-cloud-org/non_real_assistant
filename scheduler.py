@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from models import db, Task, User, Assistant, Script, ScriptExecuteLog, NotifyTemplate, NotificationLog
 from services.telegram_bot import TelegramOTPSender
 from services.script_executor import ScriptExecutor
+from services.waha_service import get_waha_service
 
 
 def convert_to_user_timezone(utc_time, user_timezone='Africa/Cairo'):
@@ -110,6 +111,7 @@ class TaskScheduler:
         self.thread = None
         self.telegram_sender = TelegramOTPSender()
         self.script_executor = ScriptExecutor()
+        self.waha_service = get_waha_service()
         self._lock = threading.Lock()
         self._last_overdue_sent = {}  # Track last overdue notification time per user
 
@@ -186,14 +188,18 @@ class TaskScheduler:
                 if assistant:
                     # Check if assistant type is for tasks (task_notify type)
                     if assistant.assistant_type and assistant.assistant_type.related_action == 'task':
-                        # Only notify if telegram_notify is enabled
+                        # Notify if any notification channel is enabled on assistant
                         if assistant.telegram_notify:
                             should_notify = True
             else:
-                # Task without assistant - still send notification if user has telegram
+                # Task without assistant - send notification based on user preferences
                 should_notify = True
 
-            if not should_notify or not user.telegram_id:
+            # Check if user has any notification channel available
+            has_telegram = user.telegram_id and (not hasattr(user, 'telegram_notify') or user.telegram_notify)
+            has_whatsapp = user.whatsapp_number and user.whatsapp_notify
+
+            if not should_notify or (not has_telegram and not has_whatsapp):
                 continue
 
             # Get user's language
@@ -230,33 +236,61 @@ class TaskScheduler:
 
             message += f"\n\n🔗 <a href=\"{task_link}\">فتح المهمة</a>"
 
-            # Send notification
-            result = self.telegram_sender.send_message(
-                user.telegram_id,
-                message.strip()
-            )
+            notification_sent = False
 
-            # Log the notification
-            notification_log = NotificationLog(
-                user_id=user.id,
-                task_id=task.id,
-                assistant_id=task.assistant_id,
-                channel='telegram',
-                message=message.strip(),
-                status='sent' if result['success'] else 'failed',
-                error_message=result.get('error') if not result['success'] else None
-            )
-            db.session.add(notification_log)
+            # Send Telegram notification if enabled
+            if user.telegram_notify and user.telegram_id:
+                result = self.telegram_sender.send_message(
+                    user.telegram_id,
+                    message.strip()
+                )
 
-            if result['success']:
+                # Log the notification
+                notification_log = NotificationLog(
+                    user_id=user.id,
+                    task_id=task.id,
+                    assistant_id=task.assistant_id,
+                    channel='telegram',
+                    message=message.strip(),
+                    status='sent' if result['success'] else 'failed',
+                    error_message=result.get('error') if not result['success'] else None
+                )
+                db.session.add(notification_log)
+
+                if result['success']:
+                    notification_sent = True
+                    print(f"✅ Sent Telegram reminder for task #{task.id} to user #{user.id}")
+                else:
+                    print(f"❌ Failed to send Telegram reminder for task #{task.id}: {result.get('error')}")
+
+            # Send WhatsApp notification if enabled
+            if user.whatsapp_notify and user.whatsapp_number:
+                print(f"📱 Attempting WhatsApp notification for task #{task.id} to {user.whatsapp_number}")
+                whatsapp_result = self.waha_service.send_task_reminder(user, task, system_url)
+
+                # Log the WhatsApp notification
+                whatsapp_log = NotificationLog(
+                    user_id=user.id,
+                    task_id=task.id,
+                    assistant_id=task.assistant_id,
+                    channel='whatsapp',
+                    message=f"Task reminder: {task.name}",
+                    status='sent' if whatsapp_result['success'] else 'failed',
+                    error_message=whatsapp_result.get('error') if not whatsapp_result['success'] else None
+                )
+                db.session.add(whatsapp_log)
+
+                if whatsapp_result['success']:
+                    notification_sent = True
+                    print(f"✅ Sent WhatsApp reminder for task #{task.id} to user #{user.id}")
+                else:
+                    print(f"❌ Failed to send WhatsApp reminder for task #{task.id}: {whatsapp_result.get('error')}")
+
+            if notification_sent:
                 # Mark notification as sent
                 task.notify_sent = True
-                db.session.commit()
 
-                print(f"✅ Sent reminder for task #{task.id} to user #{user.id}")
-            else:
-                db.session.commit()
-                print(f"❌ Failed to send reminder for task #{task.id}: {result.get('error')}")
+            db.session.commit()
 
     def _check_scheduled_assistants(self):
         """Check and execute scheduled assistant scripts"""
@@ -356,11 +390,14 @@ class TaskScheduler:
                 continue
 
             user = User.query.get(user_id)
-            if not user or not user.telegram_id:
+            if not user:
                 continue
 
-            # Check user's notification preference
-            if hasattr(user, 'telegram_notify') and not user.telegram_notify:
+            # Check if user has any notification channel enabled
+            has_telegram = user.telegram_id and (not hasattr(user, 'telegram_notify') or user.telegram_notify)
+            has_whatsapp = user.whatsapp_number and user.whatsapp_notify
+
+            if not has_telegram and not has_whatsapp:
                 continue
 
             # Get user's language
@@ -386,26 +423,65 @@ class TaskScheduler:
                 more_msg = get_message(lang, 'and_more_tasks', count=len(tasks) - 10)
                 message += f"... {more_msg}"
 
-            # Send notification
-            result = self.telegram_sender.send_message(user.telegram_id, message.strip())
+            notification_sent = False
 
-            # Log the notification
-            notification_log = NotificationLog(
-                user_id=user.id,
-                channel='telegram',
-                message=message.strip(),
-                status='sent' if result['success'] else 'failed',
-                error_message=result.get('error') if not result['success'] else None
-            )
-            db.session.add(notification_log)
+            # Send Telegram notification
+            if has_telegram:
+                result = self.telegram_sender.send_message(user.telegram_id, message.strip())
+
+                # Log the notification
+                notification_log = NotificationLog(
+                    user_id=user.id,
+                    channel='telegram',
+                    message=message.strip(),
+                    status='sent' if result['success'] else 'failed',
+                    error_message=result.get('error') if not result['success'] else None
+                )
+                db.session.add(notification_log)
+
+                if result['success']:
+                    notification_sent = True
+                    print(f"✅ Sent Telegram overdue reminder to user #{user.id} ({len(tasks)} tasks)")
+                else:
+                    print(f"❌ Failed to send Telegram overdue reminder to user #{user.id}: {result.get('error')}")
+
+            # Send WhatsApp notification
+            if has_whatsapp:
+                # Build WhatsApp message (plain text, no HTML)
+                whatsapp_msg = f"⚠️ {get_message(lang, 'overdue_reminder', count=len(tasks))}\n\n"
+                for task in tasks[:5]:  # Limit to 5 tasks for WhatsApp
+                    local_time = convert_to_user_timezone(task.time, user.timezone or 'Africa/Cairo')
+                    time_str = local_time.strftime('%Y-%m-%d %H:%M') if local_time else ''
+                    whatsapp_msg += f"📝 *{task.name}*\n"
+                    whatsapp_msg += f"   ⏰ {time_str}\n"
+                    whatsapp_msg += f"   🔗 {system_url}/tasks/{task.id}\n\n"
+                if len(tasks) > 5:
+                    whatsapp_msg += f"... و {len(tasks) - 5} مهام أخرى"
+
+                print(f"📱 Attempting WhatsApp overdue reminder for user #{user.id}")
+                whatsapp_result = self.waha_service.send_message(user.whatsapp_number, whatsapp_msg)
+
+                # Log the WhatsApp notification
+                whatsapp_log = NotificationLog(
+                    user_id=user.id,
+                    channel='whatsapp',
+                    message=whatsapp_msg,
+                    status='sent' if whatsapp_result['success'] else 'failed',
+                    error_message=whatsapp_result.get('error') if not whatsapp_result['success'] else None
+                )
+                db.session.add(whatsapp_log)
+
+                if whatsapp_result['success']:
+                    notification_sent = True
+                    print(f"✅ Sent WhatsApp overdue reminder to user #{user.id} ({len(tasks)} tasks)")
+                else:
+                    print(f"❌ Failed to send WhatsApp overdue reminder to user #{user.id}: {whatsapp_result.get('error')}")
+
             db.session.commit()
 
-            if result['success']:
+            if notification_sent:
                 # Track that we sent notification to this user
                 self._last_overdue_sent[user_id] = current_hour
-                print(f"✅ Sent overdue tasks reminder to user #{user.id} ({len(tasks)} tasks)")
-            else:
-                print(f"❌ Failed to send overdue reminder to user #{user.id}: {result.get('error')}")
 
     def _calculate_next_run(self, run_every):
         """Calculate next run time based on run_every value"""
