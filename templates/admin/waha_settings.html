@@ -18,7 +18,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="card-title">{{ t('WAHA Sessions') }}</h3>
-                <button class="btn btn-primary" onclick="showAddModal()">
+                <button class="btn btn-primary" id="btnAddSession" data-bs-toggle="modal" data-bs-target="#sessionModal">
                     <i class="ti ti-plus me-2"></i>
                     {{ t('Add Session') }}
                 </button>
@@ -49,6 +49,9 @@
         </div>
     </div>
 </div>
+
+<!-- Hidden trigger for details modal -->
+<button type="button" id="btnDetailsModal" data-bs-toggle="modal" data-bs-target="#detailsModal" style="display: none;"></button>
 
 <!-- Add/Edit Modal -->
 <div class="modal modal-blur fade" id="sessionModal" tabindex="-1">
@@ -214,12 +217,17 @@
 <script>
 let sessions = [];
 let currentSessionId = null;
-let sessionModal, detailsModal;
 
 document.addEventListener('DOMContentLoaded', function() {
-    sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-    detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
     loadSessions();
+
+    // Reset form when session modal is closed
+    document.getElementById('sessionModal').addEventListener('hidden.bs.modal', function() {
+        document.getElementById('sessionForm').reset();
+        document.getElementById('sessionId').value = '';
+        document.getElementById('modalTitle').textContent = '{{ t("Add WAHA Session") }}';
+        document.querySelector('[name="is_active"]').checked = true;
+    });
 });
 
 function loadSessions() {
@@ -250,7 +258,7 @@ function renderSessions() {
                 <td colspan="7" class="text-center text-muted py-4">
                     <i class="ti ti-brand-whatsapp" style="font-size: 3rem;"></i>
                     <p class="mt-2">{{ t('No WAHA sessions configured') }}</p>
-                    <button class="btn btn-primary btn-sm" onclick="showAddModal()">
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#sessionModal">
                         <i class="ti ti-plus me-2"></i>{{ t('Add First Session') }}
                     </button>
                 </td>
@@ -353,14 +361,6 @@ function loadSessionStatus(sessionId) {
         });
 }
 
-function showAddModal() {
-    document.getElementById('modalTitle').textContent = '{{ t("Add WAHA Session") }}';
-    document.getElementById('sessionForm').reset();
-    document.getElementById('sessionId').value = '';
-    document.querySelector('[name="is_active"]').checked = true;
-    sessionModal.show();
-}
-
 function showEditModal(id) {
     const session = sessions.find(s => s.id === id);
     if (!session) return;
@@ -379,7 +379,9 @@ function showEditModal(id) {
             document.querySelector('[name="is_default"]').checked = data.is_default;
             document.querySelector('[name="is_active"]').checked = data.is_active;
             document.querySelector('[name="webhook_enabled"]').checked = data.webhook_enabled;
-            sessionModal.show();
+
+            // Show modal by clicking trigger button
+            document.getElementById('btnAddSession').click();
         });
 }
 
@@ -396,7 +398,8 @@ function showDetails(id) {
     document.getElementById('statusJson').textContent = '{{ t("Loading...") }}';
     document.getElementById('testResult').style.display = 'none';
 
-    detailsModal.show();
+    // Show modal by clicking hidden trigger button
+    document.getElementById('btnDetailsModal').click();
     refreshSessionDetails();
 }
 
@@ -518,6 +521,12 @@ function deleteSession(id) {
         });
 }
 
+function closeSessionModal() {
+    const modalElement = document.getElementById('sessionModal');
+    const closeBtn = modalElement.querySelector('[data-bs-dismiss="modal"]');
+    if (closeBtn) closeBtn.click();
+}
+
 // Form submission
 document.getElementById('sessionForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -547,7 +556,7 @@ document.getElementById('sessionForm').addEventListener('submit', function(e) {
         .then(result => {
             if (result.success || result.session) {
                 showNotification('success', id ? '{{ t("Session updated") }}' : '{{ t("Session created") }}');
-                sessionModal.hide();
+                closeSessionModal();
                 loadSessions();
             } else {
                 showNotification('danger', result.error || '{{ t("Failed to save session") }}');

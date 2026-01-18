@@ -127,6 +127,8 @@
 {% endblock %}
 
 {% block modals %}
+<!-- Hidden trigger for test email modal -->
+<button type="button" id="btnTestEmailModal" data-bs-toggle="modal" data-bs-target="#modal-test-email" style="display: none;"></button>
 <!-- Test Email Modal -->
 <div class="modal fade" id="modal-test-email" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -209,7 +211,7 @@ function testEmailSettings() {
 
     // Then show test modal
     document.getElementById('test-email').value = '';
-    new bootstrap.Modal(document.getElementById('modal-test-email')).show();
+    document.getElementById('btnTestEmailModal').click();
 }
 
 function sendTestEmail() {
@@ -226,7 +228,11 @@ function sendTestEmail() {
     })
     .then(r => r.json())
     .then(data => {
-        bootstrap.Modal.getInstance(document.getElementById('modal-test-email')).hide();
+        // Close modal by clicking dismiss button
+        const modalElement = document.getElementById('modal-test-email');
+        const closeBtn = modalElement.querySelector('[data-bs-dismiss="modal"]');
+        if (closeBtn) closeBtn.click();
+
         if (data.success) {
             alert('تم إرسال البريد التجريبي بنجاح! تحقق من صندوق البريد.');
         } else {
