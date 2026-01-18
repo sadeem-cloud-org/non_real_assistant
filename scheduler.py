@@ -115,6 +115,29 @@ class TaskScheduler:
         self._lock = threading.Lock()
         self._last_overdue_sent = {}  # Track last overdue notification time per user
 
+    def _safe_db_operation(self, operation, max_retries=3):
+        """Execute database operation with retry on lock errors"""
+        for attempt in range(max_retries):
+            try:
+                operation()
+                return
+            except Exception as e:
+                error_str = str(e).lower()
+                if 'database is locked' in error_str or 'locked' in error_str:
+                    if attempt < max_retries - 1:
+                        wait_time = (attempt + 1) * 2  # 2s, 4s, 6s
+                        print(f"⏳ Database locked, retrying in {wait_time}s... (attempt {attempt + 1}/{max_retries})")
+                        time.sleep(wait_time)
+                        try:
+                            db.session.rollback()
+                        except:
+                            pass
+                    else:
+                        print(f"❌ Database still locked after {max_retries} attempts")
+                        raise
+                else:
+                    raise
+
     def start(self):
         """Start the background scheduler"""
         with self._lock:
@@ -142,15 +165,15 @@ class TaskScheduler:
             try:
                 with self.app.app_context():
                     # Check for task reminders
-                    self._check_task_reminders()
+                    self._safe_db_operation(self._check_task_reminders)
 
                     # Check for scheduled assistant scripts
-                    self._check_scheduled_assistants()
+                    self._safe_db_operation(self._check_scheduled_assistants)
 
                     # Check for overdue tasks every hour
                     current_time = time.time()
                     if current_time - last_overdue_check >= 3600:  # 1 hour = 3600 seconds
-                        self._check_overdue_tasks()
+                        self._safe_db_operation(self._check_overdue_tasks)
                         last_overdue_check = current_time
 
             except Exception as e:
@@ -265,26 +288,42 @@ class TaskScheduler:
 
             # Send WhatsApp notification if enabled
             if user.whatsapp_notify and user.whatsapp_number:
-                print(f"📱 Attempting WhatsApp notification for task #{task.id} to {user.whatsapp_number}")
-                whatsapp_result = self.waha_service.send_task_reminder(user, task, system_url)
+                whatsapp_result = None
+                skip_reason = None
 
-                # Log the WhatsApp notification
-                whatsapp_log = NotificationLog(
-                    user_id=user.id,
-                    task_id=task.id,
-                    assistant_id=task.assistant_id,
-                    channel='whatsapp',
-                    message=f"Task reminder: {task.name}",
-                    status='sent' if whatsapp_result['success'] else 'failed',
-                    error_message=whatsapp_result.get('error') if not whatsapp_result['success'] else None
-                )
-                db.session.add(whatsapp_log)
-
-                if whatsapp_result['success']:
-                    notification_sent = True
-                    print(f"✅ Sent WhatsApp reminder for task #{task.id} to user #{user.id}")
+                # Check if WAHA is configured and working
+                if not self.waha_service.is_configured():
+                    skip_reason = 'WAHA not configured'
                 else:
-                    print(f"❌ Failed to send WhatsApp reminder for task #{task.id}: {whatsapp_result.get('error')}")
+                    # Check session status before sending
+                    status_check = self.waha_service.get_session_status()
+                    session_status = status_check.get('status', '').upper()
+                    if session_status != 'WORKING':
+                        skip_reason = f'Session status: {session_status}'
+                    else:
+                        print(f"📱 Attempting WhatsApp notification for task #{task.id} to {user.whatsapp_number}")
+                        whatsapp_result = self.waha_service.send_task_reminder(user, task, system_url)
+
+                if skip_reason:
+                    print(f"⚠️  Skipping WhatsApp for task #{task.id}: {skip_reason}")
+                elif whatsapp_result:
+                    # Log the WhatsApp notification
+                    whatsapp_log = NotificationLog(
+                        user_id=user.id,
+                        task_id=task.id,
+                        assistant_id=task.assistant_id,
+                        channel='whatsapp',
+                        message=f"Task reminder: {task.name}",
+                        status='sent' if whatsapp_result['success'] else 'failed',
+                        error_message=whatsapp_result.get('error') if not whatsapp_result['success'] else None
+                    )
+                    db.session.add(whatsapp_log)
+
+                    if whatsapp_result['success']:
+                        notification_sent = True
+                        print(f"✅ Sent WhatsApp reminder for task #{task.id} to user #{user.id}")
+                    else:
+                        print(f"❌ Failed to send WhatsApp reminder for task #{task.id}: {whatsapp_result.get('error')}")
 
             if notification_sent:
                 # Mark notification as sent
@@ -447,35 +486,50 @@ class TaskScheduler:
 
             # Send WhatsApp notification
             if has_whatsapp:
-                # Build WhatsApp message (plain text, no HTML)
-                whatsapp_msg = f"⚠️ {get_message(lang, 'overdue_reminder', count=len(tasks))}\n\n"
-                for task in tasks[:5]:  # Limit to 5 tasks for WhatsApp
-                    local_time = convert_to_user_timezone(task.time, user.timezone or 'Africa/Cairo')
-                    time_str = local_time.strftime('%Y-%m-%d %H:%M') if local_time else ''
-                    whatsapp_msg += f"📝 *{task.name}*\n"
-                    whatsapp_msg += f"   ⏰ {time_str}\n"
-                    whatsapp_msg += f"   🔗 {system_url}/tasks/{task.id}\n\n"
-                if len(tasks) > 5:
-                    whatsapp_msg += f"... و {len(tasks) - 5} مهام أخرى"
+                whatsapp_result = None
+                skip_reason = None
 
-                print(f"📱 Attempting WhatsApp overdue reminder for user #{user.id}")
-                whatsapp_result = self.waha_service.send_message(user.whatsapp_number, whatsapp_msg)
-
-                # Log the WhatsApp notification
-                whatsapp_log = NotificationLog(
-                    user_id=user.id,
-                    channel='whatsapp',
-                    message=whatsapp_msg,
-                    status='sent' if whatsapp_result['success'] else 'failed',
-                    error_message=whatsapp_result.get('error') if not whatsapp_result['success'] else None
-                )
-                db.session.add(whatsapp_log)
-
-                if whatsapp_result['success']:
-                    notification_sent = True
-                    print(f"✅ Sent WhatsApp overdue reminder to user #{user.id} ({len(tasks)} tasks)")
+                # Check if WAHA is configured and working
+                if not self.waha_service.is_configured():
+                    skip_reason = 'WAHA not configured'
                 else:
-                    print(f"❌ Failed to send WhatsApp overdue reminder to user #{user.id}: {whatsapp_result.get('error')}")
+                    status_check = self.waha_service.get_session_status()
+                    session_status = status_check.get('status', '').upper()
+                    if session_status != 'WORKING':
+                        skip_reason = f'Session status: {session_status}'
+                    else:
+                        # Build WhatsApp message (plain text, no HTML)
+                        whatsapp_msg = f"⚠️ {get_message(lang, 'overdue_reminder', count=len(tasks))}\n\n"
+                        for task in tasks[:5]:  # Limit to 5 tasks for WhatsApp
+                            local_time = convert_to_user_timezone(task.time, user.timezone or 'Africa/Cairo')
+                            time_str = local_time.strftime('%Y-%m-%d %H:%M') if local_time else ''
+                            whatsapp_msg += f"📝 *{task.name}*\n"
+                            whatsapp_msg += f"   ⏰ {time_str}\n"
+                            whatsapp_msg += f"   🔗 {system_url}/tasks/{task.id}\n\n"
+                        if len(tasks) > 5:
+                            whatsapp_msg += f"... و {len(tasks) - 5} مهام أخرى"
+
+                        print(f"📱 Attempting WhatsApp overdue reminder for user #{user.id}")
+                        whatsapp_result = self.waha_service.send_message(user.whatsapp_number, whatsapp_msg)
+
+                if skip_reason:
+                    print(f"⚠️  Skipping WhatsApp overdue reminder for user #{user.id}: {skip_reason}")
+                elif whatsapp_result:
+                    # Log the WhatsApp notification
+                    whatsapp_log = NotificationLog(
+                        user_id=user.id,
+                        channel='whatsapp',
+                        message=whatsapp_msg,
+                        status='sent' if whatsapp_result['success'] else 'failed',
+                        error_message=whatsapp_result.get('error') if not whatsapp_result['success'] else None
+                    )
+                    db.session.add(whatsapp_log)
+
+                    if whatsapp_result['success']:
+                        notification_sent = True
+                        print(f"✅ Sent WhatsApp overdue reminder to user #{user.id} ({len(tasks)} tasks)")
+                    else:
+                        print(f"❌ Failed to send WhatsApp overdue reminder to user #{user.id}: {whatsapp_result.get('error')}")
 
             db.session.commit()
 
