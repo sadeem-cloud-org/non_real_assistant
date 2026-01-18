@@ -17,12 +17,26 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def get_upload_base_dir():
+    """Get the base upload directory - uses /app/data in Docker, otherwise static/uploads"""
+    # Check if we're in Docker (data directory exists at /app/data)
+    if os.path.exists('/app/data'):
+        return '/app/data/uploads'
+    # Fallback to static/uploads for local development
+    return os.path.join(current_app.root_path, 'static', 'uploads')
+
+
+def get_avatar_upload_dir():
+    """Get the avatar upload directory"""
+    return os.path.join(get_upload_base_dir(), 'avatars')
+
+
 # ===== Avatar File Serving =====
 
 @settings_bp.route('/uploads/avatars/<filename>')
 def serve_avatar(filename):
     """Serve avatar files"""
-    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'avatars')
+    upload_dir = get_avatar_upload_dir()
     return send_from_directory(upload_dir, filename)
 
 
@@ -169,7 +183,7 @@ def upload_avatar():
     filename = f"{uuid.uuid4().hex}.{ext}"
 
     # Create upload directory if it doesn't exist
-    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'avatars')
+    upload_dir = get_avatar_upload_dir()
     os.makedirs(upload_dir, exist_ok=True)
 
     # Delete old avatar if exists
@@ -208,7 +222,7 @@ def delete_avatar():
 
     if user.avatar:
         # Delete file
-        upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'avatars')
+        upload_dir = get_avatar_upload_dir()
         filepath = os.path.join(upload_dir, user.avatar)
         if os.path.exists(filepath):
             try:
