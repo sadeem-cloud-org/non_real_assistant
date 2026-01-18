@@ -178,6 +178,7 @@ class User(db.Model):
     language_id = db.Column(db.Integer, db.ForeignKey('languages.id'))
     browser_notify = db.Column(db.Boolean, default=True)
     telegram_notify = db.Column(db.Boolean, default=True)  # Enable telegram notifications
+    telegram_bot_blocked = db.Column(db.Boolean, default=False)  # True if bot is blocked by user
     email_notify = db.Column(db.Boolean, default=False)  # Enable email notifications
     whatsapp_notify = db.Column(db.Boolean, default=False)  # Enable WhatsApp notifications
     is_admin = db.Column(db.Boolean, default=False)
@@ -208,6 +209,7 @@ class User(db.Model):
             'language': self.language.to_dict() if self.language else None,
             'browser_notify': self.browser_notify,
             'telegram_notify': self.telegram_notify,
+            'telegram_bot_blocked': self.telegram_bot_blocked,
             'email_notify': self.email_notify,
             'whatsapp_notify': self.whatsapp_notify,
             'is_admin': self.is_admin,

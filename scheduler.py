@@ -34,6 +34,25 @@ def get_user_language(user):
     return 'ar'  # Default to Arabic
 
 
+def check_telegram_blocked(user, result):
+    """Check if Telegram notification failed due to bot being blocked by user.
+    Updates user.telegram_bot_blocked accordingly."""
+    if result.get('success'):
+        # If notification succeeded and user was previously marked as blocked, unblock them
+        if user.telegram_bot_blocked:
+            user.telegram_bot_blocked = False
+            db.session.commit()
+            print(f"✅ User #{user.id} unblocked the bot - flag cleared")
+    else:
+        # Check if the error indicates the bot is blocked
+        error_msg = str(result.get('error', '')).lower()
+        if 'forbidden' in error_msg or 'blocked' in error_msg or 'bot was blocked' in error_msg:
+            if not user.telegram_bot_blocked:
+                user.telegram_bot_blocked = True
+                db.session.commit()
+                print(f"🚫 User #{user.id} has blocked the bot - flag set")
+
+
 # Notification message templates for different languages
 NOTIFICATION_MESSAGES = {
     'ar': {
@@ -267,6 +286,9 @@ class TaskScheduler:
                     message.strip()
                 )
 
+                # Check if bot is blocked and update user flag
+                check_telegram_blocked(user, result)
+
                 # Log the notification
                 notification_log = NotificationLog(
                     user_id=user.id,
@@ -483,6 +505,9 @@ class TaskScheduler:
             if has_telegram:
                 result = self.telegram_sender.send_message(user.telegram_id, message.strip())
 
+                # Check if bot is blocked and update user flag
+                check_telegram_blocked(user, result)
+
                 # Log the notification
                 notification_log = NotificationLog(
                     user_id=user.id,
@@ -613,6 +638,9 @@ class TaskScheduler:
 
         result = self.telegram_sender.send_message(user.telegram_id, message.strip())
 
+        # Check if bot is blocked and update user flag
+        check_telegram_blocked(user, result)
+
         # Log the notification
         notification_log = NotificationLog(
             user_id=user.id,
@@ -671,6 +699,9 @@ class TaskScheduler:
 
             # Send message
             result = self.telegram_sender.send_message(user.telegram_id, message)
+
+            # Check if bot is blocked and update user flag
+            check_telegram_blocked(user, result)
 
             if result['success']:
                 print(f"✅ Sent daily summary to user #{user_id}")
