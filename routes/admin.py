@@ -1,7 +1,8 @@
 """Admin routes - Admin panel for system management"""
 
-from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from models import db, User, Language, AssistantType, SystemSetting
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, Response
+from models import db, User, Language, AssistantType, SystemSetting, WAHASession
+from services.waha_service import get_waha_service, WAHAService
 from functools import wraps
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -282,3 +283,263 @@ def notify_templates_page():
 def email_settings_page():
     """Email settings page"""
     return render_template('admin/email_settings.html', active_page='admin')
+
+
+# ===== WAHA WhatsApp Settings =====
+
+@admin_bp.route('/waha-settings')
+@require_admin
+def waha_settings_page():
+    """WAHA WhatsApp settings page"""
+    return render_template('admin/waha_settings.html', active_page='admin')
+
+
+@admin_bp.route('/api/waha-sessions')
+@require_admin_api
+def get_waha_sessions():
+    """Get all WAHA sessions"""
+    sessions = WAHASession.query.order_by(WAHASession.create_time.desc()).all()
+    return jsonify([s.to_dict() for s in sessions])
+
+
+@admin_bp.route('/api/waha-sessions', methods=['POST'])
+@require_admin_api
+def create_waha_session():
+    """Create a new WAHA session"""
+    data = request.get_json()
+
+    name = data.get('name', '').strip()
+    session_name = data.get('session_name', '').strip()
+    api_url = data.get('api_url', '').strip()
+
+    if not name or not session_name or not api_url:
+        return jsonify({'error': 'Name, session name, and API URL are required'}), 400
+
+    # Check if session_name already exists
+    existing = WAHASession.query.filter_by(session_name=session_name).first()
+    if existing:
+        return jsonify({'error': 'Session with this name already exists'}), 400
+
+    # Remove trailing slash from API URL
+    api_url = api_url.rstrip('/')
+
+    waha_session = WAHASession(
+        name=name,
+        session_name=session_name,
+        api_url=api_url,
+        api_key=data.get('api_key', '').strip() or None,
+        is_default=bool(data.get('is_default', False)),
+        is_active=bool(data.get('is_active', True)),
+        webhook_enabled=bool(data.get('webhook_enabled', False)),
+        create_user_id=session['user_id']
+    )
+
+    # If this is set as default, unset others
+    if waha_session.is_default:
+        WAHASession.query.update({WAHASession.is_default: False})
+
+    db.session.add(waha_session)
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'session': waha_session.to_dict()
+    }), 201
+
+
+@admin_bp.route('/api/waha-sessions/<int:session_id>', methods=['GET'])
+@require_admin_api
+def get_waha_session(session_id):
+    """Get a specific WAHA session"""
+    waha_session = WAHASession.query.get(session_id)
+    if not waha_session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    return jsonify(waha_session.to_dict(include_api_key=True))
+
+
+@admin_bp.route('/api/waha-sessions/<int:session_id>', methods=['PUT'])
+@require_admin_api
+def update_waha_session(session_id):
+    """Update a WAHA session"""
+    waha_session = WAHASession.query.get(session_id)
+    if not waha_session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    data = request.get_json()
+
+    if 'name' in data:
+        waha_session.name = data['name'].strip()
+
+    if 'session_name' in data:
+        new_session_name = data['session_name'].strip()
+        if new_session_name != waha_session.session_name:
+            existing = WAHASession.query.filter_by(session_name=new_session_name).first()
+            if existing:
+                return jsonify({'error': 'Session name already in use'}), 400
+            waha_session.session_name = new_session_name
+
+    if 'api_url' in data:
+        waha_session.api_url = data['api_url'].strip().rstrip('/')
+
+    if 'api_key' in data:
+        waha_session.api_key = data['api_key'].strip() or None
+
+    if 'is_active' in data:
+        waha_session.is_active = bool(data['is_active'])
+
+    if 'webhook_enabled' in data:
+        waha_session.webhook_enabled = bool(data['webhook_enabled'])
+
+    if 'is_default' in data:
+        if data['is_default']:
+            # Unset all others
+            WAHASession.query.update({WAHASession.is_default: False})
+            waha_session.is_default = True
+        else:
+            waha_session.is_default = False
+
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'session': waha_session.to_dict()
+    })
+
+
+@admin_bp.route('/api/waha-sessions/<int:session_id>', methods=['DELETE'])
+@require_admin_api
+def delete_waha_session(session_id):
+    """Delete a WAHA session"""
+    waha_session = WAHASession.query.get(session_id)
+    if not waha_session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    db.session.delete(waha_session)
+    db.session.commit()
+
+    return jsonify({'success': True})
+
+
+@admin_bp.route('/api/waha-sessions/<int:session_id>/status')
+@require_admin_api
+def get_waha_session_status(session_id):
+    """Get WAHA session status from WAHA API"""
+    waha_session = WAHASession.query.get(session_id)
+    if not waha_session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    service = WAHAService(waha_session)
+    result = service.get_session_status(waha_session)
+
+    return jsonify(result)
+
+
+@admin_bp.route('/api/waha-sessions/<int:session_id>/start', methods=['POST'])
+@require_admin_api
+def start_waha_session(session_id):
+    """Start a WAHA session"""
+    waha_session = WAHASession.query.get(session_id)
+    if not waha_session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    service = WAHAService(waha_session)
+    result = service.start_session(waha_session)
+
+    return jsonify(result)
+
+
+@admin_bp.route('/api/waha-sessions/<int:session_id>/stop', methods=['POST'])
+@require_admin_api
+def stop_waha_session(session_id):
+    """Stop a WAHA session"""
+    waha_session = WAHASession.query.get(session_id)
+    if not waha_session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    service = WAHAService(waha_session)
+    result = service.stop_session(waha_session)
+
+    return jsonify(result)
+
+
+@admin_bp.route('/api/waha-sessions/<int:session_id>/logout', methods=['POST'])
+@require_admin_api
+def logout_waha_session(session_id):
+    """Logout from a WAHA session"""
+    waha_session = WAHASession.query.get(session_id)
+    if not waha_session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    service = WAHAService(waha_session)
+    result = service.logout_session(waha_session)
+
+    return jsonify(result)
+
+
+@admin_bp.route('/api/waha-sessions/<int:session_id>/qr')
+@require_admin_api
+def get_waha_qr_code(session_id):
+    """Get QR code for WAHA session"""
+    waha_session = WAHASession.query.get(session_id)
+    if not waha_session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    service = WAHAService(waha_session)
+    result = service.get_qr_code(waha_session)
+
+    if result['success'] and result['qr']:
+        return Response(
+            result['qr'],
+            mimetype=result.get('content_type', 'image/png')
+        )
+    else:
+        return jsonify({'error': result.get('error', 'QR not available')}), 400
+
+
+@admin_bp.route('/api/waha-sessions/<int:session_id>/test', methods=['POST'])
+@require_admin_api
+def test_waha_session(session_id):
+    """Send a test message via WAHA session"""
+    waha_session = WAHASession.query.get(session_id)
+    if not waha_session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    data = request.get_json()
+    phone = data.get('phone', '').strip()
+    message = data.get('message', 'Test message from Non Real Assistant')
+
+    if not phone:
+        return jsonify({'error': 'Phone number is required'}), 400
+
+    service = WAHAService(waha_session)
+    result = service.send_message(phone, message, waha_session)
+
+    return jsonify(result)
+
+
+@admin_bp.route('/api/waha-sessions/<int:session_id>/set-default', methods=['POST'])
+@require_admin_api
+def set_default_waha_session(session_id):
+    """Set a WAHA session as default"""
+    waha_session = WAHASession.query.get(session_id)
+    if not waha_session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    success = WAHASession.set_default(session_id)
+
+    if success:
+        return jsonify({'success': True})
+    else:
+        return jsonify({'error': 'Failed to set default session'}), 500
+
+
+@admin_bp.route('/api/waha/has-default')
+@require_admin_api
+def has_default_waha_session():
+    """Check if there's a default WAHA session configured"""
+    default_session = WAHASession.get_default()
+    return jsonify({
+        'has_default': default_session is not None,
+        'session': default_session.to_dict() if default_session else None
+    })

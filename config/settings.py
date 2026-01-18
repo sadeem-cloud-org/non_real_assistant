@@ -24,7 +24,8 @@ class Config:
     OTP_LENGTH = 6
 
     # Session
-    PERMANENT_SESSION_LIFETIME = 86400  # 24 hours in seconds
+    PERMANENT_SESSION_LIFETIME = 2592000  # 30 days in seconds (30 * 24 * 60 * 60)
+    SESSION_PERMANENT = True  # Make sessions permanent by default
 
     # External API Key for user creation
     API_SECRET_KEY = os.getenv('API_SECRET_KEY')
