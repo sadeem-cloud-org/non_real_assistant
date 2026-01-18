@@ -88,23 +88,42 @@ def get_message(lang, key, **kwargs):
 class TaskScheduler:
     """Background scheduler for tasks and scripts"""
 
+    _instance_lock = threading.Lock()  # Class-level lock for singleton
+    _instance = None
+
+    def __new__(cls, app):
+        """Ensure only one instance exists (singleton pattern)"""
+        with cls._instance_lock:
+            if cls._instance is None:
+                cls._instance = super().__new__(cls)
+                cls._instance._initialized = False
+            return cls._instance
+
     def __init__(self, app):
+        # Only initialize once
+        if self._initialized:
+            return
+        self._initialized = True
+
         self.app = app
         self.running = False
         self.thread = None
         self.telegram_sender = TelegramOTPSender()
         self.script_executor = ScriptExecutor()
+        self._lock = threading.Lock()
+        self._last_overdue_sent = {}  # Track last overdue notification time per user
 
     def start(self):
         """Start the background scheduler"""
-        if self.running:
-            print("⚠️  Scheduler is already running")
-            return
+        with self._lock:
+            if self.running:
+                print("⚠️  Scheduler is already running")
+                return
 
-        self.running = True
-        self.thread = threading.Thread(target=self._run_loop, daemon=True)
-        self.thread.start()
-        print("✅ Task Scheduler started")
+            self.running = True
+            self.thread = threading.Thread(target=self._run_loop, daemon=True)
+            self.thread.start()
+            print("✅ Task Scheduler started")
 
     def stop(self):
         """Stop the background scheduler"""
@@ -303,6 +322,7 @@ class TaskScheduler:
     def _check_overdue_tasks(self):
         """Check and send reminders for overdue tasks (runs hourly)"""
         now = datetime.utcnow()
+        current_hour = now.replace(minute=0, second=0, microsecond=0)
 
         # Get all overdue tasks (time passed, not completed, not cancelled)
         # Group by user to send consolidated reminders
@@ -329,8 +349,18 @@ class TaskScheduler:
 
         # Send reminder to each user with overdue tasks
         for user_id, tasks in tasks_by_user.items():
+            # Check if we already sent a notification to this user this hour
+            last_sent = self._last_overdue_sent.get(user_id)
+            if last_sent and last_sent >= current_hour:
+                print(f"⏭️  Skipping overdue reminder for user #{user_id} (already sent this hour)")
+                continue
+
             user = User.query.get(user_id)
             if not user or not user.telegram_id:
+                continue
+
+            # Check user's notification preference
+            if hasattr(user, 'telegram_notify') and not user.telegram_notify:
                 continue
 
             # Get user's language
@@ -371,6 +401,8 @@ class TaskScheduler:
             db.session.commit()
 
             if result['success']:
+                # Track that we sent notification to this user
+                self._last_overdue_sent[user_id] = current_hour
                 print(f"✅ Sent overdue tasks reminder to user #{user.id} ({len(tasks)} tasks)")
             else:
                 print(f"❌ Failed to send overdue reminder to user #{user.id}: {result.get('error')}")
@@ -507,25 +539,24 @@ class TaskScheduler:
                 print(f"❌ Failed to send daily summary: {result.get('error')}")
 
 
-# Global scheduler instance
-_scheduler = None
+# Global scheduler lock
+_scheduler_lock = threading.Lock()
 
 def get_scheduler(app):
-    """Get or create scheduler instance"""
-    global _scheduler
-    if _scheduler is None:
-        _scheduler = TaskScheduler(app)
-    return _scheduler
+    """Get or create scheduler instance (thread-safe)"""
+    with _scheduler_lock:
+        return TaskScheduler(app)  # Singleton pattern in __new__
 
 def start_scheduler(app):
-    """Start the scheduler"""
-    scheduler = get_scheduler(app)
-    scheduler.start()
-    return scheduler
+    """Start the scheduler (thread-safe)"""
+    with _scheduler_lock:
+        scheduler = TaskScheduler(app)
+        scheduler.start()
+        return scheduler
 
 def stop_scheduler():
     """Stop the scheduler"""
-    global _scheduler
-    if _scheduler:
-        _scheduler.stop()
-        _scheduler = None
+    with _scheduler_lock:
+        if TaskScheduler._instance:
+            TaskScheduler._instance.stop()
+            TaskScheduler._instance = None
