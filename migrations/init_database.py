@@ -193,6 +193,7 @@ def run_migration(db_path):
                 language_id INTEGER REFERENCES languages(id),
                 browser_notify BOOLEAN DEFAULT 1,
                 telegram_notify BOOLEAN DEFAULT 1,
+                telegram_bot_blocked BOOLEAN DEFAULT 0,
                 email_notify BOOLEAN DEFAULT 0,
                 whatsapp_notify BOOLEAN DEFAULT 0,
                 is_admin BOOLEAN DEFAULT 0,
@@ -205,6 +206,7 @@ def run_migration(db_path):
         if table_exists(cursor, 'users'):
             add_column_if_not_exists(cursor, 'users', 'whatsapp_number', 'VARCHAR(20)')
             add_column_if_not_exists(cursor, 'users', 'telegram_notify', 'BOOLEAN DEFAULT 1')
+            add_column_if_not_exists(cursor, 'users', 'telegram_bot_blocked', 'BOOLEAN DEFAULT 0')
             add_column_if_not_exists(cursor, 'users', 'email_notify', 'BOOLEAN DEFAULT 0')
             add_column_if_not_exists(cursor, 'users', 'whatsapp_notify', 'BOOLEAN DEFAULT 0')
             add_column_if_not_exists(cursor, 'users', 'browser_notify', 'BOOLEAN DEFAULT 1')

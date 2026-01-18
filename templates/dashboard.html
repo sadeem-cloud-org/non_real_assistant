@@ -19,6 +19,34 @@
 {% endblock %}
 
 {% block content %}
+<!-- Telegram Bot Blocked Warning -->
+{% if current_user and current_user.telegram_notify and current_user.telegram_bot_blocked %}
+<div class="alert alert-warning alert-dismissible mb-3" id="telegram-blocked-alert">
+    <div class="d-flex">
+        <div>
+            <i class="ti ti-brand-telegram icon alert-icon"></i>
+        </div>
+        <div class="ms-3">
+            <h4 class="alert-title">{{ t('البوت محظور على التليجرام!') }}</h4>
+            <div class="text-muted">
+                {{ t('لن تصلك إشعارات التليجرام لأنك حظرت البوت. لاستعادة الإشعارات:') }}
+                <ol class="mt-2 mb-0">
+                    <li>{{ t('افتح محادثة البوت على التليجرام') }}</li>
+                    <li>{{ t('اضغط على "Start" أو "/start" لإلغاء الحظر') }}</li>
+                </ol>
+            </div>
+            <div class="mt-2">
+                <a href="/settings" class="btn btn-warning btn-sm">
+                    <i class="ti ti-settings icon"></i>
+                    {{ t('إعدادات الإشعارات') }}
+                </a>
+            </div>
+        </div>
+    </div>
+    <a class="btn-close" data-bs-dismiss="alert" aria-label="Close"></a>
+</div>
+{% endif %}
+
 <!-- Empty Assistants Alert (hidden by default) -->
 <div class="alert alert-info alert-dismissible mb-3" id="no-assistants-alert" style="display: none;">
     <div class="d-flex">
