@@ -113,7 +113,6 @@ class TaskScheduler:
         self.script_executor = ScriptExecutor()
         self.waha_service = get_waha_service()
         self._lock = threading.Lock()
-        self._last_overdue_sent = {}  # Track last overdue notification time per user
 
     def _safe_db_operation(self, operation, max_retries=3):
         """Execute database operation with retry on lock errors"""
@@ -395,7 +394,7 @@ class TaskScheduler:
     def _check_overdue_tasks(self):
         """Check and send reminders for overdue tasks (runs hourly)"""
         now = datetime.utcnow()
-        current_hour = now.replace(minute=0, second=0, microsecond=0)
+        one_hour_ago = now - timedelta(hours=1)
 
         # Get all overdue tasks (time passed, not completed, not cancelled)
         # Group by user to send consolidated reminders
@@ -422,10 +421,28 @@ class TaskScheduler:
 
         # Send reminder to each user with overdue tasks
         for user_id, tasks in tasks_by_user.items():
-            # Check if we already sent a notification to this user this hour
-            last_sent = self._last_overdue_sent.get(user_id)
-            if last_sent and last_sent >= current_hour:
-                print(f"⏭️  Skipping overdue reminder for user #{user_id} (already sent this hour)")
+            # Check if we already sent an overdue notification to this user in the last hour
+            # Using database-backed check for persistence across restarts
+            recent_notification = NotificationLog.query.filter(
+                NotificationLog.user_id == user_id,
+                NotificationLog.channel == 'telegram',
+                NotificationLog.status == 'sent',
+                NotificationLog.message.like('%متأخرة%'),  # Arabic for overdue
+                NotificationLog.created_at >= one_hour_ago
+            ).first()
+
+            if not recent_notification:
+                # Also check for English overdue message
+                recent_notification = NotificationLog.query.filter(
+                    NotificationLog.user_id == user_id,
+                    NotificationLog.channel == 'telegram',
+                    NotificationLog.status == 'sent',
+                    NotificationLog.message.like('%overdue%'),
+                    NotificationLog.created_at >= one_hour_ago
+                ).first()
+
+            if recent_notification:
+                print(f"⏭️  Skipping overdue reminder for user #{user_id} (already sent at {recent_notification.created_at})")
                 continue
 
             user = User.query.get(user_id)
@@ -462,8 +479,6 @@ class TaskScheduler:
                 more_msg = get_message(lang, 'and_more_tasks', count=len(tasks) - 10)
                 message += f"... {more_msg}"
 
-            notification_sent = False
-
             # Send Telegram notification
             if has_telegram:
                 result = self.telegram_sender.send_message(user.telegram_id, message.strip())
@@ -479,7 +494,6 @@ class TaskScheduler:
                 db.session.add(notification_log)
 
                 if result['success']:
-                    notification_sent = True
                     print(f"✅ Sent Telegram overdue reminder to user #{user.id} ({len(tasks)} tasks)")
                 else:
                     print(f"❌ Failed to send Telegram overdue reminder to user #{user.id}: {result.get('error')}")
@@ -526,16 +540,11 @@ class TaskScheduler:
                     db.session.add(whatsapp_log)
 
                     if whatsapp_result['success']:
-                        notification_sent = True
                         print(f"✅ Sent WhatsApp overdue reminder to user #{user.id} ({len(tasks)} tasks)")
                     else:
                         print(f"❌ Failed to send WhatsApp overdue reminder to user #{user.id}: {whatsapp_result.get('error')}")
 
             db.session.commit()
-
-            if notification_sent:
-                # Track that we sent notification to this user
-                self._last_overdue_sent[user_id] = current_hour
 
     def _calculate_next_run(self, run_every):
         """Calculate next run time based on run_every value"""
