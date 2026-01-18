@@ -428,7 +428,7 @@ class TaskScheduler:
                 NotificationLog.channel == 'telegram',
                 NotificationLog.status == 'sent',
                 NotificationLog.message.like('%متأخرة%'),  # Arabic for overdue
-                NotificationLog.created_at >= one_hour_ago
+                NotificationLog.create_time >= one_hour_ago
             ).first()
 
             if not recent_notification:
@@ -438,11 +438,11 @@ class TaskScheduler:
                     NotificationLog.channel == 'telegram',
                     NotificationLog.status == 'sent',
                     NotificationLog.message.like('%overdue%'),
-                    NotificationLog.created_at >= one_hour_ago
+                    NotificationLog.create_time >= one_hour_ago
                 ).first()
 
             if recent_notification:
-                print(f"⏭️  Skipping overdue reminder for user #{user_id} (already sent at {recent_notification.created_at})")
+                print(f"⏭️  Skipping overdue reminder for user #{user_id} (already sent at {recent_notification.create_time})")
                 continue
 
             user = User.query.get(user_id)
