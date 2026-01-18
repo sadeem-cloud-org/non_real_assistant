@@ -1107,3 +1107,91 @@ def get_notification_stats():
         'failed': failed,
         'by_channel': dict(by_channel)
     })
+
+
+# ===== WAHA Webhook =====
+
+@api_bp.route('/waha/webhook', methods=['POST'])
+def waha_webhook():
+    """
+    Webhook endpoint for WAHA WhatsApp API
+
+    This endpoint receives incoming messages and events from WAHA.
+    Configure your WAHA session to send webhooks to: {SYSTEM_URL}/api/waha/webhook
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data received'}), 400
+
+        event = data.get('event')
+        payload = data.get('payload', {})
+        session_name = data.get('session')
+
+        logger.info(f"WAHA webhook received: event={event}, session={session_name}")
+
+        # Handle different event types
+        if event == 'message':
+            # Incoming message received
+            _handle_waha_message(payload, session_name)
+        elif event == 'message.any':
+            # Any message (incoming or outgoing)
+            _handle_waha_message(payload, session_name)
+        elif event == 'session.status':
+            # Session status changed
+            logger.info(f"WAHA session {session_name} status: {payload.get('status')}")
+        elif event == 'message.ack':
+            # Message acknowledgment (delivered, read)
+            logger.info(f"WAHA message ack: {payload}")
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        logger.error(f"WAHA webhook error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+def _handle_waha_message(payload, session_name):
+    """Handle incoming WhatsApp message from WAHA"""
+    import logging
+    from models import User
+    logger = logging.getLogger(__name__)
+
+    try:
+        # Extract message info
+        from_number = payload.get('from', '')
+        # Remove @c.us suffix
+        if '@' in from_number:
+            from_number = from_number.split('@')[0]
+
+        body = payload.get('body', '')
+        is_from_me = payload.get('fromMe', False)
+
+        # Skip messages from self
+        if is_from_me:
+            return
+
+        logger.info(f"Incoming WhatsApp message from {from_number}: {body[:50]}...")
+
+        # Try to find user by WhatsApp number
+        user = User.query.filter_by(whatsapp_number=from_number).first()
+        if not user:
+            # Try with different formats
+            user = User.query.filter(
+                (User.whatsapp_number == from_number) |
+                (User.whatsapp_number == '+' + from_number) |
+                (User.mobile == from_number)
+            ).first()
+
+        if user:
+            logger.info(f"Message from registered user: {user.name or user.mobile}")
+            # Here you can implement custom message handling
+            # For example: create tasks from WhatsApp messages, respond to commands, etc.
+        else:
+            logger.info(f"Message from unknown number: {from_number}")
+
+    except Exception as e:
+        logger.error(f"Error handling WAHA message: {e}")

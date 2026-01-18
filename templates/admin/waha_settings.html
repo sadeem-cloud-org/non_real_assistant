@@ -1,0 +1,609 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('WAHA WhatsApp Settings') }}{% endblock %}
+
+{% block page_title %}{{ t('WAHA WhatsApp Settings') }}{% endblock %}
+{% block page_subtitle %}{{ t('Manage WhatsApp notification sessions via WAHA API') }}{% endblock %}
+
+{% block page_actions %}
+<a href="/admin" class="btn btn-outline-secondary">
+    <i class="ti ti-arrow-right me-2"></i>
+    {{ t('Back') }}
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">{{ t('WAHA Sessions') }}</h3>
+                <button class="btn btn-primary" onclick="showAddModal()">
+                    <i class="ti ti-plus me-2"></i>
+                    {{ t('Add Session') }}
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table" id="sessionsTable">
+                    <thead>
+                        <tr>
+                            <th>{{ t('Name') }}</th>
+                            <th>{{ t('Session Name') }}</th>
+                            <th>{{ t('API URL') }}</th>
+                            <th>{{ t('Status') }}</th>
+                            <th>{{ t('Default') }}</th>
+                            <th>{{ t('Active') }}</th>
+                            <th class="w-1">{{ t('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessionsBody">
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                {{ t('Loading...') }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal modal-blur fade" id="sessionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">{{ t('Add WAHA Session') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="sessionForm">
+                <input type="hidden" name="id" id="sessionId">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label required">{{ t('Display Name') }}</label>
+                                <input type="text" class="form-control" name="name" required
+                                       placeholder="{{ t('My WhatsApp Session') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label required">{{ t('Session Name') }}</label>
+                                <input type="text" class="form-control" name="session_name" required dir="ltr"
+                                       placeholder="default" pattern="[a-zA-Z0-9_-]+">
+                                <small class="form-hint">{{ t('Unique identifier for WAHA (alphanumeric, no spaces)') }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label class="form-label required">{{ t('API URL') }}</label>
+                                <input type="url" class="form-control" name="api_url" required dir="ltr"
+                                       placeholder="http://localhost:3000">
+                                <small class="form-hint">{{ t('WAHA server URL') }}</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">{{ t('API Key') }}</label>
+                                <input type="password" class="form-control" name="api_key" dir="ltr"
+                                       placeholder="{{ t('Optional') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_default">
+                                    <span class="form-check-label">{{ t('Default Session') }}</span>
+                                </label>
+                                <small class="form-hint d-block">{{ t('Used for sending notifications') }}</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_active" checked>
+                                    <span class="form-check-label">{{ t('Active') }}</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="webhook_enabled">
+                                    <span class="form-check-label">{{ t('Enable Webhook') }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">{{ t('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-device-floppy me-2"></i>
+                        {{ t('Save') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Session Details Modal -->
+<div class="modal modal-blur fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ t('Session Details') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h4 id="detailsSessionName"></h4>
+                        <p class="text-muted" id="detailsApiUrl"></p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <span class="badge" id="detailsStatusBadge">{{ t('Checking...') }}</span>
+                    </div>
+                </div>
+
+                <!-- QR Code Area -->
+                <div id="qrCodeArea" class="text-center mb-4" style="display: none;">
+                    <h5>{{ t('Scan QR Code with WhatsApp') }}</h5>
+                    <img id="qrCodeImage" src="" alt="QR Code" style="max-width: 300px;">
+                    <p class="text-muted mt-2">{{ t('Open WhatsApp > Settings > Linked Devices > Link a Device') }}</p>
+                </div>
+
+                <!-- Status Info -->
+                <div id="statusInfo" class="mb-4">
+                    <pre id="statusJson" class="bg-dark text-white p-3 rounded" style="max-height: 200px; overflow-y: auto;"></pre>
+                </div>
+
+                <!-- Test Message -->
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ t('Send Test Message') }}</h5>
+                        <form id="testMessageForm">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control" name="test_phone" dir="ltr"
+                                           placeholder="201234567890" required>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control" name="test_message"
+                                           placeholder="{{ t('Test message') }}" value="Test from Non Real Assistant">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary w-100" id="testBtn">
+                                        <i class="ti ti-send"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <div id="testResult" class="mt-2" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">{{ t('Close') }}</button>
+                <button type="button" class="btn btn-warning" onclick="stopSession()">
+                    <i class="ti ti-player-stop me-2"></i>{{ t('Stop') }}
+                </button>
+                <button type="button" class="btn btn-danger" onclick="logoutSession()">
+                    <i class="ti ti-logout me-2"></i>{{ t('Logout') }}
+                </button>
+                <button type="button" class="btn btn-success" onclick="startSession()">
+                    <i class="ti ti-player-play me-2"></i>{{ t('Start') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+let sessions = [];
+let currentSessionId = null;
+let sessionModal, detailsModal;
+
+document.addEventListener('DOMContentLoaded', function() {
+    sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+    detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
+    loadSessions();
+});
+
+function loadSessions() {
+    fetch('/admin/api/waha-sessions')
+        .then(r => r.json())
+        .then(data => {
+            sessions = data;
+            renderSessions();
+        })
+        .catch(err => {
+            console.error('Error loading sessions:', err);
+            document.getElementById('sessionsBody').innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center text-danger py-4">
+                        {{ t('Error loading sessions') }}
+                    </td>
+                </tr>
+            `;
+        });
+}
+
+function renderSessions() {
+    const tbody = document.getElementById('sessionsBody');
+
+    if (sessions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center text-muted py-4">
+                    <i class="ti ti-brand-whatsapp" style="font-size: 3rem;"></i>
+                    <p class="mt-2">{{ t('No WAHA sessions configured') }}</p>
+                    <button class="btn btn-primary btn-sm" onclick="showAddModal()">
+                        <i class="ti ti-plus me-2"></i>{{ t('Add First Session') }}
+                    </button>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = sessions.map(s => `
+        <tr>
+            <td>
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-green-lt me-2">
+                        <i class="ti ti-brand-whatsapp"></i>
+                    </span>
+                    ${escapeHtml(s.name)}
+                </div>
+            </td>
+            <td><code>${escapeHtml(s.session_name)}</code></td>
+            <td><small class="text-muted">${escapeHtml(s.api_url)}</small></td>
+            <td>
+                <span class="badge bg-secondary session-status" data-session-id="${s.id}">
+                    <span class="spinner-border spinner-border-sm" style="width: 0.75rem; height: 0.75rem;"></span>
+                </span>
+            </td>
+            <td>
+                ${s.is_default ? '<span class="badge bg-blue">Default</span>' : ''}
+            </td>
+            <td>
+                ${s.is_active
+                    ? '<span class="badge bg-success">{{ t("Active") }}</span>'
+                    : '<span class="badge bg-secondary">{{ t("Inactive") }}</span>'}
+            </td>
+            <td>
+                <div class="btn-list flex-nowrap">
+                    <button class="btn btn-icon btn-sm btn-ghost-primary" onclick="showDetails(${s.id})" title="{{ t('Details') }}">
+                        <i class="ti ti-eye"></i>
+                    </button>
+                    <button class="btn btn-icon btn-sm btn-ghost-secondary" onclick="showEditModal(${s.id})" title="{{ t('Edit') }}">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    <button class="btn btn-icon btn-sm btn-ghost-danger" onclick="deleteSession(${s.id})" title="{{ t('Delete') }}">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    // Load status for each session
+    sessions.forEach(s => loadSessionStatus(s.id));
+}
+
+function loadSessionStatus(sessionId) {
+    const badge = document.querySelector(`.session-status[data-session-id="${sessionId}"]`);
+    if (!badge) return;
+
+    fetch(`/admin/api/waha-sessions/${sessionId}/status`)
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                const status = result.status || 'unknown';
+                let badgeClass = 'bg-secondary';
+                let statusText = status;
+
+                switch(status.toLowerCase()) {
+                    case 'working':
+                    case 'authenticated':
+                        badgeClass = 'bg-success';
+                        statusText = '{{ t("Connected") }}';
+                        break;
+                    case 'scan':
+                    case 'qr':
+                        badgeClass = 'bg-warning';
+                        statusText = '{{ t("Scan QR") }}';
+                        break;
+                    case 'starting':
+                        badgeClass = 'bg-info';
+                        statusText = '{{ t("Starting") }}';
+                        break;
+                    case 'stopped':
+                    case 'failed':
+                        badgeClass = 'bg-danger';
+                        statusText = '{{ t("Stopped") }}';
+                        break;
+                }
+                badge.className = `badge ${badgeClass} session-status`;
+                badge.setAttribute('data-session-id', sessionId);
+                badge.textContent = statusText;
+            } else {
+                badge.className = 'badge bg-secondary session-status';
+                badge.setAttribute('data-session-id', sessionId);
+                badge.textContent = '{{ t("Error") }}';
+            }
+        })
+        .catch(() => {
+            badge.className = 'badge bg-secondary session-status';
+            badge.setAttribute('data-session-id', sessionId);
+            badge.textContent = '{{ t("Offline") }}';
+        });
+}
+
+function showAddModal() {
+    document.getElementById('modalTitle').textContent = '{{ t("Add WAHA Session") }}';
+    document.getElementById('sessionForm').reset();
+    document.getElementById('sessionId').value = '';
+    document.querySelector('[name="is_active"]').checked = true;
+    sessionModal.show();
+}
+
+function showEditModal(id) {
+    const session = sessions.find(s => s.id === id);
+    if (!session) return;
+
+    document.getElementById('modalTitle').textContent = '{{ t("Edit WAHA Session") }}';
+
+    // Fetch full session data with API key
+    fetch(`/admin/api/waha-sessions/${id}`)
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('sessionId').value = id;
+            document.querySelector('[name="name"]').value = data.name;
+            document.querySelector('[name="session_name"]').value = data.session_name;
+            document.querySelector('[name="api_url"]').value = data.api_url;
+            document.querySelector('[name="api_key"]').value = data.api_key || '';
+            document.querySelector('[name="is_default"]').checked = data.is_default;
+            document.querySelector('[name="is_active"]').checked = data.is_active;
+            document.querySelector('[name="webhook_enabled"]').checked = data.webhook_enabled;
+            sessionModal.show();
+        });
+}
+
+function showDetails(id) {
+    currentSessionId = id;
+    const session = sessions.find(s => s.id === id);
+    if (!session) return;
+
+    document.getElementById('detailsSessionName').textContent = session.name;
+    document.getElementById('detailsApiUrl').textContent = session.api_url;
+    document.getElementById('detailsStatusBadge').className = 'badge bg-secondary';
+    document.getElementById('detailsStatusBadge').textContent = '{{ t("Checking...") }}';
+    document.getElementById('qrCodeArea').style.display = 'none';
+    document.getElementById('statusJson').textContent = '{{ t("Loading...") }}';
+    document.getElementById('testResult').style.display = 'none';
+
+    detailsModal.show();
+    refreshSessionDetails();
+}
+
+function refreshSessionDetails() {
+    if (!currentSessionId) return;
+
+    fetch(`/admin/api/waha-sessions/${currentSessionId}/status`)
+        .then(r => r.json())
+        .then(result => {
+            const badge = document.getElementById('detailsStatusBadge');
+            const qrArea = document.getElementById('qrCodeArea');
+
+            if (result.success) {
+                const status = result.status || 'unknown';
+                let badgeClass = 'bg-secondary';
+
+                switch(status.toLowerCase()) {
+                    case 'working':
+                    case 'authenticated':
+                        badgeClass = 'bg-success';
+                        qrArea.style.display = 'none';
+                        break;
+                    case 'scan':
+                    case 'qr':
+                        badgeClass = 'bg-warning';
+                        loadQRCode();
+                        break;
+                    default:
+                        qrArea.style.display = 'none';
+                }
+
+                badge.className = `badge ${badgeClass}`;
+                badge.textContent = status;
+                document.getElementById('statusJson').textContent = JSON.stringify(result.data || result, null, 2);
+            } else {
+                badge.className = 'badge bg-danger';
+                badge.textContent = '{{ t("Error") }}';
+                document.getElementById('statusJson').textContent = result.error || '{{ t("Connection failed") }}';
+                qrArea.style.display = 'none';
+            }
+        });
+}
+
+function loadQRCode() {
+    const qrArea = document.getElementById('qrCodeArea');
+    const qrImage = document.getElementById('qrCodeImage');
+
+    qrImage.src = `/admin/api/waha-sessions/${currentSessionId}/qr?t=${Date.now()}`;
+    qrArea.style.display = 'block';
+
+    qrImage.onerror = function() {
+        qrArea.style.display = 'none';
+    };
+}
+
+function startSession() {
+    if (!currentSessionId) return;
+
+    fetch(`/admin/api/waha-sessions/${currentSessionId}/start`, { method: 'POST' })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                showNotification('success', '{{ t("Session started") }}');
+                setTimeout(refreshSessionDetails, 2000);
+            } else {
+                showNotification('danger', result.error || '{{ t("Failed to start session") }}');
+            }
+        });
+}
+
+function stopSession() {
+    if (!currentSessionId) return;
+
+    fetch(`/admin/api/waha-sessions/${currentSessionId}/stop`, { method: 'POST' })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                showNotification('warning', '{{ t("Session stopped") }}');
+                setTimeout(refreshSessionDetails, 1000);
+            } else {
+                showNotification('danger', result.error || '{{ t("Failed to stop session") }}');
+            }
+        });
+}
+
+function logoutSession() {
+    if (!currentSessionId) return;
+
+    if (!confirm('{{ t("Are you sure you want to logout? You will need to scan QR code again.") }}')) {
+        return;
+    }
+
+    fetch(`/admin/api/waha-sessions/${currentSessionId}/logout`, { method: 'POST' })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                showNotification('warning', '{{ t("Logged out from WhatsApp") }}');
+                setTimeout(refreshSessionDetails, 1000);
+            } else {
+                showNotification('danger', result.error || '{{ t("Failed to logout") }}');
+            }
+        });
+}
+
+function deleteSession(id) {
+    if (!confirm('{{ t("Are you sure you want to delete this session?") }}')) {
+        return;
+    }
+
+    fetch(`/admin/api/waha-sessions/${id}`, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                showNotification('success', '{{ t("Session deleted") }}');
+                loadSessions();
+            } else {
+                showNotification('danger', result.error || '{{ t("Failed to delete session") }}');
+            }
+        });
+}
+
+// Form submission
+document.getElementById('sessionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const id = document.getElementById('sessionId').value;
+
+    const data = {
+        name: formData.get('name'),
+        session_name: formData.get('session_name'),
+        api_url: formData.get('api_url'),
+        api_key: formData.get('api_key'),
+        is_default: formData.get('is_default') === 'on',
+        is_active: formData.get('is_active') === 'on',
+        webhook_enabled: formData.get('webhook_enabled') === 'on'
+    };
+
+    const url = id ? `/admin/api/waha-sessions/${id}` : '/admin/api/waha-sessions';
+    const method = id ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success || result.session) {
+                showNotification('success', id ? '{{ t("Session updated") }}' : '{{ t("Session created") }}');
+                sessionModal.hide();
+                loadSessions();
+            } else {
+                showNotification('danger', result.error || '{{ t("Failed to save session") }}');
+            }
+        });
+});
+
+// Test message
+document.getElementById('testMessageForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const btn = document.getElementById('testBtn');
+    const resultDiv = document.getElementById('testResult');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    fetch(`/admin/api/waha-sessions/${currentSessionId}/test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            phone: formData.get('test_phone'),
+            message: formData.get('test_message')
+        })
+    })
+        .then(r => r.json())
+        .then(result => {
+            resultDiv.style.display = 'block';
+            if (result.success) {
+                resultDiv.innerHTML = '<div class="alert alert-success py-2">{{ t("Message sent successfully!") }}</div>';
+            } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger py-2">${escapeHtml(result.error || '{{ t("Failed to send message") }}')}</div>`;
+            }
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="ti ti-send"></i>';
+        });
+});
+
+function showNotification(type, message) {
+    // Simple notification using alert for now
+    // You can replace with your notification system
+    if (type === 'danger') {
+        alert(message);
+    } else {
+        console.log(message);
+    }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}

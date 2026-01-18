@@ -20,6 +20,8 @@ import logging
 import os
 import re
 import requests
+from datetime import datetime
+import pytz
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -36,6 +38,119 @@ logger = logging.getLogger(__name__)
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 SYSTEM_URL = os.getenv('SYSTEM_URL', 'http://localhost:5000')
 API_SECRET_KEY = os.getenv('API_SECRET_KEY')
+
+# Bot message translations
+BOT_MESSAGES = {
+    'ar': {
+        'welcome': "مرحباً {name}! 👋\n\nأنا بوت <b>Non Real Assistant</b>\n\n<b>الأوامر المتاحة:</b>\n/user_id - عرض معرف التليجرام الخاص بك\n/create_account - إنشاء حساب جديد في النظام\n/create_task - إنشاء مهمة جديدة\n/today_tasks - عرض مهام اليوم\n/cancel - إلغاء العملية الحالية",
+        'user_info': "👤 <b>معلومات المستخدم</b>\n\n🆔 <b>معرف التليجرام:</b> <code>{telegram_id}</code>\n👨‍💼 <b>اسم المستخدم:</b> @{username}\n📝 <b>الاسم:</b> {full_name}\n\n💡 <i>يمكنك نسخ المعرف بالضغط عليه</i>",
+        'no_account': "❌ <b>لم يتم العثور على حسابك!</b>\n\nيبدو أن معرف التليجرام الخاص بك غير مرتبط بأي حساب.\n\nاستخدم /create_account لإنشاء حساب جديد.",
+        'already_has_account': "⚠️ <b>لديك حساب مسبقاً!</b>\n\nمعرف التليجرام الخاص بك مرتبط بالفعل بحساب:\n📱 رقم الهاتف: <code>{mobile}</code>\n\nيمكنك تسجيل الدخول مباشرة:\n{url}",
+        'create_account_start': "📝 <b>إنشاء حساب جديد</b>\n\nسنحتاج بعض المعلومات لإنشاء حسابك.\n\n📱 <b>الخطوة 1/3:</b> أدخل رقم الهاتف بالصيغة الدولية\n<i>(مثال: +201234567890 أو 201234567890)</i>\n\n⚠️ يجب إدخال مفتاح الدولة (مثل 20 لمصر، 966 للسعودية)\n\nأرسل /cancel للإلغاء",
+        'invalid_phone': "❌ رقم الهاتف غير صالح.\n\nيجب إدخال رقم الهاتف بالصيغة الدولية:\n• مثال مصر: <code>+201234567890</code> أو <code>201234567890</code>\n• مثال السعودية: <code>+966501234567</code> أو <code>966501234567</code>\n\n⚠️ لا تنسَ مفتاح الدولة!\n\nأعد إدخال الرقم:",
+        'enter_email': "📧 <b>الخطوة 2/3:</b> أدخل البريد الإلكتروني\n<i>(اختياري - أرسل \"تخطي\" للتخطي)</i>",
+        'invalid_email': "❌ البريد الإلكتروني غير صالح.\n\nأعد الإدخال أو أرسل 'تخطي':",
+        'enter_name': "👤 <b>الخطوة 3/3:</b> أدخل اسمك\n<i>(اختياري - أرسل \"تخطي\" لاستخدام اسم التليجرام)</i>\n\n💡 اسمك في التليجرام: <b>{telegram_name}</b>",
+        'confirm_data': "✅ <b>تأكيد البيانات</b>\n\n📱 <b>رقم الهاتف:</b> {mobile}\n📧 <b>البريد:</b> {email}\n👤 <b>الاسم:</b> {name}\n🆔 <b>معرف التليجرام:</b> {telegram_id}\n\nهل البيانات صحيحة؟\nأرسل <b>\"نعم\"</b> للتأكيد أو <b>\"لا\"</b> للإلغاء",
+        'account_created': "✅ <b>تم إنشاء حسابك بنجاح!</b>\n\n🔗 <b>رابط النظام:</b>\n{url}\n\n📱 استخدم رقم هاتفك للدخول: <code>{mobile}</code>\n\nسيتم إرسال رمز التحقق (OTP) على التليجرام عند تسجيل الدخول.",
+        'phone_exists': "⚠️ <b>رقم الهاتف مسجل مسبقاً!</b>\n\nيمكنك تسجيل الدخول مباشرة:\n{url}",
+        'cancelled': "❌ تم إلغاء العملية.",
+        'creation_cancelled': "❌ تم إلغاء إنشاء الحساب.",
+        'task_creation_cancelled': "❌ تم إلغاء إنشاء المهمة.",
+        'no_tasks_today': "🎉 <b>لا توجد مهام مجدولة لليوم!</b>\n\n📅 التاريخ: {date}\n\nاستمتع بيومك! 🌟",
+        'tasks_today': "📋 <b>مهامك لليوم</b>\n📅 {date}\n\nعندك <b>{count}</b> مهام مجدولة:\n\n",
+        'have_a_good_day': "\n💪 يوم موفق!",
+        'create_task_start': "📝 <b>إنشاء مهمة جديدة</b>\n\n<b>الخطوة 1/4:</b> أدخل اسم المهمة\n\nأرسل /cancel للإلغاء",
+        'task_name_short': "❌ اسم المهمة قصير جداً. أدخل اسماً أطول:",
+        'enter_task_desc': "📋 <b>الخطوة 2/4:</b> أدخل وصف المهمة\n<i>(اختياري - أرسل \"تخطي\" للتخطي)</i>",
+        'select_assistant': "🤖 <b>الخطوة 3/4:</b> اختر المساعد\n\nاختر المساعد المسؤول عن هذه المهمة:",
+        'no_assistant': "بدون مساعد ❌",
+        'enter_task_time': "⏰ <b>الخطوة {step}/4:</b> أدخل وقت المهمة\n\nأدخل الوقت بصيغة: <code>YYYY-MM-DD HH:MM</code>\nمثال: <code>{example_date}</code>\n\nأو أرسل \"تخطي\" لإنشاء مهمة بدون وقت محدد",
+        'invalid_time': "❌ صيغة الوقت غير صحيحة.\n\nاستخدم الصيغة: <code>YYYY-MM-DD HH:MM</code>\nمثال: <code>{example_date}</code>\n\nأعد إدخال الوقت:",
+        'time_error': "❌ خطأ في معالجة الوقت. أعد المحاولة:",
+        'confirm_task': "✅ <b>تأكيد المهمة</b>\n\n📝 <b>الاسم:</b> {name}\n📋 <b>الوصف:</b> {desc}\n🤖 <b>المساعد:</b> {assistant}\n⏰ <b>الوقت:</b> {time}\n\nهل البيانات صحيحة؟\nأرسل <b>\"نعم\"</b> للتأكيد أو <b>\"لا\"</b> للإلغاء",
+        'task_created': "✅ <b>تم إنشاء المهمة بنجاح!</b>\n\n📝 <b>{name}</b>\n\n🔗 <a href=\"{link}\">فتح المهمة في المتصفح</a>",
+        'task_error': "❌ حدث خطأ في إنشاء المهمة: {error}",
+        'error_checking_account': "❌ حدث خطأ في التحقق من الحساب",
+        'not_specified': "غير محدد",
+        'not_available': "غير متوفر",
+        'skip': 'تخطي',
+        'yes_values': ['نعم', 'yes', 'y', '1'],
+    },
+    'en': {
+        'welcome': "Hello {name}! 👋\n\nI'm the <b>Non Real Assistant</b> bot\n\n<b>Available commands:</b>\n/user_id - Show your Telegram ID\n/create_account - Create a new account\n/create_task - Create a new task\n/today_tasks - Show today's tasks\n/cancel - Cancel current operation",
+        'user_info': "👤 <b>User Information</b>\n\n🆔 <b>Telegram ID:</b> <code>{telegram_id}</code>\n👨‍💼 <b>Username:</b> @{username}\n📝 <b>Name:</b> {full_name}\n\n💡 <i>You can copy the ID by clicking on it</i>",
+        'no_account': "❌ <b>Account not found!</b>\n\nYour Telegram ID is not linked to any account.\n\nUse /create_account to create a new account.",
+        'already_has_account': "⚠️ <b>You already have an account!</b>\n\nYour Telegram ID is already linked to an account:\n📱 Phone: <code>{mobile}</code>\n\nYou can login directly:\n{url}",
+        'create_account_start': "📝 <b>Create New Account</b>\n\nWe need some information to create your account.\n\n📱 <b>Step 1/3:</b> Enter your phone number in international format\n<i>(Example: +201234567890 or 201234567890)</i>\n\n⚠️ Don't forget the country code (e.g., 20 for Egypt, 966 for Saudi Arabia)\n\nSend /cancel to cancel",
+        'invalid_phone': "❌ Invalid phone number.\n\nPlease enter the phone number in international format:\n• Egypt example: <code>+201234567890</code> or <code>201234567890</code>\n• Saudi example: <code>+966501234567</code> or <code>966501234567</code>\n\n⚠️ Don't forget the country code!\n\nRe-enter the number:",
+        'enter_email': "📧 <b>Step 2/3:</b> Enter your email\n<i>(Optional - send \"skip\" to skip)</i>",
+        'invalid_email': "❌ Invalid email.\n\nRe-enter or send 'skip':",
+        'enter_name': "👤 <b>Step 3/3:</b> Enter your name\n<i>(Optional - send \"skip\" to use Telegram name)</i>\n\n💡 Your Telegram name: <b>{telegram_name}</b>",
+        'confirm_data': "✅ <b>Confirm Data</b>\n\n📱 <b>Phone:</b> {mobile}\n📧 <b>Email:</b> {email}\n👤 <b>Name:</b> {name}\n🆔 <b>Telegram ID:</b> {telegram_id}\n\nIs the data correct?\nSend <b>\"yes\"</b> to confirm or <b>\"no\"</b> to cancel",
+        'account_created': "✅ <b>Account created successfully!</b>\n\n🔗 <b>System URL:</b>\n{url}\n\n📱 Use your phone to login: <code>{mobile}</code>\n\nYou will receive an OTP on Telegram when logging in.",
+        'phone_exists': "⚠️ <b>Phone number already registered!</b>\n\nYou can login directly:\n{url}",
+        'cancelled': "❌ Operation cancelled.",
+        'creation_cancelled': "❌ Account creation cancelled.",
+        'task_creation_cancelled': "❌ Task creation cancelled.",
+        'no_tasks_today': "🎉 <b>No tasks scheduled for today!</b>\n\n📅 Date: {date}\n\nEnjoy your day! 🌟",
+        'tasks_today': "📋 <b>Your tasks for today</b>\n📅 {date}\n\nYou have <b>{count}</b> scheduled tasks:\n\n",
+        'have_a_good_day': "\n💪 Have a great day!",
+        'create_task_start': "📝 <b>Create New Task</b>\n\n<b>Step 1/4:</b> Enter the task name\n\nSend /cancel to cancel",
+        'task_name_short': "❌ Task name is too short. Enter a longer name:",
+        'enter_task_desc': "📋 <b>Step 2/4:</b> Enter task description\n<i>(Optional - send \"skip\" to skip)</i>",
+        'select_assistant': "🤖 <b>Step 3/4:</b> Select assistant\n\nChoose the assistant for this task:",
+        'no_assistant': "No assistant ❌",
+        'enter_task_time': "⏰ <b>Step {step}/4:</b> Enter task time\n\nEnter time in format: <code>YYYY-MM-DD HH:MM</code>\nExample: <code>{example_date}</code>\n\nOr send \"skip\" to create task without specific time",
+        'invalid_time': "❌ Invalid time format.\n\nUse format: <code>YYYY-MM-DD HH:MM</code>\nExample: <code>{example_date}</code>\n\nRe-enter the time:",
+        'time_error': "❌ Error processing time. Try again:",
+        'confirm_task': "✅ <b>Confirm Task</b>\n\n📝 <b>Name:</b> {name}\n📋 <b>Description:</b> {desc}\n🤖 <b>Assistant:</b> {assistant}\n⏰ <b>Time:</b> {time}\n\nIs the data correct?\nSend <b>\"yes\"</b> to confirm or <b>\"no\"</b> to cancel",
+        'task_created': "✅ <b>Task created successfully!</b>\n\n📝 <b>{name}</b>\n\n🔗 <a href=\"{link}\">Open task in browser</a>",
+        'task_error': "❌ Error creating task: {error}",
+        'error_checking_account': "❌ Error checking account",
+        'not_specified': "Not specified",
+        'not_available': "Not available",
+        'skip': 'skip',
+        'yes_values': ['yes', 'y', '1', 'نعم'],
+    }
+}
+
+
+def get_user_lang(telegram_id: str) -> str:
+    """Get user's preferred language from database"""
+    try:
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from app import app
+        from models import User
+
+        with app.app_context():
+            user = User.query.filter_by(telegram_id=telegram_id).first()
+            if user and user.language:
+                return user.language.iso_code if hasattr(user.language, 'iso_code') else str(user.language)
+    except Exception:
+        pass
+    return 'en'  # Default to English for non-logged in users
+
+
+def get_msg(lang: str, key: str, **kwargs) -> str:
+    """Get translated message"""
+    messages = BOT_MESSAGES.get(lang, BOT_MESSAGES['en'])
+    msg = messages.get(key, BOT_MESSAGES['en'].get(key, key))
+    if kwargs:
+        try:
+            msg = msg.format(**kwargs)
+        except KeyError:
+            pass
+    return msg
+
+
+def get_example_date() -> str:
+    """Get today's date + 1 hour as example"""
+    cairo_tz = pytz.timezone('Africa/Cairo')
+    now = datetime.now(cairo_tz)
+    example = now.replace(hour=now.hour + 1 if now.hour < 23 else now.hour, minute=0)
+    return example.strftime('%Y-%m-%d %H:%M')
 
 # Conversation states for create_account
 MOBILE, EMAIL, NAME, CONFIRM = range(4)
@@ -54,36 +169,23 @@ def normalize_phone(phone: str) -> str:
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start command - show welcome message"""
     user = update.effective_user
+    lang = get_user_lang(str(user.id))
 
-    message = f"""
-مرحباً {user.first_name}! 👋
-
-أنا بوت <b>Non Real Assistant</b>
-
-<b>الأوامر المتاحة:</b>
-/user_id - عرض معرف التليجرام الخاص بك
-/create_account - إنشاء حساب جديد في النظام
-/create_task - إنشاء مهمة جديدة
-/today_tasks - عرض مهام اليوم
-/cancel - إلغاء العملية الحالية
-    """
-
+    message = get_msg(lang, 'welcome', name=user.first_name)
     await update.message.reply_text(message, parse_mode='HTML')
 
 
 async def show_user_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show user their Telegram ID"""
     user = update.effective_user
+    lang = get_user_lang(str(user.id))
 
-    message = f"""
-👤 <b>معلومات المستخدم</b>
-
-🆔 <b>معرف التليجرام:</b> <code>{user.id}</code>
-👨‍💼 <b>اسم المستخدم:</b> @{user.username if user.username else 'غير متوفر'}
-📝 <b>الاسم:</b> {user.first_name} {user.last_name if user.last_name else ''}
-
-💡 <i>يمكنك نسخ المعرف بالضغط عليه</i>
-    """
+    not_available = get_msg(lang, 'not_available')
+    message = get_msg(lang, 'user_info',
+        telegram_id=user.id,
+        username=user.username if user.username else not_available,
+        full_name=f"{user.first_name} {user.last_name or ''}".strip()
+    )
 
     await update.message.reply_text(message, parse_mode='HTML')
 
@@ -92,45 +194,35 @@ async def today_tasks(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show today's scheduled tasks for the user"""
     telegram_user = update.effective_user
     telegram_id = str(telegram_user.id)
+    lang = get_user_lang(telegram_id)
 
     try:
-        # Import here to avoid circular imports
         import sys
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
         from app import app
         from models import db, User, Task
-        from datetime import datetime, timedelta
-        import pytz
+        from datetime import timedelta
 
         with app.app_context():
-            # Find user by telegram_id
             user = User.query.filter_by(telegram_id=telegram_id).first()
 
             if not user:
-                await update.message.reply_text(
-                    """
-❌ <b>لم يتم العثور على حسابك!</b>
-
-يبدو أن معرف التليجرام الخاص بك غير مرتبط بأي حساب.
-
-استخدم /create_account لإنشاء حساب جديد.
-                    """,
-                    parse_mode='HTML'
-                )
+                await update.message.reply_text(get_msg(lang, 'no_account'), parse_mode='HTML')
                 return
 
-            # Get user timezone
+            # Update lang based on user preference
+            if user.language:
+                lang = user.language.iso_code if hasattr(user.language, 'iso_code') else str(user.language)
+
             user_tz = pytz.timezone(user.timezone or 'Africa/Cairo')
             now_local = datetime.now(user_tz)
             today_start = now_local.replace(hour=0, minute=0, second=0, microsecond=0)
             today_end = today_start + timedelta(days=1)
 
-            # Convert to UTC for database query
             today_start_utc = today_start.astimezone(pytz.UTC).replace(tzinfo=None)
             today_end_utc = today_end.astimezone(pytz.UTC).replace(tzinfo=None)
 
-            # Get today's tasks
             tasks = Task.query.filter(
                 Task.create_user_id == user.id,
                 Task.complete_time.is_(None),
@@ -142,47 +234,29 @@ async def today_tasks(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             if not tasks:
                 await update.message.reply_text(
-                    f"""
-🎉 <b>لا توجد مهام مجدولة لليوم!</b>
-
-📅 التاريخ: {now_local.strftime('%Y-%m-%d')}
-
-استمتع بيومك! 🌟
-                    """,
+                    get_msg(lang, 'no_tasks_today', date=now_local.strftime('%Y-%m-%d')),
                     parse_mode='HTML'
                 )
                 return
 
-            # Build tasks message
-            message = f"""
-📋 <b>مهامك لليوم</b>
-📅 {now_local.strftime('%Y-%m-%d')}
+            message = get_msg(lang, 'tasks_today', date=now_local.strftime('%Y-%m-%d'), count=len(tasks))
 
-عندك <b>{len(tasks)}</b> مهام مجدولة:
-
-"""
             for i, task in enumerate(tasks, 1):
-                # Convert task time to user timezone
                 task_time_utc = pytz.UTC.localize(task.time)
                 task_time_local = task_time_utc.astimezone(user_tz)
                 time_str = task_time_local.strftime('%H:%M')
-
                 status = "⏰" if task_time_local > now_local else "⚠️"
 
                 message += f"{i}. {status} <b>{task.name}</b> ({time_str})\n"
                 if task.description:
                     message += f"   📝 {task.description[:50]}{'...' if len(task.description) > 50 else ''}\n"
 
-            message += "\n💪 يوم موفق!"
-
+            message += get_msg(lang, 'have_a_good_day')
             await update.message.reply_text(message, parse_mode='HTML')
 
     except Exception as e:
         logger.error(f"Error fetching today's tasks: {e}")
-        await update.message.reply_text(
-            f"❌ حدث خطأ أثناء جلب المهام: {str(e)}",
-            parse_mode='HTML'
-        )
+        await update.message.reply_text(f"❌ Error: {str(e)}", parse_mode='HTML')
 
 
 # ===== Create User Conversation =====
@@ -191,8 +265,8 @@ async def create_account_start(update: Update, context: ContextTypes.DEFAULT_TYP
     """Start user creation process"""
     user = update.effective_user
     telegram_id = str(user.id)
+    lang = get_user_lang(telegram_id)
 
-    # Check if telegram_id already has an account
     try:
         import sys
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -202,111 +276,65 @@ async def create_account_start(update: Update, context: ContextTypes.DEFAULT_TYP
         with app.app_context():
             existing = User.query.filter_by(telegram_id=telegram_id).first()
             if existing:
+                # Use existing user's language
+                if existing.language:
+                    lang = existing.language.iso_code if hasattr(existing.language, 'iso_code') else str(existing.language)
                 await update.message.reply_text(
-                    f"""
-⚠️ <b>لديك حساب مسبقاً!</b>
-
-معرف التليجرام الخاص بك مرتبط بالفعل بحساب:
-📱 رقم الهاتف: <code>{existing.mobile}</code>
-
-يمكنك تسجيل الدخول مباشرة:
-{SYSTEM_URL}
-                    """,
+                    get_msg(lang, 'already_has_account', mobile=existing.mobile, url=SYSTEM_URL),
                     parse_mode='HTML'
                 )
                 return ConversationHandler.END
     except Exception as e:
         logger.warning(f"Could not check existing user: {e}")
 
-    # Store telegram info
     context.user_data['telegram_id'] = telegram_id
     context.user_data['telegram_username'] = user.username
     context.user_data['telegram_name'] = f"{user.first_name} {user.last_name or ''}".strip()
+    context.user_data['lang'] = lang
 
-    message = """
-📝 <b>إنشاء حساب جديد</b>
-
-سنحتاج بعض المعلومات لإنشاء حسابك.
-
-📱 <b>الخطوة 1/3:</b> أدخل رقم الهاتف بالصيغة الدولية
-<i>(مثال: +201234567890 أو 201234567890)</i>
-
-⚠️ يجب إدخال مفتاح الدولة (مثل 20 لمصر، 966 للسعودية)
-
-أرسل /cancel للإلغاء
-    """
-
-    await update.message.reply_text(message, parse_mode='HTML')
+    await update.message.reply_text(get_msg(lang, 'create_account_start'), parse_mode='HTML')
     return MOBILE
 
 
 async def get_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get mobile number"""
+    lang = context.user_data.get('lang', 'en')
     mobile_input = update.message.text.strip()
-
-    # Normalize phone (remove +, spaces, dashes)
     mobile = normalize_phone(mobile_input)
 
-    # Remove leading 0 if present after country code check
-    # Phone must be at least 10 digits (country code + number)
     if not re.match(r'^\d{10,15}$', mobile):
-        await update.message.reply_text(
-            """❌ رقم الهاتف غير صالح.
-
-يجب إدخال رقم الهاتف بالصيغة الدولية:
-• مثال مصر: <code>+201234567890</code> أو <code>201234567890</code>
-• مثال السعودية: <code>+966501234567</code> أو <code>966501234567</code>
-
-⚠️ لا تنسَ مفتاح الدولة!
-
-أعد إدخال الرقم:""",
-            parse_mode='HTML'
-        )
+        await update.message.reply_text(get_msg(lang, 'invalid_phone'), parse_mode='HTML')
         return MOBILE
 
     context.user_data['mobile'] = mobile
-
-    message = """
-📧 <b>الخطوة 2/3:</b> أدخل البريد الإلكتروني
-<i>(اختياري - أرسل "تخطي" للتخطي)</i>
-    """
-
-    await update.message.reply_text(message, parse_mode='HTML')
+    await update.message.reply_text(get_msg(lang, 'enter_email'), parse_mode='HTML')
     return EMAIL
 
 
 async def get_email(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get email"""
+    lang = context.user_data.get('lang', 'en')
     email_input = update.message.text.strip()
 
     if email_input.lower() in ['تخطي', 'skip', '-']:
         context.user_data['email'] = None
     else:
-        # Simple email validation
         if '@' not in email_input or '.' not in email_input:
-            await update.message.reply_text(
-                "❌ البريد الإلكتروني غير صالح.\n\nأعد الإدخال أو أرسل 'تخطي':",
-                parse_mode='HTML'
-            )
+            await update.message.reply_text(get_msg(lang, 'invalid_email'), parse_mode='HTML')
             return EMAIL
         context.user_data['email'] = email_input
 
-    # Suggest telegram name as default
     suggested_name = context.user_data.get('telegram_name', '')
-
-    message = f"""
-👤 <b>الخطوة 3/3:</b> أدخل اسمك
-<i>(اختياري - أرسل "تخطي" لاستخدام اسم التليجرام)</i>
-
-💡 اسمك في التليجرام: <b>{suggested_name}</b>
-    """
-
-    await update.message.reply_text(message, parse_mode='HTML')
+    await update.message.reply_text(
+        get_msg(lang, 'enter_name', telegram_name=suggested_name),
+        parse_mode='HTML'
+    )
     return NAME
 
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get name"""
+    lang = context.user_data.get('lang', 'en')
     name_input = update.message.text.strip()
 
     if name_input.lower() in ['تخطي', 'skip', '-']:
@@ -316,18 +344,14 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Show confirmation
     data = context.user_data
+    not_specified = get_msg(lang, 'not_specified')
 
-    message = f"""
-✅ <b>تأكيد البيانات</b>
-
-📱 <b>رقم الهاتف:</b> {data['mobile']}
-📧 <b>البريد:</b> {data.get('email') or 'غير محدد'}
-👤 <b>الاسم:</b> {data.get('name') or 'غير محدد'}
-🆔 <b>معرف التليجرام:</b> {data['telegram_id']}
-
-هل البيانات صحيحة؟
-أرسل <b>"نعم"</b> للتأكيد أو <b>"لا"</b> للإلغاء
-    """
+    message = get_msg(lang, 'confirm_data',
+        mobile=data['mobile'],
+        email=data.get('email') or not_specified,
+        name=data.get('name') or not_specified,
+        telegram_id=data['telegram_id']
+    )
 
     await update.message.reply_text(message, parse_mode='HTML')
     return CONFIRM
@@ -335,11 +359,13 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def confirm_creation(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Confirm and create user"""
-    response = update.message.text.strip().lower()
+    lang = context.user_data.get('lang', 'en')
+    yes_values = BOT_MESSAGES.get(lang, BOT_MESSAGES['en']).get('yes_values', ['yes', 'y', '1'])
+    response_text = update.message.text.strip().lower()
 
-    if response not in ['نعم', 'yes', 'y', '1']:
+    if response_text not in yes_values:
         await update.message.reply_text(
-            "❌ تم إلغاء إنشاء الحساب.",
+            get_msg(lang, 'creation_cancelled'),
             reply_markup=ReplyKeyboardRemove()
         )
         return ConversationHandler.END
@@ -350,7 +376,8 @@ async def confirm_creation(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'mobile': data['mobile'],
         'telegram_id': data['telegram_id'],
         'email': data.get('email'),
-        'name': data.get('name')
+        'name': data.get('name'),
+        'lang': lang
     }
 
     # Try to create user via API
@@ -368,57 +395,42 @@ async def confirm_creation(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
             if response.status_code == 201:
-                result = response.json()
                 await update.message.reply_text(
-                    f"""
-✅ <b>تم إنشاء حسابك بنجاح!</b>
-
-🔗 <b>رابط النظام:</b>
-{SYSTEM_URL}
-
-📱 استخدم رقم هاتفك للدخول: <code>{data['mobile']}</code>
-
-سيتم إرسال رمز التحقق (OTP) على التليجرام عند تسجيل الدخول.
-                    """,
+                    get_msg(lang, 'account_created', url=SYSTEM_URL, mobile=data['mobile']),
                     parse_mode='HTML',
                     reply_markup=ReplyKeyboardRemove()
                 )
             elif response.status_code == 409:
                 await update.message.reply_text(
-                    f"""
-⚠️ <b>رقم الهاتف مسجل مسبقاً!</b>
-
-يمكنك تسجيل الدخول مباشرة:
-{SYSTEM_URL}
-                    """,
+                    get_msg(lang, 'phone_exists', url=SYSTEM_URL),
                     parse_mode='HTML',
                     reply_markup=ReplyKeyboardRemove()
                 )
             else:
                 error = response.json().get('error', 'Unknown error')
                 await update.message.reply_text(
-                    f"❌ خطأ في إنشاء الحساب: {error}",
+                    f"❌ Error: {error}",
                     reply_markup=ReplyKeyboardRemove()
                 )
         else:
             # No API key - create directly via database
-            await create_account_directly(update, user_data)
+            await create_account_directly(update, user_data, lang)
 
     except requests.exceptions.RequestException as e:
         logger.error(f"API request failed: {e}")
         # Fallback to direct creation
-        await create_account_directly(update, user_data)
+        await create_account_directly(update, user_data, lang)
     except Exception as e:
         logger.error(f"Error creating user: {e}")
         await update.message.reply_text(
-            f"❌ حدث خطأ: {str(e)}",
+            f"❌ Error: {str(e)}",
             reply_markup=ReplyKeyboardRemove()
         )
 
     return ConversationHandler.END
 
 
-async def create_account_directly(update: Update, user_data: dict):
+async def create_account_directly(update: Update, user_data: dict, lang: str = 'en'):
     """Create user directly in database (fallback)"""
     try:
         # Import here to avoid circular imports
@@ -433,12 +445,7 @@ async def create_account_directly(update: Update, user_data: dict):
             existing = User.query.filter_by(mobile=user_data['mobile']).first()
             if existing:
                 await update.message.reply_text(
-                    f"""
-⚠️ <b>رقم الهاتف مسجل مسبقاً!</b>
-
-يمكنك تسجيل الدخول مباشرة:
-{SYSTEM_URL}
-                    """,
+                    get_msg(lang, 'phone_exists', url=SYSTEM_URL),
                     parse_mode='HTML',
                     reply_markup=ReplyKeyboardRemove()
                 )
@@ -455,16 +462,7 @@ async def create_account_directly(update: Update, user_data: dict):
             db.session.commit()
 
             await update.message.reply_text(
-                f"""
-✅ <b>تم إنشاء حسابك بنجاح!</b>
-
-🔗 <b>رابط النظام:</b>
-{SYSTEM_URL}
-
-📱 استخدم رقم هاتفك للدخول: <code>{user_data['mobile']}</code>
-
-سيتم إرسال رمز التحقق (OTP) على التليجرام عند تسجيل الدخول.
-                """,
+                get_msg(lang, 'account_created', url=SYSTEM_URL, mobile=user_data['mobile']),
                 parse_mode='HTML',
                 reply_markup=ReplyKeyboardRemove()
             )
@@ -472,16 +470,17 @@ async def create_account_directly(update: Update, user_data: dict):
     except Exception as e:
         logger.error(f"Direct user creation failed: {e}")
         await update.message.reply_text(
-            f"❌ فشل إنشاء الحساب: {str(e)}",
+            f"❌ Error: {str(e)}",
             reply_markup=ReplyKeyboardRemove()
         )
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Cancel current operation"""
+    lang = context.user_data.get('lang', 'en')
     context.user_data.clear()
     await update.message.reply_text(
-        "❌ تم إلغاء العملية.",
+        get_msg(lang, 'cancelled'),
         reply_markup=ReplyKeyboardRemove()
     )
     return ConversationHandler.END
@@ -493,6 +492,7 @@ async def create_task_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start task creation process"""
     telegram_user = update.effective_user
     telegram_id = str(telegram_user.id)
+    lang = get_user_lang(telegram_id)
 
     # Check if user has an account
     try:
@@ -505,57 +505,46 @@ async def create_task_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user = User.query.filter_by(telegram_id=telegram_id).first()
             if not user:
                 await update.message.reply_text(
-                    """
-❌ <b>لم يتم العثور على حسابك!</b>
-
-يجب إنشاء حساب أولاً باستخدام /create_user
-                    """,
+                    get_msg(lang, 'no_account'),
                     parse_mode='HTML'
                 )
                 return ConversationHandler.END
 
+            # Update lang based on user preference
+            if user.language:
+                lang = user.language.iso_code if hasattr(user.language, 'iso_code') else str(user.language)
+
             # Store user info
             context.user_data['user_id'] = user.id
             context.user_data['user_name'] = user.name or user.mobile
+            context.user_data['lang'] = lang
 
     except Exception as e:
         logger.error(f"Error checking user: {e}")
-        await update.message.reply_text("❌ حدث خطأ في التحقق من الحساب")
+        await update.message.reply_text(get_msg(lang, 'error_checking_account'))
         return ConversationHandler.END
 
-    message = """
-📝 <b>إنشاء مهمة جديدة</b>
-
-<b>الخطوة 1/4:</b> أدخل اسم المهمة
-
-أرسل /cancel للإلغاء
-    """
-
-    await update.message.reply_text(message, parse_mode='HTML')
+    await update.message.reply_text(get_msg(lang, 'create_task_start'), parse_mode='HTML')
     return TASK_NAME
 
 
 async def get_task_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get task name"""
+    lang = context.user_data.get('lang', 'en')
     task_name = update.message.text.strip()
 
     if len(task_name) < 2:
-        await update.message.reply_text("❌ اسم المهمة قصير جداً. أدخل اسماً أطول:")
+        await update.message.reply_text(get_msg(lang, 'task_name_short'))
         return TASK_NAME
 
     context.user_data['task_name'] = task_name
-
-    message = """
-📋 <b>الخطوة 2/4:</b> أدخل وصف المهمة
-<i>(اختياري - أرسل "تخطي" للتخطي)</i>
-    """
-
-    await update.message.reply_text(message, parse_mode='HTML')
+    await update.message.reply_text(get_msg(lang, 'enter_task_desc'), parse_mode='HTML')
     return TASK_DESC
 
 
 async def get_task_desc(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get task description"""
+    lang = context.user_data.get('lang', 'en')
     desc_input = update.message.text.strip()
 
     if desc_input.lower() in ['تخطي', 'skip', '-']:
@@ -575,15 +564,11 @@ async def get_task_desc(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if not assistants:
                 # No assistants - skip to time
                 context.user_data['task_assistant_id'] = None
-                message = """
-⏰ <b>الخطوة 3/4:</b> أدخل وقت المهمة
-
-أدخل الوقت بصيغة: <code>YYYY-MM-DD HH:MM</code>
-مثال: <code>2026-01-12 14:30</code>
-
-أو أرسل "تخطي" لإنشاء مهمة بدون وقت محدد
-                """
-                await update.message.reply_text(message, parse_mode='HTML')
+                example_date = get_example_date()
+                await update.message.reply_text(
+                    get_msg(lang, 'enter_task_time', step=3, example_date=example_date),
+                    parse_mode='HTML'
+                )
                 return TASK_TIME
 
             # Build keyboard with assistants
@@ -593,29 +578,24 @@ async def get_task_desc(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 context.user_data['assistants'][str(assistant.id)] = assistant.name
                 keyboard.append([InlineKeyboardButton(assistant.name, callback_data=f"assistant_{assistant.id}")])
 
-            keyboard.append([InlineKeyboardButton("بدون مساعد ❌", callback_data="assistant_none")])
+            keyboard.append([InlineKeyboardButton(get_msg(lang, 'no_assistant'), callback_data="assistant_none")])
 
             reply_markup = InlineKeyboardMarkup(keyboard)
-
-            message = """
-🤖 <b>الخطوة 3/4:</b> اختر المساعد
-
-اختر المساعد المسؤول عن هذه المهمة:
-            """
-
-            await update.message.reply_text(message, parse_mode='HTML', reply_markup=reply_markup)
+            await update.message.reply_text(
+                get_msg(lang, 'select_assistant'),
+                parse_mode='HTML',
+                reply_markup=reply_markup
+            )
             return TASK_ASSISTANT
 
     except Exception as e:
         logger.error(f"Error getting assistants: {e}")
         context.user_data['task_assistant_id'] = None
-        message = """
-⏰ <b>الخطوة 3/4:</b> أدخل وقت المهمة
-
-أدخل الوقت بصيغة: <code>YYYY-MM-DD HH:MM</code>
-مثال: <code>2026-01-12 14:30</code>
-        """
-        await update.message.reply_text(message, parse_mode='HTML')
+        example_date = get_example_date()
+        await update.message.reply_text(
+            get_msg(lang, 'enter_task_time', step=3, example_date=example_date),
+            parse_mode='HTML'
+        )
         return TASK_TIME
 
 
@@ -624,34 +604,28 @@ async def select_assistant(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
+    lang = context.user_data.get('lang', 'en')
     data = query.data
 
     if data == "assistant_none":
         context.user_data['task_assistant_id'] = None
-        context.user_data['task_assistant_name'] = "بدون مساعد"
+        context.user_data['task_assistant_name'] = get_msg(lang, 'no_assistant')
     else:
         assistant_id = data.replace("assistant_", "")
         context.user_data['task_assistant_id'] = int(assistant_id)
-        context.user_data['task_assistant_name'] = context.user_data['assistants'].get(assistant_id, "مساعد")
+        context.user_data['task_assistant_name'] = context.user_data['assistants'].get(assistant_id, "Assistant")
 
-    message = """
-⏰ <b>الخطوة 4/4:</b> أدخل وقت المهمة
-
-أدخل الوقت بصيغة: <code>YYYY-MM-DD HH:MM</code>
-مثال: <code>2026-01-12 14:30</code>
-
-أو أرسل "تخطي" لإنشاء مهمة بدون وقت محدد
-    """
-
-    await query.edit_message_text(message, parse_mode='HTML')
+    example_date = get_example_date()
+    await query.edit_message_text(
+        get_msg(lang, 'enter_task_time', step=4, example_date=example_date),
+        parse_mode='HTML'
+    )
     return TASK_TIME
 
 
 async def get_task_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get task time"""
-    from datetime import datetime
-    import pytz
-
+    lang = context.user_data.get('lang', 'en')
     time_input = update.message.text.strip()
 
     if time_input.lower() in ['تخطي', 'skip', '-']:
@@ -667,13 +641,9 @@ async def get_task_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 except ValueError:
                     continue
             else:
+                example_date = get_example_date()
                 await update.message.reply_text(
-                    """❌ صيغة الوقت غير صحيحة.
-
-استخدم الصيغة: <code>YYYY-MM-DD HH:MM</code>
-مثال: <code>2026-01-12 14:30</code>
-
-أعد إدخال الوقت:""",
+                    get_msg(lang, 'invalid_time', example_date=example_date),
                     parse_mode='HTML'
                 )
                 return TASK_TIME
@@ -687,23 +657,20 @@ async def get_task_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         except Exception as e:
             logger.error(f"Error parsing time: {e}")
-            await update.message.reply_text("❌ خطأ في معالجة الوقت. أعد المحاولة:")
+            await update.message.reply_text(get_msg(lang, 'time_error'))
             return TASK_TIME
 
     # Show confirmation
     data = context.user_data
+    not_specified = get_msg(lang, 'not_specified')
+    no_assistant = get_msg(lang, 'no_assistant')
 
-    message = f"""
-✅ <b>تأكيد المهمة</b>
-
-📝 <b>الاسم:</b> {data['task_name']}
-📋 <b>الوصف:</b> {data.get('task_desc') or 'غير محدد'}
-🤖 <b>المساعد:</b> {data.get('task_assistant_name', 'بدون مساعد')}
-⏰ <b>الوقت:</b> {data.get('task_time_display') or 'غير محدد'}
-
-هل البيانات صحيحة؟
-أرسل <b>"نعم"</b> للتأكيد أو <b>"لا"</b> للإلغاء
-    """
+    message = get_msg(lang, 'confirm_task',
+        name=data['task_name'],
+        desc=data.get('task_desc') or not_specified,
+        assistant=data.get('task_assistant_name', no_assistant),
+        time=data.get('task_time_display') or not_specified
+    )
 
     await update.message.reply_text(message, parse_mode='HTML')
     return TASK_CONFIRM
@@ -711,11 +678,13 @@ async def get_task_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def confirm_task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Confirm and create task"""
-    response = update.message.text.strip().lower()
+    lang = context.user_data.get('lang', 'en')
+    yes_values = BOT_MESSAGES.get(lang, BOT_MESSAGES['en']).get('yes_values', ['yes', 'y', '1'])
+    response_text = update.message.text.strip().lower()
 
-    if response not in ['نعم', 'yes', 'y', '1']:
+    if response_text not in yes_values:
         await update.message.reply_text(
-            "❌ تم إلغاء إنشاء المهمة.",
+            get_msg(lang, 'task_creation_cancelled'),
             reply_markup=ReplyKeyboardRemove()
         )
         return ConversationHandler.END
@@ -742,13 +711,7 @@ async def confirm_task(update: Update, context: ContextTypes.DEFAULT_TYPE):
             task_link = f"{SYSTEM_URL}/tasks/{task_id}"
 
             await update.message.reply_text(
-                f"""
-✅ <b>تم إنشاء المهمة بنجاح!</b>
-
-📝 <b>{data['task_name']}</b>
-
-🔗 <a href="{task_link}">فتح المهمة في المتصفح</a>
-                """,
+                get_msg(lang, 'task_created', name=data['task_name'], link=task_link),
                 parse_mode='HTML',
                 reply_markup=ReplyKeyboardRemove()
             )
@@ -756,7 +719,7 @@ async def confirm_task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"Error creating task: {e}")
         await update.message.reply_text(
-            f"❌ حدث خطأ في إنشاء المهمة: {str(e)}",
+            get_msg(lang, 'task_error', error=str(e)),
             reply_markup=ReplyKeyboardRemove()
         )
 

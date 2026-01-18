@@ -173,9 +173,13 @@ class User(db.Model):
     avatar = db.Column(db.String(255))  # Profile picture filename
     telegram_id = db.Column(db.String(50), unique=True)
     email = db.Column(db.String(200))
+    whatsapp_number = db.Column(db.String(20))  # WhatsApp number for notifications
     timezone = db.Column(db.String(50), default='Africa/Cairo')
     language_id = db.Column(db.Integer, db.ForeignKey('languages.id'))
     browser_notify = db.Column(db.Boolean, default=True)
+    telegram_notify = db.Column(db.Boolean, default=True)  # Enable telegram notifications
+    email_notify = db.Column(db.Boolean, default=False)  # Enable email notifications
+    whatsapp_notify = db.Column(db.Boolean, default=False)  # Enable WhatsApp notifications
     is_admin = db.Column(db.Boolean, default=False)
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -198,10 +202,14 @@ class User(db.Model):
             'avatar': self.avatar,
             'telegram_id': self.telegram_id,
             'email': self.email,
+            'whatsapp_number': self.whatsapp_number,
             'timezone': self.timezone,
             'language_id': self.language_id,
             'language': self.language.to_dict() if self.language else None,
             'browser_notify': self.browser_notify,
+            'telegram_notify': self.telegram_notify,
+            'email_notify': self.email_notify,
+            'whatsapp_notify': self.whatsapp_notify,
             'is_admin': self.is_admin,
             'create_time': self.create_time.isoformat() if self.create_time else None
         }
@@ -597,6 +605,60 @@ class ScriptExecuteLog(db.Model):
             result['input'] = self.input
             result['output'] = self.output
         return result
+
+
+# ===== WAHA Session (WhatsApp) =====
+
+class WAHASession(db.Model):
+    """WAHA WhatsApp session configuration"""
+    __tablename__ = 'waha_sessions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    session_name = db.Column(db.String(100), nullable=False, unique=True)  # WAHA session name
+    api_url = db.Column(db.String(500), nullable=False)  # WAHA API URL (e.g., http://localhost:3000)
+    api_key = db.Column(db.String(255))  # Optional API key for authentication
+    is_default = db.Column(db.Boolean, default=False)  # Default session for notifications
+    is_active = db.Column(db.Boolean, default=True)
+    webhook_enabled = db.Column(db.Boolean, default=False)
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+    create_user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __repr__(self):
+        return f'<WAHASession {self.name}>'
+
+    def to_dict(self, include_api_key=False):
+        result = {
+            'id': self.id,
+            'name': self.name,
+            'session_name': self.session_name,
+            'api_url': self.api_url,
+            'is_default': self.is_default,
+            'is_active': self.is_active,
+            'webhook_enabled': self.webhook_enabled,
+            'create_time': self.create_time.isoformat() if self.create_time else None
+        }
+        if include_api_key:
+            result['api_key'] = self.api_key
+        return result
+
+    @staticmethod
+    def get_default():
+        """Get the default WAHA session"""
+        return WAHASession.query.filter_by(is_default=True, is_active=True).first()
+
+    @staticmethod
+    def set_default(session_id):
+        """Set a session as default (unset others)"""
+        # Unset all as default
+        WAHASession.query.update({WAHASession.is_default: False})
+        # Set the specified one as default
+        session = WAHASession.query.get(session_id)
+        if session:
+            session.is_default = True
+            db.session.commit()
+            return True
+        return False
 
 
 # ===== Notification Log =====

@@ -4,7 +4,7 @@ import os
 import uuid
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, current_app, send_from_directory
 from werkzeug.utils import secure_filename
-from models import db, User, SystemSetting, Language
+from models import db, User, SystemSetting, Language, WAHASession
 
 settings_bp = Blueprint('settings', __name__)
 
@@ -100,6 +100,8 @@ def update_user_profile():
         user.name = data['name']
     if 'email' in data:
         user.email = data['email']
+    if 'whatsapp_number' in data:
+        user.whatsapp_number = data['whatsapp_number'].strip() if data['whatsapp_number'] else None
     if 'language_id' in data:
         user.language_id = data['language_id']
         # Update session language
@@ -108,8 +110,24 @@ def update_user_profile():
             session['language'] = lang.iso_code
     if 'timezone' in data:
         user.timezone = data['timezone']
+
+    # Notification preferences
     if 'browser_notify' in data:
         user.browser_notify = bool(data['browser_notify'])
+    if 'telegram_notify' in data:
+        user.telegram_notify = bool(data['telegram_notify'])
+    if 'email_notify' in data:
+        user.email_notify = bool(data['email_notify'])
+    if 'whatsapp_notify' in data:
+        # Only allow WhatsApp notification if a default WAHA session exists
+        if data['whatsapp_notify']:
+            default_waha = WAHASession.get_default()
+            if default_waha:
+                user.whatsapp_notify = True
+            else:
+                user.whatsapp_notify = False
+        else:
+            user.whatsapp_notify = False
 
     db.session.commit()
 
@@ -356,6 +374,19 @@ def update_email_settings():
         SystemSetting.set('email_from_name', data['from_name'])
 
     return jsonify({'success': True})
+
+
+@settings_bp.route('/api/user/waha-available')
+def check_waha_available():
+    """Check if WhatsApp (WAHA) notifications are available"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    default_waha = WAHASession.get_default()
+    return jsonify({
+        'available': default_waha is not None,
+        'session_name': default_waha.name if default_waha else None
+    })
 
 
 @settings_bp.route('/api/system/email-test', methods=['POST'])
