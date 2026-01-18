@@ -112,13 +112,14 @@ class NotificationManager {
     // Show task reminder notification
     async showTaskReminder(task) {
         const title = '⏰ تذكير بمهمة';
+        const taskTitle = task.title || task.name || 'مهمة';
         const options = {
-            body: task.title + (task.description ? '\n' + task.description : ''),
+            body: taskTitle + (task.description ? '\n' + task.description : ''),
             tag: 'task-' + task.id,
             requireInteraction: true,
             data: {
                 taskId: task.id,
-                url: '/tasks'
+                url: '/tasks/' + task.id
             }
         };
 
@@ -143,6 +144,64 @@ class NotificationManager {
 
 // Create global instance
 const notificationManager = new NotificationManager();
+
+// Track notified tasks to avoid duplicates
+const notifiedTasks = new Set();
+
+// Poll server for pending notifications
+async function checkPendingNotifications() {
+    // Only check if notifications are enabled
+    const permission = await notificationManager.checkPermission();
+    if (permission !== 'granted') {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/notifications/check');
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const notifications = data.notifications || [];
+
+        for (const task of notifications) {
+            // Skip if already notified in this session
+            const taskKey = `task-${task.id}`;
+            if (notifiedTasks.has(taskKey)) {
+                continue;
+            }
+
+            // Show notification
+            await notificationManager.showTaskReminder(task);
+            notifiedTasks.add(taskKey);
+
+            console.log('🔔 Browser notification shown for task:', task.title);
+        }
+    } catch (error) {
+        // Silent fail - don't spam console
+    }
+}
+
+// Start polling for notifications (every 60 seconds)
+let notificationPollInterval = null;
+
+function startNotificationPolling() {
+    if (notificationPollInterval) return;
+
+    // Check immediately
+    checkPendingNotifications();
+
+    // Then check every 60 seconds
+    notificationPollInterval = setInterval(checkPendingNotifications, 60000);
+    console.log('🔄 Browser notification polling started');
+}
+
+function stopNotificationPolling() {
+    if (notificationPollInterval) {
+        clearInterval(notificationPollInterval);
+        notificationPollInterval = null;
+        console.log('⏹ Browser notification polling stopped');
+    }
+}
 
 // Update notification bell icon based on permission
 function updateNotificationBell(permission) {
@@ -172,6 +231,11 @@ async function requestNotificationPermission(event) {
         const permission = await notificationManager.requestPermission();
         updateNotificationBell(permission);
 
+        // Start polling if permission granted
+        if (permission === 'granted') {
+            startNotificationPolling();
+        }
+
         // Save to server if needed
         try {
             await fetch('/api/notifications/permission', {
@@ -195,8 +259,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Update bell icon
     updateNotificationBell(permission);
 
-    // Auto-register service worker if permission already granted
+    // Auto-register service worker and start polling if permission already granted
     if (permission === 'granted') {
         await notificationManager.registerServiceWorker();
+        startNotificationPolling();
+    }
+});
+
+// Handle visibility change - pause polling when tab is hidden
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        // Resume polling when tab becomes visible
+        if (Notification.permission === 'granted') {
+            startNotificationPolling();
+        }
+    } else {
+        // Pause polling when tab is hidden to save resources
+        stopNotificationPolling();
     }
 });
