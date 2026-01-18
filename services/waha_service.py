@@ -38,7 +38,7 @@ class WAHAService:
         try:
             headers = {}
             if session.api_key:
-                headers['Authorization'] = f'Bearer {session.api_key}'
+                headers['X-Api-Key'] = session.api_key
 
             response = requests.get(
                 f"{session.api_url}/api/sessions/{session.session_name}",
@@ -83,7 +83,7 @@ class WAHAService:
         try:
             headers = {'Content-Type': 'application/json'}
             if session.api_key:
-                headers['Authorization'] = f'Bearer {session.api_key}'
+                headers['X-Api-Key'] = session.api_key
 
             payload = {
                 'name': session.session_name,
@@ -128,7 +128,7 @@ class WAHAService:
         try:
             headers = {}
             if session.api_key:
-                headers['Authorization'] = f'Bearer {session.api_key}'
+                headers['X-Api-Key'] = session.api_key
 
             response = requests.get(
                 f"{session.api_url}/api/sessions/{session.session_name}/auth/qr",
@@ -183,13 +183,16 @@ class WAHAService:
         try:
             headers = {'Content-Type': 'application/json'}
             if session.api_key:
-                headers['Authorization'] = f'Bearer {session.api_key}'
+                # WAHA uses X-Api-Key header for authentication
+                headers['X-Api-Key'] = session.api_key
 
             payload = {
                 'chatId': chat_id,
                 'text': message,
                 'session': session.session_name
             }
+
+            logger.info(f"Sending WhatsApp message to {chat_id} via {session.api_url}")
 
             response = requests.post(
                 f"{session.api_url}/api/sendText",
@@ -321,7 +324,7 @@ class WAHAService:
         try:
             headers = {'Content-Type': 'application/json'}
             if session.api_key:
-                headers['Authorization'] = f'Bearer {session.api_key}'
+                headers['X-Api-Key'] = session.api_key
 
             response = requests.post(
                 f"{session.api_url}/api/sessions/{session.session_name}/stop",
@@ -352,7 +355,7 @@ class WAHAService:
         try:
             headers = {'Content-Type': 'application/json'}
             if session.api_key:
-                headers['Authorization'] = f'Bearer {session.api_key}'
+                headers['X-Api-Key'] = session.api_key
 
             response = requests.post(
                 f"{session.api_url}/api/sessions/{session.session_name}/logout",
