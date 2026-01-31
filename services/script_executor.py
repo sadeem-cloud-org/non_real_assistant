@@ -179,16 +179,134 @@ const inputData = {input_json};
             if client:
                 client.close()
 
+    def _execute_local(self, script_code, input_data, timeout, language='python'):
+        """Execute script locally (for scripts without SSH server)"""
+        import subprocess
+        import tempfile
+
+        try:
+            input_json = json.dumps(input_data, ensure_ascii=False)
+
+            if language == 'python':
+                # Create temporary Python file
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as f:
+                    f.write(f'''
+import sys
+import json
+
+input_data = {repr(input_data)}
+
+{script_code}
+''')
+                    temp_file = f.name
+
+                try:
+                    result = subprocess.run(
+                        ['python3', temp_file],
+                        capture_output=True,
+                        text=True,
+                        timeout=timeout
+                    )
+                finally:
+                    os.unlink(temp_file)
+
+            elif language == 'bash':
+                result = subprocess.run(
+                    ['bash', '-c', script_code],
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout,
+                    env={**os.environ, 'INPUT_DATA': input_json}
+                )
+
+            elif language == 'javascript':
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.js', delete=False, encoding='utf-8') as f:
+                    f.write(f'''
+const inputData = {input_json};
+
+{script_code}
+''')
+                    temp_file = f.name
+
+                try:
+                    result = subprocess.run(
+                        ['node', temp_file],
+                        capture_output=True,
+                        text=True,
+                        timeout=timeout
+                    )
+                finally:
+                    os.unlink(temp_file)
+
+            else:
+                return {
+                    "success": False,
+                    "output": f"Unsupported language: {language}",
+                    "state": "failed",
+                    "result": f"Unsupported language: {language}"
+                }
+
+            stdout_text = result.stdout
+            stderr_text = result.stderr
+
+            # Truncate if too large
+            if len(stdout_text) > self.MAX_OUTPUT_SIZE:
+                stdout_text = stdout_text[:self.MAX_OUTPUT_SIZE] + '\n... (output truncated)'
+
+            # Try to parse JSON output
+            try:
+                output_data = json.loads(stdout_text)
+                state = output_data.get('state', 'success' if result.returncode == 0 else 'failed')
+                result_msg = output_data.get('result', stdout_text)
+                return {
+                    "success": state == 'success',
+                    "output": stdout_text,
+                    "state": state,
+                    "result": result_msg,
+                    "data": output_data.get('data')
+                }
+            except json.JSONDecodeError:
+                # Raw output - not JSON format
+                if result.returncode == 0:
+                    return {
+                        "success": True,
+                        "output": stdout_text,
+                        "state": "success",
+                        "result": stdout_text or "Script executed successfully"
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "output": stderr_text or stdout_text,
+                        "state": "failed",
+                        "result": stderr_text or stdout_text or "Script execution failed"
+                    }
+
+        except subprocess.TimeoutExpired:
+            return {
+                "success": False,
+                "output": f"Script timed out after {timeout} seconds",
+                "state": "failed",
+                "result": f"Script timed out after {timeout} seconds"
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "output": f"Local execution error: {str(e)}",
+                "state": "failed",
+                "result": f"Local execution error: {str(e)}"
+            }
+
     def execute(self, script_code, input_data=None, timeout=None, language='python', ssh_server=None):
         """
-        Execute a script on remote server via SSH
+        Execute a script (remotely via SSH or locally)
 
         Args:
             script_code: Script code to execute
             input_data: Input data (dict)
             timeout: Timeout in seconds (max 300)
             language: Script language (python, javascript, bash)
-            ssh_server: SSHServer object for remote execution
+            ssh_server: SSHServer object for remote execution (None = local execution)
 
         Returns:
             dict: Execution result with success, output, state, result
@@ -196,24 +314,24 @@ const inputData = {input_json};
         start_time = datetime.utcnow()
         timeout = min(timeout or self.DEFAULT_TIMEOUT, 300)  # Max 5 minutes
 
-        if not ssh_server:
-            return {
-                'success': False,
-                'output': 'No SSH server configured for this script',
-                'state': 'failed',
-                'result': 'No SSH server configured',
-                'start_time': start_time,
-                'end_time': datetime.utcnow()
-            }
-
         try:
-            result = self._execute_remote(
-                ssh_server,
-                script_code,
-                input_data or {},
-                timeout,
-                language
-            )
+            if ssh_server:
+                # Execute on remote server via SSH
+                result = self._execute_remote(
+                    ssh_server,
+                    script_code,
+                    input_data or {},
+                    timeout,
+                    language
+                )
+            else:
+                # Execute locally
+                result = self._execute_local(
+                    script_code,
+                    input_data or {},
+                    timeout,
+                    language
+                )
 
             result['start_time'] = start_time
             result['end_time'] = datetime.utcnow()
@@ -251,15 +369,7 @@ const inputData = {input_json};
                 "result": "Script not found"
             }
 
-        if not script.ssh_server:
-            return {
-                "success": False,
-                "message": "No SSH server configured for this script",
-                "state": "failed",
-                "result": "No SSH server configured"
-            }
-
-        # Create execution log
+        # Create execution log (SSH server is optional - will run locally if not configured)
         log = ScriptExecuteLog(
             script_id=script_id,
             input=json.dumps(input_data) if input_data else None,
