@@ -369,8 +369,12 @@ class TaskScheduler:
 
             for script in scripts:
                 try:
-                    # Execute script
-                    result = self.script_executor.execute(script.code)
+                    # Execute script (with SSH server if configured)
+                    result = self.script_executor.execute(
+                        script.code,
+                        language=script.language or 'python',
+                        ssh_server=script.ssh_server
+                    )
 
                     # Log execution
                     log = ScriptExecuteLog(
